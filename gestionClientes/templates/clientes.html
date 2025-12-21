@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Cliente{% endblock %}
+{% block content %}
+<h2>Clientes</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Codigo Cliente</th>
+            <th>Nombre Cliente</th>
+            <th>Estado</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in registros %}
+        <tr>
+            <td>{{ b.codigo_cliente }}</td>
+            <td>{{ b.nombre_cliente }}</td>
+            <td>{% if b.estado_cliente %}
+                ACTIVO
+                {% else %}
+                INACTIVO
+                {% endif %}
+            </td>
+            <td>
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-codigo="{{ b.codigo_cliente }}"
+                    data-nombre="{{ b.nombre_cliente }}" 
+                    data-estado="{{ b.estado_cliente }}">
+                    ✏️ Editar
+                </button>
+            </td>
+            <td>
+                <form method="post" action="{% url 'cliente_eliminar' b.pk %}"
+                    onsubmit="return confirm('¿Eliminar este cliente?');">
+                    {% csrf_token %}
+                    <button type="submit">🗑 Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<h2>Nuevo cliente</h2>
+<form id="cliente-form" method="POST">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                {% csrf_token %}
+                <div class="form-group2">
+                {{ form.codigo_cliente.label_tag }} <!-- label arriba -->
+                {{ form.codigo_cliente }}
+                {% if form.codigo_cliente.errors %}
+                <div class="error">{{ form.codigo_cliente.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.nombre_cliente.label_tag }}
+                {{ form.nombre_cliente }}
+                {% if form.nombre_cliente.errors %}
+                <div class="error">{{ form.nombre_cliente.errors }}</div>
+                {% endif %}
+                </div>
+                <br>
+                <label for="Estado">Estado Cliente</label>
+                <label class="switch">
+                    {{ form.estado_cliente }}
+                    <span class="slider"></span>
+                </label>
+                <br>
+                <br>
+                <button type="submit" name="accion" value="guardar">Guardar</button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pk = btn.dataset.pk;
+            const codigo = btn.dataset.codigo;
+            const nombre = btn.dataset.nombre;
+            const estado = btn.dataset.estado === "True";;
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('cliente-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+            inputPk.value = pk;
+
+            // Llenar los campos
+            form.querySelector('[name="codigo_cliente"]').value = codigo;
+            form.querySelector('[name="nombre_cliente"]').value = nombre;
+            form.querySelector('[name="estado_cliente"]').checked = estado;
+        });
+    });
+</script>
+{% endblock %}

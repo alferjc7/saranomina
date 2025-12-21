@@ -1,0 +1,15 @@
+<html>
+<head>
+</head>
+<body>
+<h3>Estabas buscando el tipo {{query}}</h3>
+<h3>El resultado de la busqueda fueron los siguientes resultados  : </h3>
+    <ul>
+        {% for tipos in tipo %}
+        <li>
+            {{tipos}}
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

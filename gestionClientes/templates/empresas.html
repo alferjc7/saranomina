@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Empresas{% endblock %}
+{% block content %}
+<h2>Empresas</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Codigo Cliente</th>
+            <th>Codigo Empresa</th>
+            <th>Nit Empresa</th>
+            <th>Razon social</th>
+            <th>Direccion</th>
+            <th>Telefono</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in registros %}
+        <tr>
+            <td>{{ b.codigo_cliente }}</td>
+            <td>{{ b.codigo_empresa }}</td>
+            <td>{{ b.nit_empresa }}</td>
+            <td>{{ b.razon_social }}</td>
+            <td>{{ b.direccion }}</td>
+            <td>{{ b.telefono }}</td>
+            <td>
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" 
+                    data-codigo="{{ b.codigo_cliente.id }}"
+                    data-codigoe="{{ b.codigo_empresa }}" 
+                    data-nit="{{ b.nit_empresa }}"
+                    data-razon="{{ b.razon_social }}"
+                    data-direccion="{{ b.direccion }}"
+                    data-telefono="{{ b.telefono }}">
+                    ✏️ Editar
+                </button></td>
+            <td>
+                <form method="post" action="{% url 'empresa_eliminar' b.pk %}"
+                    onsubmit="return confirm('¿Eliminar esta empresa?');">
+                    {% csrf_token %}
+                    <button type="submit">🗑 Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Nuevo cliente</h2>
+<form id="empresa-form" method="POST">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                {% csrf_token %}
+                <div class="form-group2">
+                {{form.codigo_cliente.label_tag }} <!-- label arriba -->
+                {{form.codigo_cliente}}
+                {% if form.codigo_cliente.errors %}
+                <div class="error">{{ form.codigo_cliente.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{form.codigo_empresa.label_tag }} <!-- label arriba -->
+                {{form.codigo_empresa}}
+                {% if form.codigo_empresa.errors %}
+                <div class="error">{{ form.codigo_empresa.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{form.nit_empresa.label_tag }} <!-- label arriba -->
+                {{form.nit_empresa}}
+                {% if form.nit_empresa.errors %}
+                <div class="error">{{ form.nit_empresa.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{form.razon_social.label_tag }} <!-- label arriba -->
+                {{form.razon_social}}
+                {% if form.razon_social.errors %}
+                <div class="error">{{ form.razon_social.errors }}</div>
+                {% endif %}
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                {{form.direccion.label_tag }} <!-- label arriba -->
+                {{form.direccion}}
+                {% if form.direccion.errors %}
+                <div class="error">{{ form.direccion.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{form.telefono.label_tag }} <!-- label arriba -->
+                {{form.telefono}}
+                {% if form.telefono.errors %}
+                <div class="error">{{ form.telefono.errors }}</div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+     <br>
+     <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>           
+{% endblock %}
+{% block scripts %}
+<script>
+
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pk = btn.dataset.pk;
+            const codigo = btn.dataset.codigo;
+            const codigoe = btn.dataset.codigoe;
+            const nit = btn.dataset.nit;
+            const razon = btn.dataset.razon;
+            const direccion = btn.dataset.direccion;
+            const telefono = btn.dataset.telefono;
+            
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('empresa-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+            inputPk.value = pk;
+
+            // Llenar los campos
+            form.querySelector('[name="codigo_cliente"]').value = codigo;
+            form.querySelector('[name="codigo_empresa"]').value = codigoe;
+            form.querySelector('[name="nit_empresa"]').value = nit;
+            form.querySelector('[name="razon_social"]').value= razon;
+            form.querySelector('[name="direccion"]').value = direccion;
+            form.querySelector('[name="telefono"]').value = telefono;
+            
+        });
+    });
+</script>
+{% endblock %}

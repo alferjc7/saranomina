@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Identificaciones{% endblock %}
+
+{% block content %}
+
+    <h2>Identificaciones</h2>
+    <table>
+            <thead>
+                <tr>
+                    <th>Tipo 
+                        Identificacion</th>
+                    <th>Numero
+                        Documento</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Fecha
+                        Nacimiento</th>
+                    <th>Fecha exp. 
+                        Documento</th>
+                    <th>Celular</th>
+                    <th>Correo 
+                        Personal</th>          
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for listado in registros%}
+                <tr>
+                    <td>{{ listado.tipo_ide }}</td>
+                    <td>{{ listado.identificacion }}</td>
+                    <td>{{ listado.nombre }}</td>
+                    <td>{{ listado.apellido }}</td>
+                    <td>{{ listado.fecha_nacimiento }}</td>
+                    <td>{{ listado.fecha_exp_doc}}</td>
+                    <td>{{ listado.celular}}</td>
+                    <td>{{ listado.correo_personal}}</td>
+
+                    <td style="text-align: center;">
+                            <form method="POST">
+                             {% csrf_token %}        
+                            <input type="hidden" name="edit_id" value="{{ listado.id }}">
+                             <button type="submit" name="accion" value="editar" formnovalidate >Editar
+                            </button>
+                            </form>
+                    </td>
+                    <td style="text-align: center;">
+                            <form method="POST">
+                             {% csrf_token %} 
+                            <input type="hidden" name="elim_id" value="{{ listado.id }}">
+                            <button type="submit" name="accion" value="eliminar">Eliminar</button>
+                            </form>
+                    </td>
+                </tr>
+            {% empty %}
+        <tr>
+            <td colspan="3">No hay registros</td>
+        </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    
+
+
+
+ 
+    <h2>Nueva Identificación</h2>
+
+    
+    <form method="POST">
+    {% csrf_token %}
+    {% if form.instance.pk %}
+    <input type="hidden" name="edit_id" value="{{ form.instance.pk }}">
+    <input type="hidden" name="elim_id" value="{{ form.instance.pk }}">
+    {% endif %}
+    <div class="tabs-card">
+    <div class="tabs-header">
+        <button type="button" class="tab-btn active" data-tab="tab1">Datos personales</button>
+        <button type="button" class="tab-btn" data-tab="tab2">Contacto</button>
+    </div>
+
+
+    <div class="tabs-content">
+        <div id="tab1" class="tab-pane active">
+            <strong><p>Contenido de datos personales</p></strong>
+            <br>
+            
+        <div class="form-grid-2">
+            <div>
+            <div class="form-group2" >
+            {{ form.tipo_ide.label_tag }}  <!-- label arriba -->
+            {{ form.tipo_ide }}           <!-- input debajo -->
+            {% if form.tipo_ide.errors %}
+                <div class="error">{{ form.tipo_ide.errors }}</div>
+            {% endif %}
+            </div>
+            <div class="form-group2">
+            {{ form.identificacion.label_tag }}  <!-- label arriba -->
+            {{ form.identificacion }}           <!-- input debajo -->
+            {% if form.identificacion.errors %}
+                <div class="error">{{ form.identificacion.errors }}</div>
+            {% endif %}
+            </div>
+            <div class="form-group2">
+            {{ form.nombre.label_tag }}  <!-- label arriba -->
+            {{ form.nombre }}           <!-- input debajo -->
+            {% if form.nombre.errors %}
+                <div class="error">{{ form.nombre.errors }}</div>
+            {% endif %}
+            </div>
+            <div class="form-group2" >
+            {{ form.segundo_nombre.label_tag }}  <!-- label arriba -->
+            {{ form.segundo_nombre }}           <!-- input debajo -->
+            {% if form.segundo_nombre.errors %}
+                <div class="error">{{ form.segundo_nombre.errors }}</div>
+            {% endif %}
+            </div>
+
+            </div>
+            <div>
+            <div class="form-group2">
+            {{ form.apellido.label_tag }}  <!-- label arriba -->
+            {{ form.apellido }}           <!-- input debajo -->
+            {% if form.apellido.errors %}
+                <div class="error">{{ form.apellido.errors }}</div>
+            {% endif %}
+            </div>
+            <div class="form-group2">
+            {{ form.segundo_apellido.label_tag }}  <!-- label arriba -->
+            {{ form.segundo_apellido }}           <!-- input debajo -->
+            {% if form.segundo_apellido.errors %}
+                <div class="error">{{ form.segundo_apellido.errors }}</div>
+            {% endif %}
+            </div>
+            <div class="form-group2" >
+            {{ form.fecha_nacimiento.label_tag }}  <!-- label arriba -->
+            {{ form.fecha_nacimiento }}           <!-- input debajo -->
+            {% if form.fecha_nacimiento.errors %}
+                <div class="error">{{ form.fecha_nacimiento.errors }}</div>
+            {% endif %}
+            </div>
+            <div class="form-group2">
+            {{ form.fecha_exp_doc.label_tag }}  <!-- label arriba -->
+            {{ form.fecha_exp_doc }}           <!-- input debajo -->
+            {% if form.fecha_exp_doc.errors %}
+                <div class="error">{{ form.fecha_exp_doc.errors }}</div>
+            {% endif %}
+            </div>
+
+            </div>
+            <div>
+            <div class="form-group2">
+            {{ form.estado_civil.label_tag }}  <!-- label arriba -->
+            {{ form.estado_civil }}           <!-- input debajo -->
+            {% if form.estado_civil.errors %}
+                <div class="error">{{ form.estado_civil.errors }}</div>
+            {% endif %}
+            </div>
+            <div class="form-group2">
+            {{ form.genero.label_tag }}  <!-- label arriba -->
+            {{ form.genero }}           <!-- input debajo -->
+            {% if form.genero.errors %}
+                <div class="error">{{ form.genero.errors }}</div>
+            {% endif %}
+            </div>            
+            </div>
+        </div>    
+        </div>
+        <div id="tab2" class="tab-pane">
+            <strong><p>Contenido de contacto</p></strong>
+            <br>
+            <div class="form-grid-2">
+            
+            <div>
+            <div class="form-group2">
+            {{ form.telefono.label_tag }}  <!-- label arriba -->
+            {{ form.telefono }}           <!-- input debajo -->
+            {% if form.telefono.errors %}
+                <div class="error">{{ form.telefono.errors }}</div>
+            {% endif %}
+            </div>
+            <div class="form-group2">
+            {{ form.celular.label_tag }}  <!-- label arriba -->
+            {{ form.celular }}           <!-- input debajo -->
+            {% if form.celular.errors %}
+                <div class="error">{{ form.celular.errors }}</div>
+            {% endif %}
+            </div>
+            
+            <div class="form-group2">
+            {{ form.direccion.label_tag }}  <!-- label arriba -->
+            {{ form.direccion }}           <!-- input debajo -->
+            {% if form.direccion.errors %}
+                <div class="error">{{ form.direccion.errors }}</div>
+            {% endif %}
+            </div>
+            
+            </div>
+            
+            <div>
+
+            <div class="form-group2">
+            {{ form.correo_personal.label_tag }}  <!-- label arriba -->
+            {{ form.correo_personal }}           <!-- input debajo -->
+            {% if form.correo_personal.errors %}
+                <div class="error">{{ form.correo_personal.errors }}</div>
+            {% endif %}
+            </div>
+            
+            <div class="form-group2">
+            {{ form.correo_coorporativo.label_tag }}  <!-- label arriba -->
+            {{ form.correo_coorporativo }}           <!-- input debajo -->
+            {% if form.correo_coorporativo.errors %}
+                <div class="error">{{ form.correo_coorporativo.errors }}</div>
+            {% endif %}
+            </div>
+
+            </div>
+            <div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+    <br>
+    <button style="width:3cm;" type="submit" name="accion" value="guardar">Guardar</button>
+    </form>
+
+{% endblock %}

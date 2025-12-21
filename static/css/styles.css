@@ -1,0 +1,415 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+:root {
+    --font-main: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+    --font-size-base: 14px;
+    --line-height-base: 1.5;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-main);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    color: #2c3e50;
+    background: url('/static/img/Fondo.png') no-repeat center center/cover;
+}
+
+/* TOP BAR */
+.topbar {
+    height: 55px;
+    background: #ffffff;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+}
+
+.topbar .logo {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.topbar .menu {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+}
+
+/* LAYOUT */
+.layout {
+    display: flex;
+    height: calc(100vh - 55px);
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 220px;
+    background: #2c3e50;
+    padding: 20px;
+    overflow-y: auto; /* 🔑 CAMBIO CLAVE */
+    position: relative;
+    z-index: 10;
+}
+
+.sidebar a,
+.menu-toggle {
+    display: block;
+    width: 100%;
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    font-size: 14px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+.sidebar a:hover,
+.menu-toggle:hover {
+    background: #34495e;
+}
+
+/* MENU GROUP */
+.menu-group {
+    position: relative;
+}
+
+/* SUBMENU */
+.submenu {
+    display: none;
+    margin-left: 10px;
+    position: relative;
+    z-index: 20;
+}
+
+.submenu a {
+    font-size: 13px;
+    background: #34495e;
+}
+
+/* FLECHA */
+.arrow {
+    float: right;
+    transition: transform 0.3s ease;
+}
+
+/* ACTIVO */
+.menu-group.active .submenu {
+    display: block;
+}
+
+.menu-group.active .arrow {
+    transform: rotate(90deg);
+}
+
+/* CONTENT */
+.content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ALERTAS */
+.alert {
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.alert-success { background: #2ecc71; }
+.alert-error { background: #e74c3c; }
+.alert-warning { background: #f39c12; }
+.alert-info { background: #3498db; }
+
+/* CARD */
+.card {
+    background:transparent #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+    flex: 1;
+    overflow-x: auto;
+}
+
+/* FORMULARIOS */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 30%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-group2 input,
+.form-group2 select,
+.form-group2 textarea {
+    width: 90% !important;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background: #2980b9;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1f6391;
+}
+
+/* TABLAS */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+th,
+td {
+    padding: 5px 6px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+th {
+    background: #ecf0f1;
+}
+
+/* SWITCH */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2980b9;
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+/* INPUTS */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+    text-transform: uppercase;
+}
+
+/* GRID */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* SELECT */
+.form-groupselect {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.form-groupselect label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+/* LINK ACTIVO */
+.active-link {
+    background:  #2980b9 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* MENU ACTIVO */
+.menu-group.active > .menu-toggle {
+    background: #2980b9;
+}
+
+.tabs {
+    display: flex;
+    flex-direction: column;
+}
+
+.tabs-header {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    background: #ecf0f1;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #2c3e50;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    background: #dfe6e9;
+}
+
+.tab-btn.active {
+    background: #ffffff;
+    border-bottom: 3px solid #2980b9;
+    color: #2980b9;
+    font-weight: 600;
+}
+
+/* CONTENIDO */
+.tab-content {
+    padding: 15px 0;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* Login Page Específico */
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url('/static/img/Fondo.png') no-repeat center center/cover;
+    font-family: var(--font-main);
+}
+
+.login-container {
+    background-color: rgba(255, 255, 255, 0.85); /* semitransparente */
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 350px;
+}
+
+.login-logo {
+    max-width: 150px;
+    margin-bottom: 30px;
+}
+
+.login-form-group {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.login-form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login-btn:hover {
+    background-color: #1f6391;
+}

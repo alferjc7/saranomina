@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Beneficiarios{% endblock %}
+
+{% block content %}
+<form method="get">
+    <h2>Titular</h2>
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="identificacion" placeholder="Buscar por identificación"
+                        value="{{ request.GET.identificacion }}" required autofocus>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="nombre" placeholder="Nombre titular" value="{{ nombre }}" disabled="True">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<h2>Beneficiarios</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Tipo identificacion</th>
+            <th>Identificacion</th>
+            <th>Nombre</th>
+            <th>Fecha Nac.</th>
+            <th>Parentesco</th>
+            <th>Exogena</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in beneficiarios %}
+        <tr>
+            <td>{{ b.tipo_ide_ben }}</td>
+            <td>{{ b.iden_beneficiario }}</td>
+            <td>{{ b.nombre_completo }}</td>
+            <td>{{ b.fecha_nacimiento }}</td>
+            <td>{% if b.parentesco == 1 %}
+                MADRE
+                {% elif b.parentesco == 2 %}
+                PADRE
+                {% elif b.parentesco == 3 %}
+                HIJO
+                {% elif b.parentesco == 4 %}
+                CONYUGE
+                {% endif %}
+            </td>
+            <td> {% if b.exogena %} SI
+                {% else %}
+                NO {% endif %}</td>
+            <td>
+
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-tipo="{{ b.tipo_ide_ben.id }}"
+                    data-iden="{{ b.iden_beneficiario }}" data-nombre="{{ b.nombre_completo }}"
+                    data-fecha="{{ b.fecha_nacimiento|date:'Y-m-d'}}" data-parentesco="{{ b.parentesco }}"
+                    data-exogena="{{ b.exogena }}">
+                    ✏️ Editar
+                </button>
+            </td>
+
+            <td>
+                <form method="post" action="{% url 'beneficiario_eliminar' b.pk %}"
+                    onsubmit="return confirm('¿Eliminar este beneficiario?');">
+                    {% csrf_token %}
+                    <button type="submit">🗑 Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<h2>Crear beneficiario</h2>
+
+<form id="beneficiario-form" method="post">
+    {% csrf_token %}
+    {{ form.iden_titular }}
+    <div class="card">
+
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    {{ form.tipo_ide_ben.label_tag }} <!-- label arriba -->
+                    {{ form.tipo_ide_ben }}
+                    {% if form.tipo_ide_ben.errors %}
+                    <div class="error">{{ form.tipo_ide_ben.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.iden_beneficiario.label_tag }} <!-- label arriba -->
+                    {{ form.iden_beneficiario }}
+                    {% if form.iden_beneficiario.errors %}
+                    <div class="error">{{ form.iden_beneficiario.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.nombre_completo.label_tag }} <!-- label arriba -->
+                    {{ form.nombre_completo }}
+                    {% if form.nombre_completo.errors %}
+                    <div class="error">{{ form.nombre_completo.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.fecha_nacimiento.label_tag }} <!-- label arriba -->
+                    {{ form.fecha_nacimiento }}
+                    {% if form.fecha_nacimiento.errors %}
+                    <div class="error">{{ form.fecha_nacimiento.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    {{ form.parentesco.label_tag }} <!-- label arriba -->
+                    {{ form.parentesco }}
+                    {% if form.parentesco.errors %}
+                    <div class="error">{{ form.parentesco.errors }}</div>
+                    {% endif %}
+                </div>
+                <br>
+                <label for="Exogena">Exogena</label>
+                <label class="switch">
+                    {{ form.exogena }}
+                    <span class="slider"></span>
+                </label>
+
+            </div>
+        </div>
+    </div>
+    <br>
+    <button type="submit">💾Guardar</button>
+</form>
+
+
+{% endblock %}
+{% block scripts %}
+<script>
+
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pk = btn.dataset.pk;
+            const tipo = btn.dataset.tipo;
+            const iden = btn.dataset.iden;
+            const nombre = btn.dataset.nombre;
+            const fecha = btn.dataset.fecha;
+            const parentesco = btn.dataset.parentesco;
+            const exogena = btn.dataset.exogena === "True";
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('beneficiario-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+            inputPk.value = pk;
+
+            // Llenar los campos
+            form.querySelector('[name="tipo_ide_ben"]').value = tipo;
+            form.querySelector('[name="iden_beneficiario"]').value = iden;
+            form.querySelector('[name="nombre_completo"]').value = nombre;
+            form.querySelector('[name="fecha_nacimiento"]').value = fecha;
+            form.querySelector('[name="parentesco"]').value = parentesco;
+            form.querySelector('[name="exogena"]').checked = exogena;
+        });
+    });
+</script>
+{% endblock %}

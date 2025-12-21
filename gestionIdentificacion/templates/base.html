@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Mi Sistema{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block styles %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="logo"><img src="{% static 'img/Logo.png' %}" alt="Sara Nómina" height="120"></div>
+        <div class="menu">
+            <span>Mensajes</span>
+            <span>{% if request.user.is_authenticated %}
+            {{ request.user.username }}
+            {% else %}
+            Perfil
+            {% endif %}
+            </span>
+            <span><a href="{% url 'logout' %}">Salir</a></span>
+        </div>
+    </div>
+
+    <!-- LAYOUT -->
+    <div class="layout">
+
+        <div class="sidebar">
+
+            <a href="/inicio">Inicio</a>
+
+            {% with request.path as current %}
+            <div class="menu-group
+        {% if '/tipos_ide/' in current or '/identificaciones/' in current or '/beneficiarios/' in current %}
+            active
+        {% endif %}
+    ">
+
+                <button class="menu-toggle">
+                    Gestión de información
+                    <span class="arrow">▶</span>
+                </button>
+
+                <div class="submenu">
+
+                    <a href="/tipos_ide/" class="{% if '/tipos_ide/' in current %}active-link{% endif %}">
+                        Tipos de Identificación
+                    </a>
+
+                    <a href="/identificaciones/" class="{% if '/identificaciones/' in current %}active-link{% endif %}">
+                        Identificaciones
+                    </a>
+
+                    <a href="/beneficiarios/" class="{% if '/beneficiarios/' in current %}active-link{% endif %}">
+                        Beneficiarios
+                    </a>
+
+                </div>
+            </div>
+            {% endwith %}
+
+            {% with request.path as current %}
+            <div class="menu-group
+        {% if '/parametros/' in current or '/tipos_contratos/' in current %}
+            active
+        {% endif %}
+    ">
+
+                <button class="menu-toggle">
+                    Parametros
+                <span class="arrow">▶</span>
+                </button>
+                <div class="submenu">
+                    <a href="/parametros/tipos_contratos" class="{% if '/parametros/tipos_contratos/' in current %}active-link{% endif %}">
+                        Tipos contratos
+                    </a>                    
+                </div>
+            </div>
+            {% endwith %}
+        
+            {% with request.path as current %}
+            <div class="menu-group
+        {% if '/clientes/' in current or '/empresas/' in current %}
+            active
+        {% endif %}
+    ">
+
+                <button class="menu-toggle">
+                    Gestión de clientes
+                    <span class="arrow">▶</span>
+                </button>
+
+                <div class="submenu">
+
+                    <a href="/gestionclientes/clientes" class="{% if '/gestionclientes/clientes/' in current %}active-link{% endif %}">
+                        Clientes
+                    </a>
+                    
+                    <a href="/gestionclientes/empresas" class="{% if '/gestionclientes/empresas/' in current %}active-link{% endif %}">
+                        Empresas
+                    </a>
+
+
+                </div>
+            </div>
+            {% endwith %}
+
+
+
+            <a href="#">Usuarios</a>
+            <a href="#">Reportes</a>
+        </div>
+        <!-- CONTENT -->
+        <div class="content">
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.level_tag }}">
+                {{ message }}
+            </div>
+
+            {% endfor %}
+            {% endif %}
+            {% block content %}
+
+            {% endblock %}
+
+        </div>
+    </div>
+
+    <script>
+        setTimeout(() => {
+            const msg = document.getElementById("msg");
+            if (msg) msg.remove();
+        }, 3000);
+    </script>
+    <script>
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // botones
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // contenido
+                document.querySelectorAll('.tab-pane').forEach(tab => tab.classList.remove('active'));
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+    </script>
+    <script>
+        document.querySelectorAll('.menu-toggle').forEach(button => {
+            button.addEventListener('click', () => {
+                const group = button.parentElement;
+                group.classList.toggle('active');
+            });
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+
+</body>
+
+</html>

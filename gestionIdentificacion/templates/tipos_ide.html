@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Tipos de Identificación{% endblock %}
+
+{% block content %}
+    <h2>Tipos de Identificación</h2>
+    <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for listado in registros%}
+                <tr>
+                    <td>{{ listado.cod_ide }}</td>
+                    <td>{{ listado.desc_ide }}</td>
+                    <td>
+                        {% if listado.estado_ide %}
+                            Activo
+                        {% else %}
+                            Inactivo
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;"><form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="edit_id" value="{{ listado.id }}">
+                            <button type="submit" name="accion" value="editar">Editar</button>
+                    </form></td>
+                    <td style="text-align: center;"><form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="elim_id" value="{{ listado.id }}">
+                            <button type="submit" name="accion" value="eliminar">Eliminar</button>
+                    </form></td>
+                </tr>
+            {% empty %}
+        <tr>
+            <td colspan="3">No hay registros</td>
+        </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <form method="POST">
+            <h3>Nuevo tipo de identificacion</h3>
+            <br>
+            {% csrf_token %}
+            {% if form.instance.pk %}
+                <input type="hidden" name="edit_id" value="{{ form.instance.pk }}">
+            {% endif %}
+            <div class="card">
+            
+            
+            <div class="form-group">
+            {{ form.cod_ide.label_tag }}  <!-- label arriba -->
+            {{ form.cod_ide }}           <!-- input debajo -->
+            {% if form.cod_ide.errors %}
+                <div class="error">{{ form.cod_ide.errors }}</div>
+            {% endif %}
+            </div>
+            <div class="form-group">
+            {{ form.desc_ide.label_tag }}  <!-- label arriba -->
+            {{ form.desc_ide }}           <!-- input debajo -->
+            {% if form.desc_ide.errors %}
+                <div class="error">{{ form.desc_ide.errors }}</div>
+            {% endif %}
+            </div>
+
+            <label for="estado">Estado</label>
+            <label class="switch">
+             {{ form.estado_ide }}
+            <span class="slider"></span>
+            </label>
+            
+            </div>
+            <button type="submit" name="accion" value="guardar">Guardar</button>
+        </form>
+{% endblock %}
