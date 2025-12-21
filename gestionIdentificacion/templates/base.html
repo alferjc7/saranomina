@@ -17,10 +17,10 @@
         <div class="menu">
             <span>Mensajes</span>
             <span>{% if request.user.is_authenticated %}
-            {{ request.user.username }}
-            {% else %}
-            Perfil
-            {% endif %}
+                {{ request.user.username }}
+                {% else %}
+                Perfil
+                {% endif %}
             </span>
             <span><a href="{% url 'logout' %}">Salir</a></span>
         </div>
@@ -41,7 +41,7 @@
     ">
 
                 <button class="menu-toggle">
-                    Gestión de información
+                    Gestión de Información
                     <span class="arrow">▶</span>
                 </button>
 
@@ -71,17 +71,55 @@
     ">
 
                 <button class="menu-toggle">
-                    Parametros
-                <span class="arrow">▶</span>
+                    Gestion de Parametros
+                    <span class="arrow">▶</span>
                 </button>
                 <div class="submenu">
-                    <a href="/parametros/tipos_contratos" class="{% if '/parametros/tipos_contratos/' in current %}active-link{% endif %}">
+                    <a href="/parametros/tipos_contratos"
+                        class="{% if '/parametros/tipos_contratos/' in current %}active-link{% endif %}">
                         Tipos contratos
-                    </a>                    
+                    </a>
                 </div>
             </div>
             {% endwith %}
-        
+
+            {% with request.path as current %}
+            <div class="menu-group
+        {% if '/gestionreportes/' in current or '/reportes/' in current or '/parametros_reportes/' in current%}
+            active
+        {% endif %}
+    ">
+
+                <button class="menu-toggle">
+                    Gestión de Reportes
+                    <span class="arrow">▶</span>
+                </button>
+
+                <div class="submenu">
+
+                    <a href="/gestionreportes/reportes"
+                        class="{% if '/gestionreportes/reportes/' in current %}active-link{% endif %}">
+                        Reportes
+                    </a>
+
+                    <a href="/gestionreportes/creareportes"
+                        class="{% if '/gestionreportes/creareportes/' in current %}active-link{% endif %}">
+                        Gestion reportes
+                    </a>
+
+
+                    <a href="/gestionreportes/parametros_reportes"
+                        class="{% if '/gestionreportes/parametros_reportes/' in current %}active-link{% endif %}">
+                        Parametros reportes
+                    </a>
+
+
+                </div>
+            </div>
+            {% endwith %}
+
+
+
             {% with request.path as current %}
             <div class="menu-group
         {% if '/clientes/' in current or '/empresas/' in current %}
@@ -90,17 +128,19 @@
     ">
 
                 <button class="menu-toggle">
-                    Gestión de clientes
+                    Gestión de Clientes
                     <span class="arrow">▶</span>
                 </button>
 
                 <div class="submenu">
 
-                    <a href="/gestionclientes/clientes" class="{% if '/gestionclientes/clientes/' in current %}active-link{% endif %}">
+                    <a href="/gestionclientes/clientes"
+                        class="{% if '/gestionclientes/clientes/' in current %}active-link{% endif %}">
                         Clientes
                     </a>
-                    
-                    <a href="/gestionclientes/empresas" class="{% if '/gestionclientes/empresas/' in current %}active-link{% endif %}">
+
+                    <a href="/gestionclientes/empresas"
+                        class="{% if '/gestionclientes/empresas/' in current %}active-link{% endif %}">
                         Empresas
                     </a>
 

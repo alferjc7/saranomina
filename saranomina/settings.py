@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
     'gestionIdentificacion',
     'gestionClientes',
+    'gestionReportes',
     'parametros',
     'api',
     'accounts',

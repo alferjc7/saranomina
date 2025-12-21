@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Crear reportes{% endblock %}
+{% block content %}
+<h2>Nuevo reportes</h2>
+
+<form id="crearreportes-form" method="POST">
+{% csrf_token %}
+{{form.as_p}}
+<button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+{% endblock %}

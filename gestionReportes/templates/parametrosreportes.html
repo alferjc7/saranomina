@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Pparametros de reportes{% endblock %}
+{% block content %}
+<h2>Parametros de reportes</h2>
+<form id="parametroreportes-form" method="POST">
+{% csrf_token %}
+{{form.as_p}}
+<button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+{% endblock %}

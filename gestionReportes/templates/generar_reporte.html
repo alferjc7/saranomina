@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Crear reportes{% endblock %}
+{% block content %}
+<h2>{{ reporte.nombre }}</h2>
+
+<form method="post">
+  {% csrf_token %}
+
+  {% for p in parametros %}
+    <div>
+      <label>{{ p.label }}</label>
+      <input type="text" name="{{ p.nombre }}" required>
+    </div>
+  {% endfor %}
+
+  <div>
+    <label>Formato</label>
+    <select name="formato">
+      <option value="pdf">PDF</option>
+      <option value="xls">Excel</option>
+      <option value="csv">CSV</option>
+      <option value="html">HTML</option>
+    </select>
+  </div>
+
+  <button type="submit">Generar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+{% endblock %}
