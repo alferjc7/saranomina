@@ -1,29 +1,60 @@
 {% extends "base.html" %}
-{% block title %}Crear reportes{% endblock %}
+{% block title %}Generar reporte{% endblock %}
 {% block content %}
 <h2>{{ reporte.nombre }}</h2>
 
 <form method="post">
   {% csrf_token %}
-
   {% for p in parametros %}
-    <div>
-      <label>{{ p.label }}</label>
-      <input type="text" name="{{ p.nombre }}" required>
-    </div>
-  {% endfor %}
+  <div class="card">
+    <h3>Parametros de reporte</h3>
+    <div class="form-grid-2">
+      <div>
+        {% csrf_token %}
 
-  <div>
-    <label>Formato</label>
-    <select name="formato">
-      <option value="pdf">PDF</option>
-      <option value="xls">Excel</option>
-      <option value="csv">CSV</option>
-      <option value="html">HTML</option>
-    </select>
+
+        {% if p.tipo_dato == 'str' %}
+        <div class="form-group2">
+          <label>{{ p.etiqueta }}</label>
+          <input type="text" name="{{ p.nombre }}" {% if p.requerido %} required {% endif %}>
+        </div>
+        {% elif p.tipo_dato == 'int' %}
+        <div class="form-group2">
+          <label>{{ p.etiqueta }}</label>
+          <input type="number" step="1" name="{{ p.nombre }}" {% if p.requerido %} required {% endif %}>
+        </div>
+        {% elif p.tipo_dato == 'date' %}
+        <div class="form-group2">
+          <label>{{ p.etiqueta }}</label>
+          <input type="date" name="{{ p.nombre }}" {% if p.requerido %} required {% endif %}>
+        </div>
+         {% elif p.tipo_dato == 'bool' %}
+        <div class="form-group2">
+          <label>{{ p.etiqueta }}</label>
+          <input type="checkbox" value="true" name="{{ p.nombre }}" {% if p.requerido %} required {% endif %}>
+        </div>
+        {% endif %}
+
+
+      </div>
+    </div>
+
+    {% endfor %}
+
+    <br>
+    <div>
+      <label>Formato</label>
+      <select name="formato">
+        <option value="pdf">PDF</option>
+        <option value="xls">Excel</option>
+        <option value="csv">CSV</option>
+        <option value="html">HTML</option>
+      </select>
+    </div>
+    <br>
+    <button type="submit">Generar</button>
   </div>
 
-  <button type="submit">Generar</button>
 </form>
 {% endblock %}
 {% block scripts %}

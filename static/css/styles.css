@@ -184,6 +184,11 @@ body {
     border-radius: 4px;
 }
 
+.form-group2 textarea {
+    height: 50px !important;
+}
+
+
 button {
     background: #2980b9;
     color: white;

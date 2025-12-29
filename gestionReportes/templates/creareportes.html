@@ -1,11 +1,72 @@
 {% extends "base.html" %}
-{% block title %}Crear reportes{% endblock %}
+{% block title %}Gestionar reportes{% endblock %}
 {% block content %}
-<h2>Nuevo reportes</h2>
+<h2>Gestionar reportes</h2>
+<h2>Reportes</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Descripcion</th>
+            <th>Ruta Jasper</th>
+            <th>Estado</th>
+            <th>Usuario creador</th>
+            <th>Fecha creacion</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in registros %}
+        <tr>
+            <td>{{ b.nombre }}</td>
+            <td>{{ b.descripcion }}</td>
+            <td>{{ b.ruta_jasper }}</td>
+            <td>{{ b.activo }}</td>
+            <td>{{ b.user_creator }}</td>
+            <td>{{ b.date_created }}</td>
+            <td>
+                <form method="post" action="{% url 'eliminar_reportes' b.pk %}"
+                    onsubmit="return confirm('¿Eliminar este reporte?');">
+                    {% csrf_token %}
+                <button type="submit">🗑 Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 
 <form id="crearreportes-form" method="POST">
-{% csrf_token %}
-{{form.as_p}}
+    <div class="card">
+    <h3>Configuracion del reporte</h3>
+    <div class="form-grid-2">
+      <div>
+        {% csrf_token %}
+        
+        <div class="form-group2">
+        {{ form.nombre.label_tag }}
+        {{form.nombre}}
+        </div>
+        <div class="form-group2">
+        {{ form.ruta_jasper.label_tag }}
+        {{form.ruta_jasper}}
+        </div>
+        <br>
+        <label for="Estado">Estado</label>
+        <label class="switch">
+        {{ form.activo }}
+        <span class="slider"></span>
+        </label>
+      </div>
+      <div>
+        <div class="form-group2">
+        {{ form.descripcion.label_tag }}
+        {{form.descripcion}}
+        </div>
+      </div>
+    </div>
+    </div>
 <button type="submit" name="accion" value="guardar">Guardar</button>
 </form>
 {% endblock %}

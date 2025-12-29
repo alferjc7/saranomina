@@ -13,6 +13,13 @@ class Reporte(models.Model):
 
     def __str__(self):
         return self.nombre
+    def save(self, *args, **kwargs):
+        if self.nombre:
+            self.nombre = self.nombre.upper()
+        if self.descripcion:
+            self.descripcion = self.descripcion.upper()
+        
+        return super().save(*args, **kwargs)
     
 class ParametroReporte(models.Model):
     TIPO_DATO_CHOICES = [
