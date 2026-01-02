@@ -16,7 +16,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("inicio")  # luego lo ajustamos
+            return redirect("seleccionar_empresa")  # luego lo ajustamos
         else:
             messages.error(request, "Usuario o contraseña incorrectos")
 

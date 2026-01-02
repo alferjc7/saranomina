@@ -5,12 +5,12 @@
 
 <form method="post">
   {% csrf_token %}
-  {% for p in parametros %}
   <div class="card">
     <h3>Parametros de reporte</h3>
     <div class="form-grid-2">
       <div>
-        {% csrf_token %}
+        {% for p in parametros %}
+
 
 
         {% if p.tipo_dato == 'str' %}
@@ -28,19 +28,15 @@
           <label>{{ p.etiqueta }}</label>
           <input type="date" name="{{ p.nombre }}" {% if p.requerido %} required {% endif %}>
         </div>
-         {% elif p.tipo_dato == 'bool' %}
+        {% elif p.tipo_dato == 'bool' %}
         <div class="form-group2">
           <label>{{ p.etiqueta }}</label>
           <input type="checkbox" value="true" name="{{ p.nombre }}" {% if p.requerido %} required {% endif %}>
         </div>
         {% endif %}
-
-
+        {% endfor %}
       </div>
     </div>
-
-    {% endfor %}
-
     <br>
     <div>
       <label>Formato</label>

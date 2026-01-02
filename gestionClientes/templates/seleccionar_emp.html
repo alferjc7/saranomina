@@ -1,0 +1,46 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Empresa{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block styles %}{% endblock %}
+</head>
+
+<body>
+
+    <div class="login-page">
+        <div class="login-container">
+            <img src="{% static 'img/logo.png' %}" alt="Logo" class="login-logo">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group2" style="align-content: center;">
+                <select name="empresa_id" required>
+                    <option value="">-- Seleccione --</option>
+                    {% for ue in empresas %}
+                    <option value="{{ ue.empresa.id }}">
+                        {{ ue.empresa.codigo_empresa }} - {{ ue.empresa.razon_social }}
+                    </option>empresa
+                    {% endfor %}
+                </select>
+                </div>
+                <br>
+                <button type="submit" class="login-btn">Ingresar</button>
+                <br>
+                {% if messages %}
+                {% for message in messages %}
+                <label class="login-error">
+                    {{ message }}
+                </label>
+
+                {% endfor %}
+                {% endif %}
+
+
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

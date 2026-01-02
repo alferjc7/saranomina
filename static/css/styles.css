@@ -185,7 +185,7 @@ body {
 }
 
 .form-group2 textarea {
-    height: 50px !important;
+    height: 100px !important;
 }
 
 
@@ -205,8 +205,9 @@ button:hover {
 
 /* TABLAS */
 .table-container {
-    width: 100%;
-    overflow-x: auto;
+     flex: 0 0 40%;
+    overflow-y: auto;
+    border: 1px solid #ccc;
 }
 
 table {

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Bancos{% endblock %}
+{% block content %}
+<h2>Bancos</h2>
+<div class="table-container">
+<table>
+    <thead>
+        <tr>
+            <th>Banco</th>
+            <th>Codigo ACH</th>
+            <th>Codigo PSE</th>
+            <th>Codigo BR</th>
+            <th>Codigo FINTECH</th>
+            <th>Estado</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in registros %}
+        <tr>
+            <td>{{ b.banco }}</td>
+            <td>{{ b.codigo_ach|default:"" }}</td>
+            <td>{{ b.codigo_pse|default:"" }}</td>
+            <td>{{ b.codigo_br|default:"" }}</td>
+            <td>{{ b.codigo_fintech|default:"" }}</td>
+            <td>{% if b.estado %}
+                ACTIVO
+                {% else %}
+                INACTIVO
+                {% endif %}
+            </td>
+            <td>
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-contrato="{{ b.codigo }}" 
+                    data-estado="{{ b.estado }}">
+                    ✏️ Editar
+                </button>
+            </td>
+            <td>
+                <form method="post" action="{% url 'bancos_eliminar' b.pk %}"
+                    onsubmit="return confirm('¿Eliminar este banco?');">
+                    {% csrf_token %}
+                    <button type="submit">🗑 Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+
+<h2>Nuevo Banco</h2>
+<form id="cliente-form" method="POST">
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+            
+                <div class="form-group2">
+                {{ form.banco.label_tag }} <!-- label arriba -->
+                {{ form.banco }}
+                {% if form.banco.errors %}
+                <div class="error">{{ form.banco.errors }}</div>
+                {% endif %}
+                </div>
+
+                <div class="form-group2">
+                {{ form.codigo_ach.label_tag }} <!-- label arriba -->
+                {{ form.codigo_ach }}
+                {% if form.codigo_ach.errors %}
+                <div class="error">{{ form.codigo_ach.errors }}</div>
+                {% endif %}
+                </div>
+                
+                <div class="form-group2">
+                {{ form.codigo_pse.label_tag }} <!-- label arriba -->
+                {{ form.codigo_pse }}
+                {% if form.codigo_pse.errors %}
+                <div class="error">{{ form.codigo_pse.errors }}</div>
+                {% endif %}
+                </div>
+                
+                <div class="form-group2">
+                {{ form.codigo_br.label_tag }} <!-- label arriba -->
+                {{ form.codigo_br }}
+                {% if form.codigo_br.errors %}
+                <div class="error">{{ form.codigo_br.errors }}</div>
+                {% endif %}
+                </div>
+                
+                <div class="form-group2">
+                {{ form.codigo_fintech.label_tag }} <!-- label arriba -->
+                {{ form.codigo_fintech }}
+                {% if form.codigo_fintech.errors %}
+                <div class="error">{{ form.codigo_fintech.errors }}</div>
+                {% endif %}
+                </div>
+
+                <br>
+                <label for="Estado">Estado</label>
+                <label class="switch">
+                {{form.estado}}
+                <span class="slider"></span>
+                </label>
+
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+{% endblock %}

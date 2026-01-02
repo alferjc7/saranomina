@@ -17,10 +17,13 @@
         <div class="menu">
             <span>Mensajes</span>
             <span>{% if request.user.is_authenticated %}
-                {{ request.user.username }}
+                {{ request.user.username|upper }}
                 {% else %}
                 Perfil
                 {% endif %}
+            </span>
+            <span><a href="{% url 'seleccionar_empresa' %}" class="empresa-topbar">
+            {{ request.session.codigo_empresa }} - {{ request.session.razon_social }}</a>        
             </span>
             <span><a href="{% url 'logout' %}">Salir</a></span>
         </div>
@@ -80,6 +83,31 @@
                         Tipos contratos
                     </a>
                 </div>
+                <div class="submenu">
+                    <a href="/parametros/tipos_salarios"
+                        class="{% if '/parametros/tipos_salarios/' in current %}active-link{% endif %}">
+                        Tipos salarios
+                    </a>
+                </div>
+                <div class="submenu">
+                    <a href="/parametros/tipos_cotizantes"
+                        class="{% if '/parametros/tipos_cotizates/' in current %}active-link{% endif %}">
+                        Tipos cotizantes
+                    </a>
+                </div>
+                <div class="submenu">
+                    <a href="/parametros/subtipos_cotizantes"
+                        class="{% if '/parametros/subtipos_cotizates/' in current %}active-link{% endif %}">
+                        Subtipos cotizantes
+                    </a>
+                </div>
+                <div class="submenu">
+                    <a href="/parametros/bancos"
+                        class="{% if '/parametros/bancos/' in current %}active-link{% endif %}">
+                        Bancos
+                    </a>
+                </div>
+
             </div>
             {% endwith %}
 
@@ -142,6 +170,12 @@
                     <a href="/gestionclientes/empresas"
                         class="{% if '/gestionclientes/empresas/' in current %}active-link{% endif %}">
                         Empresas
+                    </a>
+
+
+                    <a href="/gestionclientes/user_empresa"
+                        class="{% if '/gestionclientes/user_empresa/' in current %}active-link{% endif %}">
+                        Asignar Empresas
                     </a>
 
 

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Empresas de usuarios{% endblock %}
+{% block content %}
+<h2>Empresas</h2>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Empresa</th>
+                <th>Estado</th>
+                <th>Fecha asignacion</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in registros %}
+            <tr>
+                <td>{{ b.usuario }}</td>
+                <td>{{ b.empresa }}</td>
+                <td>{{ b.activo }}</td>
+                <td>{{ b.fecha_asignacion }}</td>
+                <td>
+                    <form method="post" action="{% url 'user_empresa_eliminar' b.pk %}"
+                        onsubmit="return confirm('¿Eliminar esta empresa?');">
+                        {% csrf_token %}
+                        <button type="submit">🗑 Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2>Nuevo asignacion</h2>
+<form id="empresa-form" method="POST">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                {% csrf_token %}
+                <div class="form-group2">
+                    {{form.usuario.label_tag }} <!-- label arriba -->
+                    {{form.usuario}}
+                    {% if form.usuario.errors %}
+                    <div class="error">{{ form.usuario.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{form.empresa.label_tag }} <!-- label arriba -->
+                    {{form.empresa}}
+                    {% if form.empresa.errors %}
+                    <div class="error">{{ form.empresa.errors }}</div>
+                    {% endif %}
+                </div>
+                <br>
+                <label for="Estado">Estado</label>
+                <label class="switch">
+                    {{ form.activo }}
+                    <span class="slider"></span>
+                </label>
+
+            </div>
+        </div>
+    </div>
+    <br>
+    <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+{% endblock %}

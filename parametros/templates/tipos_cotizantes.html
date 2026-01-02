@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Tipos contratos{% endblock %}
+{% block title %}Tipos cotizantes{% endblock %}
 {% block content %}
-<h2>Tipos contratos</h2>
+<h2>Tipos cotizantes</h2>
 <div class="table-container">
 <table>
     <thead>
         <tr>
-            <th>Tipo contrato</th>
+            <th>Codigo</th>
+            <th>Descripcion</th>
             <th>Estado</th>
             <th></th>
             <th></th>
@@ -16,7 +17,8 @@
     <tbody>
         {% for b in registros %}
         <tr>
-            <td>{{ b.contrato }}</td>
+            <td>{{ b.codigo }}</td>
+            <td>{{ b.descripcion }}</td>
             <td>{% if b.estado %}
                 ACTIVO
                 {% else %}
@@ -24,14 +26,14 @@
                 {% endif %}
             </td>
             <td>
-                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-contrato="{{ b.contrato }}" 
-                    data-estado="{{ b.estado_cliente }}">
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-contrato="{{ b.codigo }}" 
+                    data-estado="{{ b.estado }}">
                     ✏️ Editar
                 </button>
             </td>
             <td>
-                <form method="post" action="{% url 'tipos_contratos_eliminar' b.pk %}"
-                    onsubmit="return confirm('¿Eliminar este tipo de contrato?');">
+                <form method="post" action="{% url 'tipos_cotizantes_eliminar' b.pk %}"
+                    onsubmit="return confirm('¿Eliminar este tipo de cotizante?');">
                     {% csrf_token %}
                     <button type="submit">🗑 Eliminar</button>
                 </form>
@@ -42,25 +44,35 @@
 </table>
 </div>
 
-<h2>Nuevo tipo de contrato</h2>
+<h2>Nuevo tipo de cotizante</h2>
 <form id="cliente-form" method="POST">
     {% csrf_token %}
     <div class="card">
         <div class="form-grid-2">
             <div>
-            <div class="form-group2">
-                {{ form.contrato.label_tag }} <!-- label arriba -->
-                {{form.contrato}}
-                {% if form.contrato.errors %}
-                <div class="error">{{ form.contrato.errors }}</div>
+            
+                <div class="form-group2">
+                {{ form.codigo.label_tag }} <!-- label arriba -->
+                {{ form.codigo }}
+                {% if form.codigo.errors %}
+                <div class="error">{{ form.codigo.errors }}</div>
                 {% endif %}
-            </div>
+                </div>
+                <div class="form-group2">
+                {{ form.descripcion.label_tag }} <!-- label arriba -->
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                <div class="error">{{ form.descripcion.errors }}</div>
+                {% endif %}
+                </div>
             <br>
+
                 <label for="Estado">Estado tipo</label>
                 <label class="switch">
                 {{form.estado}}
                 <span class="slider"></span>
                 </label>
+            
             </div>
         </div>
     </div>

@@ -1,11 +1,80 @@
 {% extends "base.html" %}
 
-{% block title %}Pparametros de reportes{% endblock %}
+{% block title %}Parametros de reportes{% endblock %}
 {% block content %}
 <h2>Parametros de reportes</h2>
+<div class="table-container">
+<table>
+    <thead>
+        <tr>
+            <th>Reporte</th>
+            <th>Nombre</th>
+            <th>Etiqueta</th>
+            <th>Tipo</th>
+            <th>Orden</th>
+            <th>Requerido</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in registros %}
+        <tr>
+            <td>{{ b.reporte }}</td>
+            <td>{{ b.nombre }}</td>
+            <td>{{ b.etiqueta }}</td>
+            <td>{{ b.tipo_dato }}</td>
+            <td>{{ b.orden }}</td>
+            <td>{{ b.requerido }}</td>
+            <td>
+                <form method="post" action="{% url 'eliminar_parametros' b.pk %}"
+                    onsubmit="return confirm('¿Eliminar este parametro?');">
+                    {% csrf_token %}
+                <button type="submit">🗑 Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
 <form id="parametroreportes-form" method="POST">
-{% csrf_token %}
-{{form.as_p}}
+<div class="card">
+<h3>Nuevo parametro de reporte</h3>
+    {% csrf_token %}
+    <div class="form-grid-2">
+        <div>
+            <div class="form-group2">
+            {{form.reporte.label_tag }}    
+            {{form.reporte}}
+            </div>
+            <div class="form-group2">
+            {{form.nombre.label_tag }}    
+            {{form.nombre}}
+            </div>
+            <div class="form-group2">
+            {{form.etiqueta.label_tag }}    
+            {{form.etiqueta}}
+            </div>
+        </div>
+        <div>
+            <div class="form-group2">
+            {{form.tipo_dato.label_tag }}    
+            {{form.tipo_dato}}
+            </div>
+            <div class="form-group2">
+            {{form.orden.label_tag }}    
+            {{form.orden}}
+            </div>
+            <br>
+            <label for="requerido">Requerido</label>
+            <label class="switch">
+            {{ form.requerido }}
+            <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+</div>
 <button type="submit" name="accion" value="guardar">Guardar</button>
 </form>
 {% endblock %}

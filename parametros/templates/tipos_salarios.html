@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Tipos contratos{% endblock %}
+{% block title %}Tipos salarios{% endblock %}
 {% block content %}
-<h2>Tipos contratos</h2>
+<h2>Tipos salarios</h2>
 <div class="table-container">
 <table>
     <thead>
         <tr>
-            <th>Tipo contrato</th>
+            <th>Tipo salario</th>
             <th>Estado</th>
             <th></th>
             <th></th>
@@ -16,7 +16,7 @@
     <tbody>
         {% for b in registros %}
         <tr>
-            <td>{{ b.contrato }}</td>
+            <td>{{ b.salario }}</td>
             <td>{% if b.estado %}
                 ACTIVO
                 {% else %}
@@ -24,14 +24,14 @@
                 {% endif %}
             </td>
             <td>
-                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-contrato="{{ b.contrato }}" 
-                    data-estado="{{ b.estado_cliente }}">
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-contrato="{{ b.salario }}" 
+                    data-estado="{{ b.estado }}">
                     ✏️ Editar
                 </button>
             </td>
             <td>
-                <form method="post" action="{% url 'tipos_contratos_eliminar' b.pk %}"
-                    onsubmit="return confirm('¿Eliminar este tipo de contrato?');">
+                <form method="post" action="{% url 'tipos_salarios_eliminar' b.pk %}"
+                    onsubmit="return confirm('¿Eliminar este tipo de salario?');">
                     {% csrf_token %}
                     <button type="submit">🗑 Eliminar</button>
                 </form>
@@ -42,25 +42,30 @@
 </table>
 </div>
 
-<h2>Nuevo tipo de contrato</h2>
+<h2>Nuevo tipo de salario</h2>
 <form id="cliente-form" method="POST">
     {% csrf_token %}
     <div class="card">
         <div class="form-grid-2">
             <div>
-            <div class="form-group2">
-                {{ form.contrato.label_tag }} <!-- label arriba -->
-                {{form.contrato}}
-                {% if form.contrato.errors %}
-                <div class="error">{{ form.contrato.errors }}</div>
+            
+                <div class="form-group2">
+                {{ form.salario.label_tag }} <!-- label arriba -->
+                {{ form.salario }}
+                {% if form.salario.errors %}
+                <div class="error">{{ form.salario.errors }}</div>
                 {% endif %}
-            </div>
+                </div>
+            
+            
             <br>
+
                 <label for="Estado">Estado tipo</label>
                 <label class="switch">
                 {{form.estado}}
                 <span class="slider"></span>
                 </label>
+            
             </div>
         </div>
     </div>

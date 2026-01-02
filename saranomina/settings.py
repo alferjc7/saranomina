@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'gestionIdentificacion',
     'gestionClientes',
     'gestionReportes',
+    'gestionContratos',
     'parametros',
     'api',
     'accounts',
@@ -66,6 +67,15 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = 'login'
 
+# 2 horas = 7200 segundos
+SESSION_COOKIE_AGE = 60 * 60 * 2  
+
+# Reinicia el contador en cada request
+SESSION_SAVE_EVERY_REQUEST = True  
+
+# NO cerrar solo por cerrar el navegador
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -74,6 +84,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'gestionClientes.middleware.EmpresaActivaMiddleware',
 ]
 
 MESSAGE_TAGS = {

@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+
 
 class t_cliente(models.Model):
     codigo_cliente = models.CharField(max_length=6, verbose_name="Codigo cliente")
@@ -36,8 +38,25 @@ class t_empresa(models.Model):
     def __str__(self):
         return self.codigo_empresa
 
-    
+User = settings.AUTH_USER_MODEL
 
+class UsuarioEmpresa(models.Model):
+    usuario = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='empresas'
+    )
+    empresa = models.ForeignKey(
+        t_empresa,
+        on_delete=models.CASCADE,
+        related_name='usuarios'
+    )
+    activo = models.BooleanField(default=True)
 
+    fecha_asignacion = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('usuario', 'empresa')
 
+    def __str__(self):
+        return f"{self.usuario} - {self.empresa.codigo_empresa}"

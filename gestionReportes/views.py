@@ -65,8 +65,13 @@ class parametrosreportesCreateView(LoginRequiredMixin,CreateView):
     redirect_field_name = 'next'  # opcional
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        registros = ParametroReporte.objects.all().order_by('-pk')[:30]
+        context['registros'] = registros
+        return context
+    
     def form_valid(self, form):
+        messages.success(self.request, 'Registro creado correctamente')
         return super().form_valid(form)
     def form_invalid(self, form):
         return super().form_invalid(form)
@@ -77,6 +82,7 @@ class parametrosreportesDeleteView(LoginRequiredMixin,DeleteView):
     login_url = 'accounts/login'
 
     def post(self, request, *args, **kwargs):
+        messages.success(request, 'Parametro eliminado correctamente')
         return super().post(request, *args, **kwargs)
  
 
