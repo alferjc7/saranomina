@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Entidades SS{% endblock %}
+{% block content %}
+
+<div class="header-entidades">
+    <h2 class="titulo-entidades">Entidades de seguridad social</h2>
+
+    <div class="acciones-entidades">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form_excel.archivo_excel }}
+            <button type="button" class="btn btn-success btn-sm"
+                onclick="document.getElementById('excel-input').click();">
+                📥 Cargar desde Excel
+            </button>
+        </form>
+
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" name="exportar_excel" value="1" class="btn btn-success">
+                📥 Exportar
+            </button>
+        </form>
+    </div>
+</div>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Tipo</th>
+                <th>Codigo</th>
+                <th>Nit</th>
+                <th>Nombre</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in registros %}
+            <tr>
+                <td>{{ b.tipo }}</td>
+                <td>{{ b.codigo }}</td>
+                <td>{{ b.nit }}</td>
+                <td>{{ b.nombre }}</td>
+                <td>
+                    <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-contrato="{{ b.codigo }}">
+                        ✏️ Editar
+                    </button>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'entidades_ss_eliminar' b.pk %}"
+                        onsubmit="return confirm('¿Eliminar esta entidad?');">
+                        {% csrf_token %}
+                        <button type="submit">🗑 Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<h2>Nuevo Entidad</h2>
+<form id="cliente-form" method="POST">
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+
+            <div>
+
+                <div class="form-group2">
+                    {{ form.tipo.label_tag }} <!-- label arriba -->
+                    {{ form.tipo }}
+                    {% if form.tipo.errors %}
+                    <div class="error">{{ form.tipo.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group2">
+                    {{ form.codigo.label_tag }} <!-- label arriba -->
+                    {{ form.codigo }}
+                    {% if form.codigo.errors %}
+                    <div class="error">{{ form.codigo.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group2">
+                    {{ form.nit.label_tag }} <!-- label arriba -->
+                    {{ form.nit }}
+                    {% if form.nit.errors %}
+                    <div class="error">{{ form.nit.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group2">
+                    {{ form.nombre.label_tag }} <!-- label arriba -->
+                    {{ form.nombre }}
+                    {% if form.nombre.errors %}
+                    <div class="error">{{ form.nombre.errors }}</div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+
+{% endblock %}
+{% block scripts %}
+<script>
+    document.getElementById('excel-input').addEventListener('change', function () {
+        this.closest('form').submit();
+    });
+</script>
+{% endblock %}

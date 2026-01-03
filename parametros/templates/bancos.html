@@ -2,7 +2,29 @@
 
 {% block title %}Bancos{% endblock %}
 {% block content %}
-<h2>Bancos</h2>
+
+<div class="header-entidades">
+    <h2 class="titulo-entidades">Bancos</h2>
+
+    <div class="acciones-entidades">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form_excel.archivo_excel }}
+            <button type="button" class="btn btn-success btn-sm"
+                onclick="document.getElementById('excel-input').click();">
+                📥 Cargar desde Excel
+            </button>
+        </form>
+
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" name="exportar_excel" value="1" class="btn btn-success">
+                📥 Exportar
+            </button>
+        </form>
+    </div>
+</div>
+
 <div class="table-container">
 <table>
     <thead>

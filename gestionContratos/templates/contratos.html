@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Contratos{% endblock %}
+{% block content %}
+<h2>Ultimos contratos creados</h2>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Identificacion</th>
+                <th>Codigo contrato</th>
+                <th>Fecha ingreso</th>
+                <th>Fecha fin</th>
+                <th>Tipo salario</th>
+                <th>Tipo contrato</th>
+                <th>Periodo Vac</th>
+                <th>Tipo cotizante</th>
+                <th>Subtipo cotizante</th>
+                <th>Codigo interno</th>
+                <th>Banco</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in registros %}
+            <tr>
+                <td>{{ b.identificacion }}</td>
+                <td>{{ b.cod_contrato }}</td>
+                <td>{{ b.fecha_ingreso }}</td>
+                <td>{{ b.fecha_fin|default:"" }}</td>
+                <td>{{ b.tipo_salario }}</td>
+                <td>{{ b.tipo_contrato }}</td>
+                <td>{{ b.periodo_vac}}</td>
+                <td>{{ b.tipo_cotizante }}</td>
+                <td>{{ b.subtipo_cotizante }}</td>
+                <td>{{ b.codigo_interno }}</td>
+                <td>{{ b.banco }}</td>
+                <td>
+                    <form method="get" action="{% url 'contrato_banco' b.id %}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            Bancos
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2>Nuevo contrato</h2>
+<form id="cliente-form" method="POST">
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    {{ form.identificacion.label_tag }} <!-- label arriba -->
+                    {{ form.identificacion }}
+                    {% if form.identificacion.errors %}
+                    <div class="error">{{ form.identificacion.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.fecha_ingreso.label_tag }} <!-- label arriba -->
+                    {{ form.fecha_ingreso }}
+                    {% if form.fecha_ingreso.errors %}
+                    <div class="error">{{ form.fecha_ingreso.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.fecha_fin.label_tag }} <!-- label arriba -->
+                    {{ form.fecha_fin }}
+                    {% if form.fecha_fin.errors %}
+                    <div class="error">{{ form.fecha_fin.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.tipo_salario.label_tag }} <!-- label arriba -->
+                    {{ form.tipo_salario }}
+                    {% if form.tipo_salario.errors %}
+                    <div class="error">{{ form.tipo_salario.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.tipo_contrato.label_tag }} <!-- label arriba -->
+                    {{ form.tipo_contrato }}
+                    {% if form.tipo_contrato.errors %}
+                    <div class="error">{{ form.tipo_contrato.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    {{ form.periodo_vac.label_tag }} <!-- label arriba -->
+                    {{ form.periodo_vac }}
+                    {% if form.periodo_vac.errors %}
+                    <div class="error">{{ form.periodo_vac.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.tipo_cotizante.label_tag }} <!-- label arriba -->
+                    {{ form.tipo_cotizante }}
+                    {% if form.tipo_cotizante.errors %}
+                    <div class="error">{{ form.tipo_cotizante.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.subtipo_cotizante.label_tag }} <!-- label arriba -->
+                    {{ form.subtipo_cotizante }}
+                    {% if form.subtipo_cotizante.errors %}
+                    <div class="error">{{ form.subtipo_cotizante.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.codigo_interno.label_tag }} <!-- label arriba -->
+                    {{ form.codigo_interno }}
+                    {% if form.codigo_interno.errors %}
+                    <div class="error">{{ form.codigo_interno.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.banco.label_tag }} <!-- label arriba -->
+                    {{ form.banco }}
+                    {% if form.banco.errors %}
+                    <div class="error">{{ form.banco.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    {{ form.procedimiento.label_tag }} <!-- label arriba -->
+                    {{ form.procedimiento }}
+                    {% if form.procedimiento.errors %}
+                    <div class="error">{{ form.procedimiento.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.porcentaje_retencion.label_tag }} <!-- label arriba -->
+                    {{ form.porcentaje_retencion }}
+                    {% if form.porcentaje_retencion.errors %}
+                    <div class="error">{{ form.porcentaje_retencion.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.estado.label_tag }} <!-- label arriba -->
+                    {{ form.estado }}
+                    {% if form.estado.errors %}
+                    <div class="error">{{ form.estado.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.cesantias.label_tag }} <!-- label arriba -->
+                    {{ form.cesantias }}
+                    {% if form.cesantias.errors %}
+                    <div class="error">{{ form.cesantias.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+{% endblock %}

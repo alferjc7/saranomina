@@ -74,7 +74,8 @@ class t_identificacion(models.Model):
         ]
 
     def __str__(self):
-        return "La identificacion es: %s y su nombre completo es %s %s %s %s"%(self.identificacion,self.nombre,self.segundo_nombre,self.apellido,self.segundo_apellido)
+        return "%s"%(self.identificacion)
+    
     def save(self, *args, **kwargs):
         if self.nombre:
             self.nombre = self.nombre.upper()

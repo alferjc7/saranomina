@@ -15,7 +15,8 @@
             <img src="{% static 'img/logo.png' %}" alt="Logo" class="login-logo">
             <form method="post">
                 {% csrf_token %}
-                <div class="form-group2" style="align-content: center;">
+                <div class="form-group3" style="align-content: center;">
+                <label>Seleccione una empresa: </label>
                 <select name="empresa_id" required>
                     <option value="">-- Seleccione --</option>
                     {% for ue in empresas %}

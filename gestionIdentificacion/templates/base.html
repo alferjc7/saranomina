@@ -107,6 +107,12 @@
                         Bancos
                     </a>
                 </div>
+                <div class="submenu">
+                    <a href="/parametros/entidades_ss"
+                        class="{% if '/parametros/entidades_ss/' in current %}active-link{% endif %}">
+                        Entidades SS
+                    </a>
+                </div>
 
             </div>
             {% endwith %}
@@ -183,7 +189,29 @@
             </div>
             {% endwith %}
 
+            {% with request.path as current %}
+            <div class="menu-group
+        {% if '/gestioncontratos/' in current or '/contrato/' in current%}
+            active
+        {% endif %}
+    ">
 
+                <button class="menu-toggle">
+                    Gestión de Contratos
+                    <span class="arrow">▶</span>
+                </button>
+
+                <div class="submenu">
+
+                    <a href="/gestioncontratos/contratos"
+                        class="{% if '/gestioncontratos/contratos/' in current %}active-link{% endif %}">
+                        Contratos
+                    </a>
+                </div>
+            </div>
+            {% endwith %}
+
+            
 
             <a href="#">Usuarios</a>
             <a href="#">Reportes</a>

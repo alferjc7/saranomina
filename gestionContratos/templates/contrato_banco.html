@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Contratos{% endblock %}
+{% block content %}
+<h2>Bancos de contrato #{{ contrato.cod_contrato }}</h2>
+<div class="table-container">
+<table>
+    <thead>
+        <tr>
+            <th>Contrato</th>
+            <th>Banco</th>
+            <th>Tipo Cuenta</th>
+            <th>Numero Cuenta</th>
+            <th>Fecha inicio</th>
+            <th>Fecha fin</th>
+            <th>Estado</th>
+            <th>Retroactivo</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in registros %}
+        <tr>
+            <td>{{ b.contrato.cod_contrato }}</td>
+            <td>{{ b.banco }}</td>
+            <td>{{ b.cuenta }}</td>
+            <td>{{ b.numero_cuenta }}</td>            
+            <td>{{ b.fecha_inicio }}</td>
+            <td>{{ b.fecha_fin|default:"" }}</td>
+            <td>{{ b.estado }}</td>
+            <td>{{ b.retroactivo}}</td>
+            <td>
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-contrato="{{ b.cod_contrato }}" 
+                    data-estado="{{ b.estado }}">
+                    ✏️ Editar
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<h2>Asignar nuevo banco</h2>
+<form id="cliente-form" method="POST">
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                {{ form.banco.label_tag }} <!-- label arriba -->
+                {{ form.banco }}
+                {% if form.banco.errors %}
+                <div class="error">{{ form.banco.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.cuenta.label_tag }} <!-- label arriba -->
+                {{ form.cuenta }}
+                {% if form.cuenta.errors %}
+                <div class="error">{{ form.cuenta.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.numero_cuenta.label_tag }} <!-- label arriba -->
+                {{ form.numero_cuenta }}
+                {% if form.numero_cuenta.errors %}
+                <div class="error">{{ form.numero_cuenta.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.fecha_inicio.label_tag }} <!-- label arriba -->
+                {{ form.fecha_inicio }}
+                {% if form.fecha_inicio.errors %}
+                <div class="error">{{ form.fecha_inicio.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.fecha_fin.label_tag }} <!-- label arriba -->
+                {{ form.fecha_fin }}
+                {% if form.fecha_fin.errors %}
+                <div class="error">{{ form.fecha_fin.errors }}</div>
+                {% endif %}
+                </div>
+                <br>
+                <label for="Estado">Estado</label>
+                <label class="switch">
+                {{form.estado}}
+                <span class="slider"></span>
+                </label>
+                <br>
+                <label for="Retroactivo">Retroactivo</label>
+                <label class="switch">
+                {{form.retroativo}}
+                <span class="slider"></span>
+                </label>
+            </div>
+            
+        </div>
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+{% endblock %}

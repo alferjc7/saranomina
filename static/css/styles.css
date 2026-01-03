@@ -184,6 +184,17 @@ body {
     border-radius: 4px;
 }
 
+
+.form-group3 input,
+.form-group3 select,
+.form-group3 textarea {
+    width: 100% !important;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
 .form-group2 textarea {
     height: 100px !important;
 }
@@ -213,7 +224,7 @@ button:hover {
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
+    min-width: 1200px;
 }
 
 th,
@@ -418,4 +429,20 @@ textarea {
 
 .login-btn:hover {
     background-color: #1f6391;
+}
+
+.header-entidades {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.titulo-entidades {
+    margin: 0;
+}
+
+.acciones-entidades {
+    display: flex;
+    gap: 10px;
 }
