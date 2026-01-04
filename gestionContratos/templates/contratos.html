@@ -18,7 +18,10 @@
                 <th>Subtipo cotizante</th>
                 <th>Codigo interno</th>
                 <th>Banco</th>
-                <th></th>
+                <th>Asignar Salario</th>
+                <th>Asignar Banco</th>
+                <th>Asignar Entidad</th>
+                <th>Asignar Deducible</th>
             </tr>
         </thead>
         <tbody>
@@ -36,9 +39,30 @@
                 <td>{{ b.codigo_interno }}</td>
                 <td>{{ b.banco }}</td>
                 <td>
+                    <form method="get" action="{% url 'contrato_salario' b.id %}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            💵 Salarios
+                        </button>
+                    </form>
+                </td>
+                <td>
                     <form method="get" action="{% url 'contrato_banco' b.id %}" style="display:inline;">
                         <button type="submit" class="btn btn-sm btn-primary">
-                            Bancos
+                            🏦 Bancos
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <form method="get" action="{% url 'contrato_entidad_ss' b.id %}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            🛡️ Entidades
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <form method="get" action="{% url 'contrato_deducible' b.id %}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                           💸 Deducibles
                         </button>
                     </form>
                 </td>

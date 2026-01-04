@@ -4,8 +4,12 @@ from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView, DeleteView
-from gestionContratos.models import t_contrato, t_contrato_banco
-from gestionContratos.forms import t_contratoform, t_contrato_banco_form
+from gestionContratos.models import (t_contrato, t_contrato_banco, 
+                                     t_contrato_entidadesss, t_contrato_salario,
+                                     t_contrato_deducibles)
+from gestionContratos.forms import (t_contratoform, t_contrato_banco_form,
+                                    t_contrato_entidadesss_form, t_contrato_salario_form,
+                                    t_contrato_deducible_form)
 
 
 # Create your views here.
@@ -37,8 +41,6 @@ class t_contratosCreateView(LoginRequiredMixin,CreateView):
         messages.error(self.request, 'Validar campos del formulario')
         return super().form_invalid(form)
 
-
-# Create your views here.
 class t_contrato_bancoCreateView(LoginRequiredMixin,CreateView):
     model = t_contrato_banco
     form_class = t_contrato_banco_form
@@ -71,3 +73,161 @@ class t_contrato_bancoCreateView(LoginRequiredMixin,CreateView):
             'contrato_banco',
             kwargs={'contrato_id': self.kwargs['contrato_id']}
         )
+
+
+class t_contrato_bancoDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_contrato_banco
+    login_url = 'accounts/login'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'contrato_banco',
+            kwargs={'contrato_id': self.object.contrato_id}
+        )
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Registro eliminado correctamente')
+        return super().post(request, *args, **kwargs)
+
+
+class t_contrato_entidadCreateView(LoginRequiredMixin,CreateView):
+    model = t_contrato_entidadesss
+    form_class = t_contrato_entidadesss_form
+    template_name = 'contrato_entidades_ss.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        contrato = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
+
+        context['contrato'] = contrato
+        context['registros'] = t_contrato_entidadesss.objects.filter(contrato=contrato)
+        
+        return context
+     
+    def form_valid(self, form):
+        form.instance.contrato_id = self.kwargs['contrato_id']
+        form.instance.date_created = datetime.now()
+        form.instance.user_creator = self.request.user
+        messages.success(self.request, 'Registro creado correctamente')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        print(form.errors)
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+    
+    def get_success_url(self):
+        return reverse(
+            'contrato_entidad_ss',
+            kwargs={'contrato_id': self.kwargs['contrato_id']}
+        )
+
+
+class t_contrato_entidadDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_contrato_entidadesss
+    login_url = 'accounts/login'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'contrato_entidad_ss',
+            kwargs={'contrato_id': self.object.contrato_id}
+        )
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Registro eliminado correctamente')
+        return super().post(request, *args, **kwargs)
+
+
+class t_contrato_salarioCreateView(LoginRequiredMixin,CreateView):
+    model = t_contrato_salario
+    form_class = t_contrato_salario_form
+    template_name = 'contrato_salario.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        contrato = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
+
+        context['contrato'] = contrato
+        context['registros'] = t_contrato_salario.objects.filter(contrato=contrato)
+        
+        return context
+     
+    def form_valid(self, form):
+        form.instance.contrato_id = self.kwargs['contrato_id']
+        form.instance.date_created = datetime.now()
+        form.instance.user_creator = self.request.user
+        messages.success(self.request, 'Registro creado correctamente')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        print(form.errors)
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+    
+    def get_success_url(self):
+        return reverse(
+            'contrato_salario',
+            kwargs={'contrato_id': self.kwargs['contrato_id']}
+        )
+
+
+class t_contrato_salarioDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_contrato_salario
+    login_url = 'accounts/login'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'contrato_salario',
+            kwargs={'contrato_id': self.object.contrato_id}
+        )
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Registro eliminado correctamente')
+        return super().post(request, *args, **kwargs)
+
+
+class t_contrato_deducibleCreateView(LoginRequiredMixin,CreateView):
+    model = t_contrato_deducibles
+    form_class = t_contrato_deducible_form
+    template_name = 'contrato_deducible.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        contrato = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
+
+        context['contrato'] = contrato
+        context['registros'] = t_contrato_deducibles.objects.filter(contrato=contrato)
+        
+        return context
+     
+    def form_valid(self, form):
+        form.instance.contrato_id = self.kwargs['contrato_id']
+        form.instance.date_created = datetime.now()
+        form.instance.user_creator = self.request.user
+        messages.success(self.request, 'Registro creado correctamente')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        print(form.errors)
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+    
+    def get_success_url(self):
+        return reverse(
+            'contrato_deducible',
+            kwargs={'contrato_id': self.kwargs['contrato_id']}
+        )
+
+
+class t_contrato_deducibleDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_contrato_deducibles
+    login_url = 'accounts/login'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'contrato_deducible',
+            kwargs={'contrato_id': self.object.contrato_id}
+        )
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Registro eliminado correctamente')
+        return super().post(request, *args, **kwargs)

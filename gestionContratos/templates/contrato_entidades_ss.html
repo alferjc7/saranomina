@@ -2,18 +2,16 @@
 
 {% block title %}Contratos{% endblock %}
 {% block content %}
-<h2>Bancos de contrato #{{ contrato.cod_contrato }}</h2>
+<h2>Entidades de contrato #{{ contrato.cod_contrato }}</h2>
 <div class="table-container">
 <table>
     <thead>
         <tr>
             <th>Contrato</th>
-            <th>Banco</th>
-            <th>Tipo Cuenta</th>
-            <th>Numero Cuenta</th>
+            <th>Tipo entidad</th>
+            <th>Entidad</th>
             <th>Fecha inicio</th>
             <th>Fecha fin</th>
-            <th>Estado</th>
             <th></th>
         </tr>
     </thead>
@@ -21,15 +19,13 @@
         {% for b in registros %}
         <tr>
             <td>{{ b.contrato.cod_contrato }}</td>
-            <td>{{ b.banco }}</td>
-            <td>{{ b.cuenta }}</td>
-            <td>{{ b.numero_cuenta }}</td>            
+            <td>{{ b.tipo_entidad }}</td>
+            <td>{{ b.entidad }}</td>
             <td>{{ b.fecha_inicio }}</td>
             <td>{{ b.fecha_fin|default:"" }}</td>
-            <td>{{ b.estado }}</td>
             <td>
-                <form method="post" action="{% url 'contrato_banco_eliminar' b.contrato.id b.pk %}"
-                        onsubmit="return confirm('¿Eliminar esta banco?');">
+                <form method="post" action="{% url 'contrato_entidad_eliminar' b.contrato.id b.pk %}"
+                        onsubmit="return confirm('¿Eliminar esta entidad?');">
                         {% csrf_token %}
                         <button type="submit">🗑 Eliminar</button>
                 </form>
@@ -48,24 +44,17 @@
         <div class="form-grid-2">
             <div>
                 <div class="form-group2">
-                {{ form.banco.label_tag }} <!-- label arriba -->
-                {{ form.banco }}
-                {% if form.banco.errors %}
-                <div class="error">{{ form.banco.errors }}</div>
+                {{ form.tipo_entidad.label_tag }} <!-- label arriba -->
+                {{ form.tipo_entidad }}
+                {% if form.tipo_entidad.errors %}
+                <div class="error">{{ form.tipo_entidad.errors }}</div>
                 {% endif %}
                 </div>
                 <div class="form-group2">
-                {{ form.cuenta.label_tag }} <!-- label arriba -->
-                {{ form.cuenta }}
-                {% if form.cuenta.errors %}
-                <div class="error">{{ form.cuenta.errors }}</div>
-                {% endif %}
-                </div>
-                <div class="form-group2">
-                {{ form.numero_cuenta.label_tag }} <!-- label arriba -->
-                {{ form.numero_cuenta }}
-                {% if form.numero_cuenta.errors %}
-                <div class="error">{{ form.numero_cuenta.errors }}</div>
+                {{ form.entidad.label_tag }} <!-- label arriba -->
+                {{ form.entidad }}
+                {% if form.entidad.errors %}
+                <div class="error">{{ form.entidad.errors }}</div>
                 {% endif %}
                 </div>
                 <div class="form-group2">
@@ -82,12 +71,6 @@
                 <div class="error">{{ form.fecha_fin.errors }}</div>
                 {% endif %}
                 </div>
-                <br>
-                <label for="Estado">Estado</label>
-                <label class="switch">
-                {{form.estado}}
-                <span class="slider"></span>
-                </label>
             </div>
             
         </div>

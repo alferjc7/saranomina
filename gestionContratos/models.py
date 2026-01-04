@@ -1,7 +1,9 @@
 from django.db import models
 from gestionClientes.models import t_empresa
 from gestionIdentificacion.models import t_identificacion
-from parametros.models import t_tipo_salario, t_tipo_contrato, t_tipo_cotizante, t_subtipo_cotizante, t_banco
+from parametros.models import (t_tipo_salario, t_tipo_contrato, 
+                               t_tipo_cotizante, t_subtipo_cotizante, 
+                               t_banco, t_entidadesss)
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class EmpresaQuerySet(models.QuerySet):
@@ -102,10 +104,56 @@ class t_contrato_banco(models.Model):
     fecha_inicio = models.DateField(verbose_name= "Fecha inicio")
     fecha_fin = models.DateField(verbose_name="Fecha fin" ,blank=True, null=True)
     estado = models.BooleanField(default= True, verbose_name= "Estado") 
-    retroactivo = models.BooleanField(default= True, verbose_name= "Retroactivo")
     user_creator = models.CharField(max_length=50,blank= True, null= True)
     date_created = models.DateField(blank= True, null= True)
 
     objects = EmpresaManager()
 
 
+class t_contrato_entidadesss(models.Model):
+    TIPO_ENTIDAD = (
+        ('AFP', 'AFP'),
+        ('EPS', 'EPS'),
+        ('CCF', 'Caja de compensacion'),
+        ('ARL', 'ARL'),
+    )
+
+    contrato = models.ForeignKey(t_contrato, on_delete=models.CASCADE, verbose_name= "Contrato")
+    tipo_entidad = models.CharField(max_length=10, choices= TIPO_ENTIDAD, verbose_name= "Tipo entidad")
+    entidad = models.ForeignKey(t_entidadesss, on_delete=models.CASCADE, verbose_name= "Entidad")
+    fecha_inicio = models.DateField(verbose_name= "Fecha inicio")
+    fecha_fin = models.DateField(verbose_name="Fecha fin" ,blank=True, null=True)
+    user_creator = models.CharField(max_length=50,blank= True, null= True)
+    date_created = models.DateField(blank= True, null= True)
+
+    objects = EmpresaManager()
+
+class t_contrato_salario(models.Model):
+    
+    contrato = models.ForeignKey(t_contrato, on_delete=models.CASCADE, verbose_name= "Contrato")
+    tipo_salario = models.ForeignKey(t_tipo_salario, on_delete=models.CASCADE, verbose_name= "Tipo de salario")
+    salario = models.DecimalField(max_digits=12, decimal_places=2, verbose_name= "Salario")
+    fecha_inicio = models.DateField(verbose_name= "Fecha inicio")
+    fecha_fin = models.DateField(verbose_name="Fecha fin" ,blank=True, null=True)
+    estado = models.BooleanField(default= True, verbose_name= "Estado") 
+    retroactivo = models.BooleanField(default= True, verbose_name= "Retroactivo") 
+    user_creator = models.CharField(max_length=50,blank= True, null= True)
+    date_created = models.DateField(blank= True, null= True)
+
+    objects = EmpresaManager()
+
+
+class t_contrato_deducibles(models.Model):
+    TIPO_DEDUCIBLE = (
+        ('DED', 'Dependiente'),
+        ('MED', 'Medicina prepagada'),
+        ('VIV', 'Vivienda'),
+        )
+    contrato = models.ForeignKey(t_contrato, on_delete=models.CASCADE, verbose_name= "Contrato")
+    tipo_deducible = models.CharField(choices= TIPO_DEDUCIBLE, verbose_name= "Tipo deducible")
+    fecha_inicio = models.DateField(verbose_name= "Fecha inicio")
+    fecha_fin = models.DateField(verbose_name="Fecha fin" ,blank=True, null=True)
+    user_creator = models.CharField(max_length=50,blank= True, null= True)
+    date_created = models.DateField(blank= True, null= True)
+
+    objects = EmpresaManager()
