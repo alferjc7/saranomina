@@ -6,10 +6,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from parametros.models import (t_tipo_contrato, t_tipo_salario, 
                                t_tipo_cotizante, t_subtipo_cotizante,
-                               t_banco, t_entidadesss)
+                               t_banco, t_entidadesss, t_conceptos_salario)
 from parametros.forms import (tipo_contratoform, tipo_salarioform, 
                               tipo_cotizanteform, subtipo_cotizanteform,
-                              bancoform, t_entidadesssform, CargaExcelForm)
+                              bancoform, t_entidadesssform, CargaExcelForm, 
+                              t_conceptos_salarioform)
 from django.views.generic import CreateView, DeleteView
 from openpyxl import load_workbook
 from django.http import HttpResponse
@@ -372,3 +373,39 @@ class entidadesssDeleteView(LoginRequiredMixin,DeleteView):
         messages.success(request, 'Banco eliminado correctamente')
         return super().post(request, *args, **kwargs)
 
+
+class t_conceptos_salarioCreateView(LoginRequiredMixin,CreateView):
+    model = t_conceptos_salario
+    form_class = t_conceptos_salarioform
+    template_name = 'conceptos_salario.html'
+    context_object_name = 'conceptos_salario'
+    success_url = reverse_lazy('conceptos_salario')
+    login_url = '/accounts/login/'           # opcional
+    redirect_field_name = 'next'  # opcional
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        registros = t_conceptos_salario.objects.all().order_by('-pk')[:30]
+        context['registros'] = registros
+        return context
+    
+    def form_valid(self, form):
+        form.instance.date_created = datetime.now()
+        form.instance.user_creator = self.request.user
+        messages.success(self.request, 'Registro creado correctamente')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        print(form.errors)
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+    
+class t_conceptos_salarioDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_conceptos_salario
+    success_url = reverse_lazy('conceptos_salario')
+    login_url = 'accounts/login'
+
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Tipo de contraro eliminado correctamente')
+        return super().post(request, *args, **kwargs)
+    

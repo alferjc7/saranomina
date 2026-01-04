@@ -32,6 +32,7 @@ urlpatterns = [
     path("gestionreportes/", include("gestionReportes.urls")),
     path("gestionclientes/", include("gestionClientes.urls")),
     path("gestioncontratos/", include("gestionContratos.urls")),
+    path("gestionconceptos/", include("gestionConceptos.urls")),
     path('beneficiarios/',BeneficiarioCreateView.as_view(),name='beneficiarios'),
     path('beneficiarios/eliminar/<int:pk>/',BeneficiarioDeleteView.as_view(),name='beneficiario_eliminar'),
     path('logout/', logout_view, name='logout'),

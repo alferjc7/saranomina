@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Conceptos de salario{% endblock %}
+{% block content %}
+<h2>Tipos salarios</h2>
+<div class="table-container">
+<table>
+    <thead>
+        <tr>
+            <th>Tipo salario</th>
+            <th>Concepto</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in registros %}
+        <tr>
+            <td>{{ b.tipo_salario }}</td>
+            <td>{{ b.concepto }}</td>
+            <td>
+                <form method="post" action="{% url 'conceptos_salario_eliminar' b.pk %}"
+                    onsubmit="return confirm('¿Eliminar esta asignacion?');">
+                    {% csrf_token %}
+                    <button type="submit">🗑 Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<h2>Nuevo tipo de salario</h2>
+<form id="cliente-form" method="POST">
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+            
+                <div class="form-group2">
+                {{ form.tipo_salario.label_tag }} <!-- label arriba -->
+                {{ form.tipo_salario }}
+                {% if form.tipo_salario.errors %}
+                <div class="error">{{ form.tipo_salario.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.concepto.label_tag }} <!-- label arriba -->
+                {{ form.concepto }}
+                {% if form.concepto.errors %}
+                <div class="error">{{ form.concepto.errors }}</div>
+                {% endif %}
+                </div>
+            
+            
+            
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+{% endblock %}

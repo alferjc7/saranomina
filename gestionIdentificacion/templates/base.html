@@ -113,6 +113,12 @@
                         Entidades SS
                     </a>
                 </div>
+                <div class="submenu">
+                    <a href="/parametros/conceptos_salario"
+                        class="{% if '/parametros/conceptos_salario/' in current %}active-link{% endif %}">
+                        Conceptos de salario
+                    </a>
+                </div>
 
             </div>
             {% endwith %}
@@ -188,6 +194,30 @@
                 </div>
             </div>
             {% endwith %}
+
+
+            {% with request.path as current %}
+            <div class="menu-group
+        {% if '/gestionconceptos/' in current or '/conceptos/' in current%}
+            active
+        {% endif %}
+    ">
+
+                <button class="menu-toggle">
+                    Gestión de Conceptos
+                    <span class="arrow">▶</span>
+                </button>
+
+                <div class="submenu">
+
+                    <a href="/gestionconceptos/conceptos"
+                        class="{% if '/gestionconceptos/conceptos/' in current %}active-link{% endif %}">
+                        Conceptos
+                    </a>
+                </div>
+            </div>
+            {% endwith %}
+
 
             {% with request.path as current %}
             <div class="menu-group

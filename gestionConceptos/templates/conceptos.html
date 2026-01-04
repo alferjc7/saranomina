@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Conceptos{% endblock %}
+{% block content %}
+<h2>Conceptos</h2>
+<div class="table-container">
+<table>
+    <thead>
+        <tr>
+            <th>Codigo concepto</th>
+            <th>Descripccion</th>
+            <th>Descripcion en ingles</th>
+            <th>Tipo conceptos</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in registros %}
+        <tr>
+            <td>{{ b.cod_concepto }}</td>
+            <td>{{ b.desc_concepto }}</td>
+            <td>{{ b.desc_concepto_eng }}</td>
+            <td>{{ b.tipo_concepto }}</td>
+            <td>
+                <form method="post" action="{% url 'conceptos_eliminar' b.pk %}"
+                        onsubmit="return confirm('¿Eliminar este concepto?');">
+                        {% csrf_token %}
+                        <button type="submit">🗑 Eliminar</button>
+                </form>
+            </td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<h2>Crear nuevo concepto</h2>
+<form id="cliente-form" method="POST">
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                {{ form.cod_concepto.label_tag }} <!-- label arriba -->
+                {{ form.cod_concepto }}
+                {% if form.cod_concepto.errors %}
+                <div class="error">{{ form.cod_concepto.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.desc_concepto.label_tag }} <!-- label arriba -->
+                {{ form.desc_concepto }}
+                {% if form.desc_concepto.errors %}
+                <div class="error">{{ form.desc_concepto.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.desc_concepto_eng.label_tag }} <!-- label arriba -->
+                {{ form.desc_concepto_eng }}
+                {% if form.desc_concepto_eng.errors %}
+                <div class="error">{{ form.desc_concepto_eng.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.tipo_concepto.label_tag }} <!-- label arriba -->
+                {{ form.tipo_concepto }}
+                {% if form.tipo_concepto.errors %}
+                <div class="error">{{ form.tipo_concepto.errors }}</div>
+                {% endif %}
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+{% endblock %}

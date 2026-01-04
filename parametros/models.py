@@ -1,4 +1,5 @@
 from django.db import models
+from gestionConceptos.models import t_conceptos
 
 # Create your models here.
 class t_tipo_contrato(models.Model):
@@ -96,3 +97,9 @@ class t_entidadesss(models.Model):
         return super().save(*args, **kwargs)
     def __str__(self):
         return self.nombre
+    
+class t_conceptos_salario(models.Model):
+    tipo_salario = models.ForeignKey(t_tipo_salario, on_delete=models.CASCADE, verbose_name= "Tipo salario")
+    concepto = models.ForeignKey(t_conceptos, on_delete=models.CASCADE, verbose_name= "Concepto")
+    user_creator = models.CharField(max_length=50,blank= True, null= True)
+    date_created = models.DateField(blank= True, null= True)
