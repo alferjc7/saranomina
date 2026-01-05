@@ -11,8 +11,7 @@
             <th>Descripcion</th>
             <th>Ruta Jasper</th>
             <th>Estado</th>
-            <th>Usuario creador</th>
-            <th>Fecha creacion</th>
+            <th></th>
             <th></th>
         </tr>
     </thead>
@@ -23,8 +22,13 @@
             <td>{{ b.descripcion }}</td>
             <td>{{ b.ruta_jasper }}</td>
             <td>{{ b.activo }}</td>
-            <td>{{ b.user_creator }}</td>
-            <td>{{ b.date_created }}</td>
+            <td>
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" 
+                data-nombre = "{{ b.nombre }}" data-descripcion= "{{ b.descripcion }}"
+                data-rutajasper = "{{ b.ruta_jasper }}" data-activo = "{{ b.activo }}">
+                ✏️ Editar
+                </button>
+            </td>
             <td>
                 <form method="post" action="{% url 'eliminar_reportes' b.pk %}"
                     onsubmit="return confirm('¿Eliminar este reporte?');">
@@ -72,4 +76,35 @@
 </form>
 {% endblock %}
 {% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            
+            const pk = btn.dataset.pk;
+            const nombre = btn.dataset.nombre;
+            const descripcion = btn.dataset.descripcion;
+            const rutajasper = btn.dataset.rutajasper;
+            const activo = btn.dataset.activo === "True";
+
+
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('crearreportes-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+
+            inputPk.value = pk;
+            form.querySelector('[name="nombre"]').value = nombre;
+            form.querySelector('[name="descripcion"]').value = descripcion;
+            form.querySelector('[name="ruta_jasper"]').value = rutajasper;
+            form.querySelector('[name="activo"]').checked = activo;
+
+        });
+    });
+</script>
 {% endblock %}

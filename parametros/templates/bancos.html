@@ -54,7 +54,9 @@
                 {% endif %}
             </td>
             <td>
-                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-contrato="{{ b.codigo }}" 
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-banco="{{ b.banco }}" 
+                    data-codigoach="{{ b.codigo_ach|default_if_none:'' }}"  data-codigopse="{{ b.codigo_pse|default_if_none:'' }}" 
+                    data-codigobr = "{{ b.codigo_br|default_if_none:'' }}" data-codigofintech = "{{ b.codigo_fintech|default_if_none:'' }}" 
                     data-estado="{{ b.estado }}">
                     ✏️ Editar
                 </button>
@@ -74,7 +76,7 @@
 
 
 <h2>Nuevo Banco</h2>
-<form id="cliente-form" method="POST">
+<form id="banco-form" method="POST">
     {% csrf_token %}
     <div class="card">
         <div class="form-grid-2">
@@ -136,4 +138,37 @@
 </form>
 {% endblock %}
 {% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            
+            const pk = btn.dataset.pk;
+            const banco = btn.dataset.banco;
+            const codigoach = btn.dataset.codigoach;
+            const codigopse = btn.dataset.codigopse;
+            const codigobr = btn.dataset.codigobr;
+            const codigofintech = btn.dataset.codigofintech;
+            const estado = btn.dataset.estado === "True";
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('banco-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+
+            inputPk.value = pk;
+            form.querySelector('[name="banco"]').value = banco;
+            form.querySelector('[name="codigo_ach"]').value = codigoach;
+            form.querySelector('[name="codigo_pse"]').value = codigopse;
+            form.querySelector('[name="codigo_br"]').value = codigobr;
+            form.querySelector('[name="codigo_fintech"]').value = codigofintech;
+            form.querySelector('[name="estado"]').checked = estado;
+        
+        });
+    });
+</script>
 {% endblock %}

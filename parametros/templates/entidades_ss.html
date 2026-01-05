@@ -44,7 +44,9 @@
                 <td>{{ b.nit }}</td>
                 <td>{{ b.nombre }}</td>
                 <td>
-                    <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-contrato="{{ b.codigo }}">
+                    <button type="button" class="editar-btn" data-pk="{{ b.pk }}" 
+                    data-tipo= "{{ b.tipo }}" data-codigo= "{{ b.codigo }}" data-nit= "{{ b.nit }}"
+                    data-nombre= "{{ b.nombre }}" >
                         ✏️ Editar
                     </button>
                 </td>
@@ -63,7 +65,7 @@
 
 
 <h2>Nuevo Entidad</h2>
-<form id="cliente-form" method="POST">
+<form id="entidades-form" method="POST">
     {% csrf_token %}
     <div class="card">
         <div class="form-grid-2">
@@ -117,6 +119,35 @@
 <script>
     document.getElementById('excel-input').addEventListener('change', function () {
         this.closest('form').submit();
+    });
+</script>
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            
+            const pk = btn.dataset.pk;
+            const tipo = btn.dataset.tipo;
+            const codigo = btn.dataset.codigo;
+            const nit = btn.dataset.nit;
+            const nombre = btn.dataset.nombre;
+          
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('entidades-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+
+            inputPk.value = pk;
+            form.querySelector('[name="tipo"]').value = tipo;
+            form.querySelector('[name="codigo"]').value = codigo;
+            form.querySelector('[name="nit"]').value = nit;
+            form.querySelector('[name="nombre"]').value = nombre;
+        
+        });
     });
 </script>
 {% endblock %}

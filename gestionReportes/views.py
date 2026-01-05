@@ -3,7 +3,7 @@ import uuid
 from django.contrib import messages
 from django.conf import settings
 from django.http import FileResponse, Http404, HttpResponse
-from django.shortcuts import render,  get_object_or_404
+from django.shortcuts import redirect, render,  get_object_or_404
 from django.views.generic import ListView, CreateView, DeleteView
 from .models import Reporte, ParametroReporte
 from .forms import parametrosreportes_form, reportes_form
@@ -37,10 +37,19 @@ class creareportesCreateView(LoginRequiredMixin,CreateView):
         return context
     
     def form_valid(self, form):
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
+        pk = self.request.POST.get('pk')
+        if pk:
+            reportes = Reporte.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(reportes, field, value)
+            reportes.save()
+            messages.success(self.request, 'Reporte actualizado correctamente')
+        else:
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.success_url)
     
     def form_invalid(self, form):
         return super().form_invalid(form)
@@ -71,8 +80,18 @@ class parametrosreportesCreateView(LoginRequiredMixin,CreateView):
         return context
     
     def form_valid(self, form):
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
+        pk = self.request.POST.get('pk')
+        if pk:
+            Parametro_reportes = ParametroReporte.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(Parametro_reportes, field, value)
+            Parametro_reportes.save()
+            messages.success(self.request, 'Parametro reporte actualizado correctamente')
+        else:
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.success_url)
+
     def form_invalid(self, form):
         return super().form_invalid(form)
     

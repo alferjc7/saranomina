@@ -14,6 +14,7 @@
             <th>Orden</th>
             <th>Requerido</th>
             <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -25,6 +26,14 @@
             <td>{{ b.tipo_dato }}</td>
             <td>{{ b.orden }}</td>
             <td>{{ b.requerido }}</td>
+            <td>
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" 
+                data-reporte = "{{ b.reporte.id }}" data-nombre = "{{ b.nombre }}"
+                data-etiqueta = "{{ b.etiqueta }}" data-tipodato = "{{ b.tipo_dato }}"
+                data-orden = "{{ b.orden }}" data-requerido = "{{ b.requerido }}">
+                ✏️ Editar
+                </button>
+            </td>
             <td>
                 <form method="post" action="{% url 'eliminar_parametros' b.pk %}"
                     onsubmit="return confirm('¿Eliminar este parametro?');">
@@ -79,4 +88,37 @@
 </form>
 {% endblock %}
 {% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            
+            const pk = btn.dataset.pk;
+            const reporte = btn.dataset.reporte;
+            const nombre = btn.dataset.nombre;
+            const etiqueta = btn.dataset.etiqueta;
+            const tipodato = btn.dataset.tipodato;
+            const orden = btn.dataset.orden;
+            const requerido = btn.dataset.requerido === "True";
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('parametroreportes-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+
+            inputPk.value = pk;
+            form.querySelector('[name="reporte"]').value = reporte;
+            form.querySelector('[name="nombre"]').value = nombre;
+            form.querySelector('[name="etiqueta"]').value = etiqueta;
+            form.querySelector('[name="tipo_dato"]').value = tipodato;
+            form.querySelector('[name="orden"]').value = orden;
+            form.querySelector('[name="requerido"]').checked = requerido;
+
+        });
+    });
+</script>
 {% endblock %}

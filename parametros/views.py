@@ -34,10 +34,20 @@ class tipos_contratosCreateView(LoginRequiredMixin,CreateView):
         return context
     
     def form_valid(self, form):
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
+        pk = self.request.POST.get('pk')
+        if pk:
+            tipo_contrato = t_tipo_contrato.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(tipo_contrato, field, value)
+            tipo_contrato.save()
+            messages.success(self.request, 'Tipo de contrato actualizado correctamente')
+        else:
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        
+        return redirect(self.success_url)
     
     def form_invalid(self, form):
         print(form.errors)
@@ -69,10 +79,20 @@ class tipos_salariosCreateView(LoginRequiredMixin,CreateView):
         return context
     
     def form_valid(self, form):
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
+        pk = self.request.POST.get('pk')
+        if pk:
+            tipo_salario = t_tipo_salario.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(tipo_salario, field, value)
+            tipo_salario.save()
+            messages.success(self.request, 'Tipo de salario actualizado correctamente')
+        else:
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.success_url)
+
     
     def form_invalid(self, form):
         print(form.errors)
@@ -105,11 +125,20 @@ class tipos_cotizantesCreateView(LoginRequiredMixin,CreateView):
         return context
     
     def form_valid(self, form):
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
-    
+        pk = self.request.POST.get('pk')
+        if pk:
+            tipo_cotizante = t_tipo_cotizante.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(tipo_cotizante, field, value)
+            tipo_cotizante.save()
+            messages.success(self.request, 'Tipo de cotizante actualizado correctamente')
+        else:
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.success_url)
+
     def form_invalid(self, form):
         print(form.errors)
         messages.error(self.request, 'Validar campos del formulario')
@@ -141,10 +170,21 @@ class subtipos_cotizantesCreateView(LoginRequiredMixin,CreateView):
         return context
     
     def form_valid(self, form):
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
+        pk = self.request.POST.get('pk')
+        if pk:
+            subtipo_cotizante = t_subtipo_cotizante.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(subtipo_cotizante, field, value)
+            subtipo_cotizante.save()
+            messages.success(self.request, 'Subtipo de cotizante actualizado correctamente')
+        else:
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        
+        return redirect(self.success_url)
+
     
     def form_invalid(self, form):
         print(form.errors)
@@ -248,11 +288,21 @@ class bancosCreateView(LoginRequiredMixin,CreateView):
         return context
     
     def form_valid(self, form):
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
-    
+        pk = self.request.POST.get('pk')
+        if pk:
+            banco = t_banco.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(banco, field, value)
+            banco.save()
+            messages.success(self.request, 'Banco actualizado correctamente')
+        else:
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        
+        return redirect(self.success_url)
+
     def form_invalid(self, form):
         print(form.errors)
         messages.error(self.request, 'Validar campos del formulario')
@@ -354,10 +404,20 @@ class entidadesssCreateView(LoginRequiredMixin,CreateView):
         return context
     
     def form_valid(self, form):
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
+        pk = self.request.POST.get('pk')
+        if pk:
+            entidad = t_entidadesss.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(entidad, field, value)
+            entidad.save()
+            messages.success(self.request, 'Entidad actualizada correctamente')
+        else:
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.success_url)
+
     
     def form_invalid(self, form):
         print(form.errors)
@@ -390,14 +450,22 @@ class t_conceptos_salarioCreateView(LoginRequiredMixin,CreateView):
         return context
     
     def form_valid(self, form):
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
-    
+        pk = self.request.POST.get('pk')
+        if pk:
+            conceptossalario = t_conceptos_salario.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(conceptossalario, field, value)
+            conceptossalario.save()
+            messages.success(self.request, 'Concepto salario actualizado correctamente')
+        else:
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.success_url)
+
     def form_invalid(self, form):
-        print(form.errors)
-        messages.error(self.request, 'Validar campos del formulario')
+        messages.error(self.request, 'Validar campos del formulario %s'%form.errors)
         return super().form_invalid(form)
     
 class t_conceptos_salarioDeleteView(LoginRequiredMixin,DeleteView):

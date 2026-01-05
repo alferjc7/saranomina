@@ -24,7 +24,7 @@
                 {% endif %}
             </td>
             <td>
-                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-contrato="{{ b.salario }}" 
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-salario="{{ b.salario }}" 
                     data-estado="{{ b.estado }}">
                     ✏️ Editar
                 </button>
@@ -43,7 +43,7 @@
 </div>
 
 <h2>Nuevo tipo de salario</h2>
-<form id="cliente-form" method="POST">
+<form id="tiposalario-form" method="POST">
     {% csrf_token %}
     <div class="card">
         <div class="form-grid-2">
@@ -75,4 +75,30 @@
 </form>
 {% endblock %}
 {% block scripts %}
+<script>
+
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pk = btn.dataset.pk;
+            const salario = btn.dataset.salario;
+            const estado = btn.dataset.estado === "True";
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('tiposalario-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+            inputPk.value = pk;
+
+            // Llenar los campos
+            form.querySelector('[name="salario"]').value = salario;
+            form.querySelector('[name="estado"]').checked = estado;
+        });
+    });
+</script>
+
 {% endblock %}

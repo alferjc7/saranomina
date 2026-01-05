@@ -25,7 +25,7 @@ class t_conceptos(models.Model):
         ('DED', 'Deduccion'),
         ('PRO', 'Porvision'),
     )
-    cod_concepto = models.CharField(max_length=5, verbose_name= "Codigo concepto")
+    cod_concepto = models.CharField(max_length=5, verbose_name= "Codigo concepto", unique= True)
     desc_concepto = models.CharField(max_length=100, verbose_name= "Descripcion concepto")
     desc_concepto_eng = models.CharField(max_length=100, verbose_name= "Descripcion en ingles")
     tipo_concepto = models.CharField(max_length=3, choices= TIPO_CONCEPTO ,verbose_name= "Tipo de concepto")

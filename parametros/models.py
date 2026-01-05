@@ -99,7 +99,7 @@ class t_entidadesss(models.Model):
         return self.nombre
     
 class t_conceptos_salario(models.Model):
-    tipo_salario = models.ForeignKey(t_tipo_salario, on_delete=models.CASCADE, verbose_name= "Tipo salario")
+    tipo_salario = models.ForeignKey(t_tipo_salario, on_delete=models.CASCADE, verbose_name= "Tipo salario", unique= True)
     concepto = models.ForeignKey(t_conceptos, on_delete=models.CASCADE, verbose_name= "Concepto")
     user_creator = models.CharField(max_length=50,blank= True, null= True)
     date_created = models.DateField(blank= True, null= True)

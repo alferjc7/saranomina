@@ -28,8 +28,8 @@
                 {% endif %}
             </td>
             <td>
-                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-contrato="{{ b.codigo }}" 
-                    data-estado="{{ b.estado }}">
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-codigocotizante="{{ b.codigo_cotizante.id }}" 
+                    data-codigo="{{ b.codigo }}" data-descripcion="{{ b.descripcion }}" data-estado="{{ b.estado }}">
                     ✏️ Editar
                 </button>
             </td>
@@ -47,7 +47,7 @@
 </div>
 
 <h2>Nuevo subtipo de cotizante</h2>
-<form id="cliente-form" method="POST">
+<form id="subtipocotizante-form" method="POST">
     {% csrf_token %}
     <div class="card">
         <div class="form-grid-2">
@@ -91,4 +91,32 @@
 </form>
 {% endblock %}
 {% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pk = btn.dataset.pk;
+            const codigocotizante = btn.dataset.codigocotizante;
+            const codigo = btn.dataset.codigo;
+            const descripcion = btn.dataset.descripcion;
+            const estado = btn.dataset.estado === "True";
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('subtipocotizante-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+            inputPk.value = pk;
+
+            // Llenar los campos
+            form.querySelector('[name="codigo_cotizante"]').value = codigocotizante;
+            form.querySelector('[name="codigo"]').value = codigo;
+            form.querySelector('[name="descripcion"]').value = descripcion;
+            form.querySelector('[name="estado"]').checked = estado;
+        });
+    });
+</script>
 {% endblock %}

@@ -10,6 +10,7 @@
             <th>Tipo salario</th>
             <th>Concepto</th>
             <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -17,6 +18,12 @@
         <tr>
             <td>{{ b.tipo_salario }}</td>
             <td>{{ b.concepto }}</td>
+            <td>
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" 
+                data-tiposalario= "{{ b.tipo_salario.id }}" data-concepto= "{{ b.concepto.id}}">
+                ✏️ Editar
+                </button>
+            </td>
             <td>
                 <form method="post" action="{% url 'conceptos_salario_eliminar' b.pk %}"
                     onsubmit="return confirm('¿Eliminar esta asignacion?');">
@@ -31,7 +38,7 @@
 </div>
 
 <h2>Nuevo tipo de salario</h2>
-<form id="cliente-form" method="POST">
+<form id="conceptossalario-form" method="POST">
     {% csrf_token %}
     <div class="card">
         <div class="form-grid-2">
@@ -50,10 +57,7 @@
                 {% if form.concepto.errors %}
                 <div class="error">{{ form.concepto.errors }}</div>
                 {% endif %}
-                </div>
-            
-            
-            
+                </div> 
             </div>
         </div>
     </div>
@@ -63,4 +67,28 @@
 </form>
 {% endblock %}
 {% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            
+            const pk = btn.dataset.pk;
+            const tiposalario = btn.dataset.tiposalario;
+            const concepto = btn.dataset.concepto;
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('conceptossalario-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+
+            inputPk.value = pk;
+            form.querySelector('[name="tipo_salario"]').value = tiposalario;
+            form.querySelector('[name="concepto"]').value = concepto;
+        });
+    });
+</script>
 {% endblock %}
