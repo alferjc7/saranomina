@@ -22,6 +22,7 @@
                 <th>Asignar Banco</th>
                 <th>Asignar Entidad</th>
                 <th>Asignar Deducible</th>
+                <th>Editar</th>
             </tr>
         </thead>
         <tbody>
@@ -62,9 +63,20 @@
                 <td>
                     <form method="get" action="{% url 'contrato_deducible' b.id %}" style="display:inline;">
                         <button type="submit" class="btn btn-sm btn-primary">
-                           💸 Deducibles
+                            💸 Deducibles
                         </button>
                     </form>
+                </td>
+                <td>
+                    <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-ide="{{ b.identificacion.id }}"
+                        data-feci="{{ b.fecha_ingreso|date:'Y-m-d' }}" data-fecf="{{ b.fecha_fin|date:'Y-m-d' }}" data-tiposal="{{ b.tipo_salario.id }}"
+                        data-tipocont ="{{ b.tipo_contrato.id }}" data-pervac="{{ b.periodo_vac }}"
+                        data-cotizante ="{{ b.tipo_cotizante.id }}" data-subcotizante="{{ b.subtipo_cotizante.id }}"
+                        data-codigoi ="{{ b.codigo_interno }}" data-banco="{{ b.banco.id }}"
+                        data-proc ="{{ b.procedimiento }}" data-porc="{{ b.porcentaje_retencion }}"
+                        data-estado ="{{ b.estado }}" data-cesantias="{{ b.cesantias }}">
+                        ✏️ Editar
+                    </button>
                 </td>
             </tr>
             {% endfor %}
@@ -73,7 +85,7 @@
 </div>
 
 <h2>Nuevo contrato</h2>
-<form id="cliente-form" method="POST">
+<form id="contrato-form" method="POST">
     {% csrf_token %}
     <div class="card">
         <div class="form-grid-2">
@@ -189,4 +201,54 @@
 </form>
 {% endblock %}
 {% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            
+            const pk = btn.dataset.pk;
+            const ide = btn.dataset.ide;
+            const feci = btn.dataset.feci;
+            const fecf = btn.dataset.fecf;
+            const tiposal = btn.dataset.tiposal;
+            const tipocont = btn.dataset.tipocont;
+            const pervac = btn.dataset.pervac;
+            const cotizante = btn.dataset.cotizante;
+            const subcotizante = btn.dataset.subcotizante;
+            const codigoi = btn.dataset.codigoi;
+            const banco = btn.dataset.banco;
+            const proc = btn.dataset.proc;
+            const porc = btn.dataset.porc;
+            const estado = btn.dataset.estado;
+            const cesantias = btn.dataset.cesantias;
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('contrato-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+
+            inputPk.value = pk;
+            form.querySelector('[name="identificacion"]').value = ide;
+            form.querySelector('[name="fecha_ingreso"]').value = feci;
+            form.querySelector('[name="fecha_fin"]').value = fecf;
+            form.querySelector('[name="tipo_salario"]').value = tiposal;
+            form.querySelector('[name="tipo_contrato"]').value = tipocont;
+            form.querySelector('[name="periodo_vac"]').value = pervac;
+            form.querySelector('[name="tipo_cotizante"]').value = cotizante;
+            form.querySelector('[name="subtipo_cotizante"]').value = subcotizante;
+            form.querySelector('[name="codigo_interno"]').value = codigoi;
+            form.querySelector('[name="banco"]').value = banco;
+            form.querySelector('[name="procedimiento"]').value = proc;
+            form.querySelector('[name="porcentaje_retencion"]').value = porc;
+            form.querySelector('[name="estado"]').value = estado;
+            form.querySelector('[name="cesantias"]').value = cesantias;
+
+            
+        });
+    });
+</script>
 {% endblock %}

@@ -69,7 +69,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = 'login'
 
 # 2 horas = 7200 segundos
-SESSION_COOKIE_AGE = 60 * 60 * 2  
+SESSION_COOKIE_AGE = 60 * 60 * 1  
 
 # Reinicia el contador en cada request
 SESSION_SAVE_EVERY_REQUEST = True  

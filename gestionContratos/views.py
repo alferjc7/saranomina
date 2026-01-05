@@ -1,5 +1,5 @@
 from datetime import datetime
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -29,13 +29,22 @@ class t_contratosCreateView(LoginRequiredMixin,CreateView):
         return context
     
     def form_valid(self, form):
-        print("aqui" + self.request.session.get('empresa_id'))
-        form.instance.empresa_id = self.request.session.get('empresa_id')
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
-    
+        pk = self.request.POST.get('pk')
+        if pk:
+            contrato = t_contrato.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(contrato, field, value)
+            contrato.save()
+            messages.success(self.request, 'Contrato actualizado correctamente')
+        else:
+            form.instance.empresa_id = self.request.session.get('empresa_id')
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        
+        return redirect(self.success_url)
+
     def form_invalid(self, form):
         print(form.errors)
         messages.error(self.request, 'Validar campos del formulario')
@@ -57,11 +66,20 @@ class t_contrato_bancoCreateView(LoginRequiredMixin,CreateView):
         return context
      
     def form_valid(self, form):
-        form.instance.contrato_id = self.kwargs['contrato_id']
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
+        pk = self.request.POST.get('pk')
+        if pk:
+            contratoban = t_contrato_banco.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(contratoban, field, value)
+            contratoban.save()
+            messages.success(self.request, 'Contrato banco actualizado correctamente')
+        else:
+            form.instance.contrato_id = self.kwargs['contrato_id']
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.get_success_url())
     
     def form_invalid(self, form):
         print(form.errors)
@@ -105,11 +123,20 @@ class t_contrato_entidadCreateView(LoginRequiredMixin,CreateView):
         return context
      
     def form_valid(self, form):
-        form.instance.contrato_id = self.kwargs['contrato_id']
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
+        pk = self.request.POST.get('pk')
+        if pk:
+            contratoent = t_contrato_entidadesss.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(contratoent, field, value)
+            contratoent.save()
+            messages.success(self.request, 'Contrato entidad actualizada correctamente')
+        else:
+            form.instance.contrato_id = self.kwargs['contrato_id']
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.get_success_url())
     
     def form_invalid(self, form):
         print(form.errors)
@@ -153,11 +180,20 @@ class t_contrato_salarioCreateView(LoginRequiredMixin,CreateView):
         return context
      
     def form_valid(self, form):
-        form.instance.contrato_id = self.kwargs['contrato_id']
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
+        pk = self.request.POST.get('pk')
+        if pk:
+            contratosal = t_contrato_salario.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(contratosal, field, value)
+            contratosal.save()
+            messages.success(self.request, 'Salario contrato actualizado correctamente')
+        else:
+            form.instance.contrato_id = self.kwargs['contrato_id']
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.get_success_url())
     
     def form_invalid(self, form):
         print(form.errors)

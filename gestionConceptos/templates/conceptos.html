@@ -12,6 +12,7 @@
             <th>Descripcion en ingles</th>
             <th>Tipo conceptos</th>
             <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -21,6 +22,13 @@
             <td>{{ b.desc_concepto }}</td>
             <td>{{ b.desc_concepto_eng }}</td>
             <td>{{ b.tipo_concepto }}</td>
+            <td>
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" 
+                data-codigo = "{{ b.cod_concepto }}" data-desc = "{{ b.desc_concepto }}"
+                data-desceng = "{{ b.desc_concepto_eng }}" data-tipo = "{{ b.tipo_concepto }}">
+                ✏️ Editar
+                </button>
+            </td>
             <td>
                 <form method="post" action="{% url 'conceptos_eliminar' b.pk %}"
                         onsubmit="return confirm('¿Eliminar este concepto?');">
@@ -36,7 +44,7 @@
 </div>
 
 <h2>Crear nuevo concepto</h2>
-<form id="cliente-form" method="POST">
+<form id="conceptos-form" method="POST">
     {% csrf_token %}
     <div class="card">
         <div class="form-grid-2">
@@ -79,4 +87,33 @@
 </form>
 {% endblock %}
 {% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            
+            const pk = btn.dataset.pk;
+            const codigo = btn.dataset.codigo;
+            const desc = btn.dataset.desc;
+            const desceng = btn.dataset.desceng;
+            const tipo = btn.dataset.tipo;
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('conceptos-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+
+            inputPk.value = pk;
+            form.querySelector('[name="cod_concepto"]').value = codigo;
+            form.querySelector('[name="desc_concepto"]').value = desc;
+            form.querySelector('[name="desc_concepto_eng"]').value = desceng;
+            form.querySelector('[name="tipo_concepto"]').value = tipo;
+            fo
+        });
+    });
+</script>
 {% endblock %}

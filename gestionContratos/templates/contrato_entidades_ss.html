@@ -4,75 +4,85 @@
 {% block content %}
 <h2>Entidades de contrato #{{ contrato.cod_contrato }}</h2>
 <div class="table-container">
-<table>
-    <thead>
-        <tr>
-            <th>Contrato</th>
-            <th>Tipo entidad</th>
-            <th>Entidad</th>
-            <th>Fecha inicio</th>
-            <th>Fecha fin</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for b in registros %}
-        <tr>
-            <td>{{ b.contrato.cod_contrato }}</td>
-            <td>{{ b.tipo_entidad }}</td>
-            <td>{{ b.entidad }}</td>
-            <td>{{ b.fecha_inicio }}</td>
-            <td>{{ b.fecha_fin|default:"" }}</td>
-            <td>
-                <form method="post" action="{% url 'contrato_entidad_eliminar' b.contrato.id b.pk %}"
+    <table>
+        <thead>
+            <tr>
+                <th>Contrato</th>
+                <th>Tipo entidad</th>
+                <th>Entidad</th>
+                <th>Fecha inicio</th>
+                <th>Fecha fin</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in registros %}
+            <tr>
+                <td>{{ b.contrato.cod_contrato }}</td>
+                <td>{{ b.tipo_entidad }}</td>
+                <td>{{ b.entidad }}</td>
+                <td>{{ b.fecha_inicio }}</td>
+                <td>{{ b.fecha_fin|default:"" }}</td>
+                <td>
+                    <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-tentidad="{{ b.tipo_entidad }}"
+                        data-entidad="{{ b.entidad.id }}"
+                        data-feci="{{ b.fecha_inicio|date:'Y-m-d' }}" data-fecf="{{ b.fecha_fin|date:'Y-m-d' }}">
+                        ✏️ Editar
+                    </button>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'contrato_entidad_eliminar' b.contrato.id b.pk %}"
                         onsubmit="return confirm('¿Eliminar esta entidad?');">
                         {% csrf_token %}
                         <button type="submit">🗑 Eliminar</button>
-                </form>
-            </td>
+                    </form>
+                </td>
 
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <h2>Asignar nuevo banco</h2>
-<form id="cliente-form" method="POST">
+<form id="contentidades-form" method="POST">
     {% csrf_token %}
     <div class="card">
         <div class="form-grid-2">
             <div>
                 <div class="form-group2">
-                {{ form.tipo_entidad.label_tag }} <!-- label arriba -->
-                {{ form.tipo_entidad }}
-                {% if form.tipo_entidad.errors %}
-                <div class="error">{{ form.tipo_entidad.errors }}</div>
-                {% endif %}
+                    {{ form.tipo_entidad.label_tag }} <!-- label arriba -->
+                    {{ form.tipo_entidad }}
+                    {% if form.tipo_entidad.errors %}
+                    <div class="error">{{ form.tipo_entidad.errors }}</div>
+                    {% endif %}
                 </div>
                 <div class="form-group2">
-                {{ form.entidad.label_tag }} <!-- label arriba -->
-                {{ form.entidad }}
-                {% if form.entidad.errors %}
-                <div class="error">{{ form.entidad.errors }}</div>
-                {% endif %}
-                </div>
-                <div class="form-group2">
-                {{ form.fecha_inicio.label_tag }} <!-- label arriba -->
-                {{ form.fecha_inicio }}
-                {% if form.fecha_inicio.errors %}
-                <div class="error">{{ form.fecha_inicio.errors }}</div>
-                {% endif %}
-                </div>
-                <div class="form-group2">
-                {{ form.fecha_fin.label_tag }} <!-- label arriba -->
-                {{ form.fecha_fin }}
-                {% if form.fecha_fin.errors %}
-                <div class="error">{{ form.fecha_fin.errors }}</div>
-                {% endif %}
+                    {{ form.entidad.label_tag }} <!-- label arriba -->
+                    {{ form.entidad }}
+                    {% if form.entidad.errors %}
+                    <div class="error">{{ form.entidad.errors }}</div>
+                    {% endif %}
                 </div>
             </div>
-            
+            <div>
+                <div class="form-group2">
+                    {{ form.fecha_inicio.label_tag }} <!-- label arriba -->
+                    {{ form.fecha_inicio }}
+                    {% if form.fecha_inicio.errors %}
+                    <div class="error">{{ form.fecha_inicio.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.fecha_fin.label_tag }} <!-- label arriba -->
+                    {{ form.fecha_fin }}
+                    {% if form.fecha_fin.errors %}
+                    <div class="error">{{ form.fecha_fin.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
         </div>
     </div>
     <br>
@@ -81,4 +91,33 @@
 </form>
 {% endblock %}
 {% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pk = btn.dataset.pk;
+            const tentidad = btn.dataset.tentidad;
+            const entidad = btn.dataset.entidad;
+            const feci = btn.dataset.feci;
+            const fecf = btn.dataset.fecf;
+            
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('contentidades-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+            inputPk.value = pk;
+
+            // Llenar los campos
+            form.querySelector('[name="tipo_entidad"]').value = tentidad;
+            form.querySelector('[name="entidad"]').value = entidad;
+            form.querySelector('[name="fecha_inicio"]').value = feci;
+            form.querySelector('[name="fecha_fin"]').value = fecf;
+            
+        });
+    });
+</script>
 {% endblock %}

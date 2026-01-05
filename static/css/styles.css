@@ -214,30 +214,62 @@ button:hover {
     background: #1f6391;
 }
 
-/* TABLAS */
 .table-container {
-     flex: 0 0 40%;
+    max-width: 100%;
+    max-height: 450px;          /* scroll vertical */
+    overflow-x: auto;           /* scroll horizontal */
     overflow-y: auto;
     border: 1px solid #ccc;
+    border-radius: 6px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+    min-height: 200px;   /* 👈 evita colapso */
+
 }
 
-table {
-    width: 100%;
+/* Tabla */
+.table-container table {
+    width: max-content;         /* 👈 fuerza scroll horizontal */
+    min-width: 100%;
     border-collapse: collapse;
-    min-width: 1200px;
+    white-space: nowrap;        /* evita que se amontone */
 }
 
-th,
-td {
-    padding: 5px 6px;
-    border: 1px solid #ddd;
-    text-align: left;
-    font-size: 12px;
-    line-height: 1.2;
-}
-
-th {
+/* Encabezados */
+.table-container th {
+    position: sticky;
+    top: 0;
     background: #ecf0f1;
+    z-index: 2;
+    padding: 10px 14px;         /* MÁS ESPACIO */
+    font-size: 13px;
+    font-weight: 700;   /* negrilla */
+    border-bottom: 2px solid gray;
+    border-right: 1px solid gray; /* 🔵 azul oscuro */
+
+}
+
+/* Celdas */
+.table-container td {
+    padding: 9px 14px;          /* MÁS ESPACIO */
+    font-size: 13px;
+    line-height: 1.4;
+    border-bottom: 1px solid gray;
+    vertical-align: middle;
+    border-right: 1px solid gray; /* 🔵 azul oscuro */
+
+}
+
+/* Hover filas */
+.table-container tbody tr:hover {
+    background: #f5f8ff;
+}
+
+.table-container td button {
+    padding: 6px 12px;
+    font-size: 12px;
+    white-space: nowrap;
 }
 
 /* SWITCH */
@@ -252,6 +284,21 @@ th {
     opacity: 0;
     width: 0;
     height: 0;
+}
+
+.switch-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+
+}
+
+/* TEXTO DEL SWITCH */
+.switch-label {
+    width: 90px;
+    font-size: 14px;        /* igual al label normal */
+    color: #2c3e50;  
 }
 
 .slider {

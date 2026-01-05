@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.contrib import messages
 from gestionConceptos.models import t_conceptos
 from gestionConceptos.forms import t_conceptosform
@@ -22,10 +22,26 @@ class t_conceptosCreateView(LoginRequiredMixin, CreateView):
         context['registros'] = registros
         return context
     
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        pk = self.request.POST.get('pk')
+        if pk:
+            kwargs['instance'] = t_conceptos.objects.get(pk=pk)
+        return kwargs
+    
     def form_valid(self, form):
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
-        
+        pk = self.request.POST.get('pk')
+        if pk:
+            conceptos = t_conceptos.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(conceptos, field, value)
+            conceptos.save()
+            messages.success(self.request, 'Concepto actualizado correctamente')
+        else:
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.success_url)
+
     def form_invalid(self, form):
         messages.error(self.request, 'Validar campos del formulario')
         return super().form_invalid(form)
