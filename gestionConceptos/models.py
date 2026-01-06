@@ -1,4 +1,5 @@
 from django.db import models
+from gestionClientes.models import t_empresa
 
 class EmpresaQuerySet(models.QuerySet):
 
@@ -42,5 +43,44 @@ class t_conceptos(models.Model):
     def __str__(self):
         return self.cod_concepto+" "+self.desc_concepto
 
+
+class t_concepto_empresa(models.Model):
+    TIPO_REDONDEO = (
+        ('SR', 'Sin redondeo'),
+        ('T', 'Truncar'),
+        ('RA', 'Redondeo arriba'),
+        ('RB', 'Redondeo abajo'),
+        ('C', 'Centenar cercano'),
+    )
+
+    SIN_VALOR = (
+        ('0', 'Dejar linea en 0'),
+        ('B', 'Borrar linea'),)
+
+    empresa = models.ForeignKey(t_empresa, on_delete=models.CASCADE, verbose_name= "Empresa")
+    cod_concepto = models.ForeignKey(t_conceptos, on_delete=models.CASCADE, verbose_name= "Concepto")
+    desc_concepto_emp = models.CharField(max_length=100, verbose_name= "Descripcion concepto")
+    tipo_redondeo = models.CharField(max_length=2, choices= TIPO_REDONDEO ,verbose_name= "Tipo de redondeo")
+    sin_valor = models.CharField(max_length=2, choices= SIN_VALOR ,verbose_name= "Sin valor")
+    user_creator = models.CharField(max_length=50,blank= True, null= True)
+    date_created = models.DateField(blank= True, null= True)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['empresa', 'cod_concepto'],
+                name='unique_concepto_por_empresa'
+            )
+        ]
+        verbose_name = "Concepto por empresa"
+        verbose_name_plural = "Conceptos por empresa"
+
+    def save(self, *args, **kwargs):
+        if self.desc_concepto_emp:
+            self.desc_concepto_emp = self.desc_concepto_emp.upper()
+        return super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.cod_concepto
 
 

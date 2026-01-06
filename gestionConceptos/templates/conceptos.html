@@ -11,6 +11,7 @@
             <th>Descripccion</th>
             <th>Descripcion en ingles</th>
             <th>Tipo conceptos</th>
+            <th>Concepto Empresa</th>
             <th></th>
             <th></th>
         </tr>
@@ -22,6 +23,13 @@
             <td>{{ b.desc_concepto }}</td>
             <td>{{ b.desc_concepto_eng }}</td>
             <td>{{ b.tipo_concepto }}</td>
+            <td>
+                    <form method="get" action="{% url 'concepto_empresa' b.id %}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            👁️ Concepto Empresa
+                        </button>
+                    </form>
+                </td>
             <td>
                 <button type="button" class="editar-btn" data-pk="{{ b.pk }}" 
                 data-codigo = "{{ b.cod_concepto }}" data-desc = "{{ b.desc_concepto }}"

@@ -237,11 +237,21 @@ class t_contrato_deducibleCreateView(LoginRequiredMixin,CreateView):
         return context
      
     def form_valid(self, form):
-        form.instance.contrato_id = self.kwargs['contrato_id']
-        form.instance.date_created = datetime.now()
-        form.instance.user_creator = self.request.user
-        messages.success(self.request, 'Registro creado correctamente')
-        return super().form_valid(form)
+        pk = self.request.POST.get('pk')
+        if pk:
+            contratoded = t_contrato_deducibles.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(contratoded, field, value)
+            contratoded.save()
+            messages.success(self.request, 'Contrato deducible actualizado correctamente')
+        else:
+            form.instance.contrato_id = self.kwargs['contrato_id']
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.get_success_url())
+
     
     def form_invalid(self, form):
         print(form.errors)

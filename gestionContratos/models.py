@@ -151,6 +151,7 @@ class t_contrato_deducibles(models.Model):
         )
     contrato = models.ForeignKey(t_contrato, on_delete=models.CASCADE, verbose_name= "Contrato")
     tipo_deducible = models.CharField(choices= TIPO_DEDUCIBLE, verbose_name= "Tipo deducible")
+    valor = models.DecimalField(max_digits=12, decimal_places=2, verbose_name= "Valor")
     fecha_inicio = models.DateField(verbose_name= "Fecha inicio")
     fecha_fin = models.DateField(verbose_name="Fecha fin" ,blank=True, null=True)
     user_creator = models.CharField(max_length=50,blank= True, null= True)

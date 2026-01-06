@@ -1,10 +1,12 @@
-from django.shortcuts import redirect, render
+from datetime import datetime
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
-from gestionConceptos.models import t_conceptos
-from gestionConceptos.forms import t_conceptosform
+from gestionClientes.models import t_empresa
+from gestionConceptos.models import t_conceptos, t_concepto_empresa
+from gestionConceptos.forms import t_conceptosform, t_concepto_empresaform
 from django.views.generic import CreateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 
 # Create your views here.
 class t_conceptosCreateView(LoginRequiredMixin, CreateView):
@@ -54,3 +56,67 @@ class t_conceptosDeleteView(LoginRequiredMixin,DeleteView):
     def post(self, request, *args, **kwargs):
         messages.success(request, 'Concepto eliminado correctamente')
         return super().post(request, *args, **kwargs)
+    
+
+class t_concepto_empresaCreateView(LoginRequiredMixin,CreateView):
+    model = t_concepto_empresa
+    form_class = t_concepto_empresaform
+    template_name = 'concepto_empresa.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        empresa_id = self.request.session.get('empresa_id')
+        empresa = get_object_or_404(t_empresa ,pk=empresa_id)
+
+        concepto = get_object_or_404(t_conceptos ,pk=self.kwargs['id'])
+
+        context['concepto'] = concepto
+        context['registros'] = t_concepto_empresa.objects.filter(cod_concepto=concepto,
+                                                                 empresa = empresa)        
+        return context
+     
+    def form_valid(self, form):
+        pk = self.request.POST.get('pk')
+        empresa_id = self.request.session.get('empresa_id')
+        empresa =  get_object_or_404(t_empresa ,pk=empresa_id)
+        print(empresa)
+        if pk:
+            conceptoemp = t_concepto_empresa.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(conceptoemp, field, value)
+            conceptoemp.save()
+            messages.success(self.request, 'Concepto empresa actualizado correctamente')
+        else:
+            concepto = get_object_or_404(t_conceptos ,pk=self.kwargs['id'])
+            form.instance.empresa = empresa  
+            form.instance.cod_concepto = concepto
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        print(form.errors)
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+    
+    def get_success_url(self):
+        return reverse(
+            'concepto_empresa',
+            kwargs={'id': self.kwargs['id']} 
+        )
+
+class t_concepto_empresaDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_concepto_empresa
+    login_url = 'accounts/login'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'concepto_empresa',
+            kwargs={'id': self.object.cod_concepto_id} 
+        )
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Registro eliminado correctamente')
+        return super().post(request, *args, **kwargs)
+

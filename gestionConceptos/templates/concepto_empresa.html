@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Concepto Empresa{% endblock %}
+{% block content %}
+<h2>Concepto #{{ concepto.cod_concepto }}</h2>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Concepto</th>
+                <th>Descripcion</th>
+                <th>Tipo redondeo</th>
+                <th>Sin valor</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in registros %}
+            <tr>
+                <td>{{ b.cod_concepto }}</td>
+                <td>{{ b.desc_concepto_emp }}</td>
+                <td>{{ b.tipo_redondeo }}</td>
+                <td>{{ b.sin_valor }}</td>
+                <td>
+                    <button type="button" class="editar-btn" data-pk="{{ b.pk }}"
+                        data-desconcepto="{{ b.desc_concepto_emp }}" data-redondeo="{{ b.tipo_redondeo }}"
+                        data-svalor="{{ b.sin_valor }}" >
+                        ✏️ Editar
+                    </button>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'concepto_empresa_eliminar' b.cod_concepto.id b.pk %}"
+                        onsubmit="return confirm('¿Eliminar esta concepto?');">
+                        {% csrf_token %}
+                        <button type="submit">🗑 Eliminar</button>
+                    </form>
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2>Asignar nuevo concepto</h2>
+<form id="conceptoemp-form" method="POST">
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    {{ form.cod_concepto.label_tag }} <!-- label arriba -->
+                    {{ form.cod_concepto }}
+                    {% if form.cod_concepto.errors %}
+                    <div class="error">{{ form.cod_concepto.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.desc_concepto_emp.label_tag }} <!-- label arriba -->
+                    {{ form.desc_concepto_emp }}
+                    {% if form.desc_concepto_emp.errors %}
+                    <div class="error">{{ form.desc_concepto_emp.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.tipo_redondeo.label_tag }} <!-- label arriba -->
+                    {{ form.tipo_redondeo }}
+                    {% if form.tipo_redondeo.errors %}
+                    <div class="error">{{ form.tipo_redondeo.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.sin_valor.label_tag }} <!-- label arriba -->
+                    {{ form.sin_valor }}
+                    {% if form.sin_valor.errors %}
+                    <div class="error">{{ form.sin_valor.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pk = btn.dataset.pk;
+            const desconcepto = btn.dataset.desconcepto;
+            const redondeo = btn.dataset.redondeo;
+            const svalor = btn.dataset.svalor;
+        
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('conceptoemp-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+            inputPk.value = pk;
+
+            // Llenar los campos
+            form.querySelector('[name="desc_concepto_emp"]').value = desconcepto;
+            form.querySelector('[name="tipo_redondeo"]').value = redondeo;
+            form.querySelector('[name="sin_valor"]').value = svalor;
+ 
+        });
+    });
+</script>
+{% endblock %}

@@ -4,66 +4,83 @@
 {% block content %}
 <h2>Deducibles de contrato #{{ contrato.cod_contrato }}</h2>
 <div class="table-container">
-<table>
-    <thead>
-        <tr>
-            <th>Contrato</th>
-            <th>Tipo deducible</th>
-            <th>Fecha inicio</th>
-            <th>Fecha fin</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for b in registros %}
-        <tr>
-            <td>{{ b.contrato.cod_contrato }}</td>
-            <td>{{ b.tipo_deducible }}</td>
-            <td>{{ b.fecha_inicio }}</td>
-            <td>{{ b.fecha_fin|default:"" }}</td>
-            <td>
-                <form method="post" action="{% url 'contrato_deducible_eliminar' b.contrato.id b.pk %}"
+    <table>
+        <thead>
+            <tr>
+                <th>Contrato</th>
+                <th>Tipo deducible</th>
+                <th>Valor</th>
+                <th>Fecha inicio</th>
+                <th>Fecha fin</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in registros %}
+            <tr>
+                <td>{{ b.contrato.cod_contrato }}</td>
+                <td>{{ b.tipo_deducible }}</td>
+                <td>{{ b.valor }}</td>
+                <td>{{ b.fecha_inicio }}</td>
+                <td>{{ b.fecha_fin|default:"" }}</td>
+                <td>
+                    <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-tipoded="{{ b.tipo_deducible }}"
+                        data-valor="{{ b.valor }}" data-feci="{{ b.fecha_inicio|date:'Y-m-d' }}"
+                        data-fecf="{{ b.fecha_fin|date:'Y-m-d' }}" >
+                        ✏️ Editar
+                    </button>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'contrato_deducible_eliminar' b.contrato.id b.pk %}"
                         onsubmit="return confirm('¿Eliminar esta deducible?');">
                         {% csrf_token %}
                         <button type="submit">🗑 Eliminar</button>
-                </form>
-            </td>
+                    </form>
+                </td>
 
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <h2>Asignar nuevo deducible</h2>
-<form id="cliente-form" method="POST">
+<form id="contded-form" method="POST">
     {% csrf_token %}
     <div class="card">
         <div class="form-grid-2">
             <div>
                 <div class="form-group2">
-                {{ form.tipo_deducible.label_tag }} <!-- label arriba -->
-                {{ form.tipo_deducible }}
-                {% if form.tipo_deducible.errors %}
-                <div class="error">{{ form.tipo_deducible.errors }}</div>
-                {% endif %}
+                    {{ form.tipo_deducible.label_tag }} <!-- label arriba -->
+                    {{ form.tipo_deducible }}
+                    {% if form.tipo_deducible.errors %}
+                    <div class="error">{{ form.tipo_deducible.errors }}</div>
+                    {% endif %}
                 </div>
                 <div class="form-group2">
-                {{ form.fecha_inicio.label_tag }} <!-- label arriba -->
-                {{ form.fecha_inicio }}
-                {% if form.fecha_inicio.errors %}
-                <div class="error">{{ form.fecha_inicio.errors }}</div>
-                {% endif %}
+                    {{ form.valor.label_tag }} <!-- label arriba -->
+                    {{ form.valor }}
+                    {% if form.valor.errors %}
+                    <div class="error">{{ form.valor.errors }}</div>
+                    {% endif %}
                 </div>
                 <div class="form-group2">
-                {{ form.fecha_fin.label_tag }} <!-- label arriba -->
-                {{ form.fecha_fin }}
-                {% if form.fecha_fin.errors %}
-                <div class="error">{{ form.fecha_fin.errors }}</div>
-                {% endif %}
+                    {{ form.fecha_inicio.label_tag }} <!-- label arriba -->
+                    {{ form.fecha_inicio }}
+                    {% if form.fecha_inicio.errors %}
+                    <div class="error">{{ form.fecha_inicio.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.fecha_fin.label_tag }} <!-- label arriba -->
+                    {{ form.fecha_fin }}
+                    {% if form.fecha_fin.errors %}
+                    <div class="error">{{ form.fecha_fin.errors }}</div>
+                    {% endif %}
                 </div>
             </div>
-            
+
         </div>
     </div>
     <br>
@@ -72,4 +89,33 @@
 </form>
 {% endblock %}
 {% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pk = btn.dataset.pk;
+            const tipoded = btn.dataset.tipoded;
+            const valor = btn.dataset.valor;
+            const feci = btn.dataset.feci;
+            const fecf = btn.dataset.fecf;
+        
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('contded-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+            inputPk.value = pk;
+
+            // Llenar los campos
+            form.querySelector('[name="tipo_deducible"]').value = tipoded;
+            form.querySelector('[name="valor"]').value = valor;
+            form.querySelector('[name="fecha_inicio"]').value = feci;
+            form.querySelector('[name="fecha_fin"]').value = fecf;
+ 
+        });
+    });
+</script>
 {% endblock %}
