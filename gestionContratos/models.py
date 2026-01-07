@@ -67,7 +67,9 @@ class t_contrato(models.Model):
         validators=[
         MinValueValidator(0),
         MaxValueValidator(100)
-        ],verbose_name= "Porcentaje retencion"
+        ],verbose_name= "Porcentaje retencion",
+        null = True,
+        blank= True
     ) 
 
     estado = models.CharField(max_length=1, choices=ESTADOS, default='A') 

@@ -7,6 +7,8 @@ from gestionConceptos.forms import t_conceptosform, t_concepto_empresaform
 from django.views.generic import CreateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse, reverse_lazy
+from django.db import IntegrityError
+
 
 # Create your views here.
 class t_conceptosCreateView(LoginRequiredMixin, CreateView):
@@ -63,6 +65,23 @@ class t_concepto_empresaCreateView(LoginRequiredMixin,CreateView):
     form_class = t_concepto_empresaform
     template_name = 'concepto_empresa.html'
 
+    def get_initial(self):
+        initial = super().get_initial()
+
+        empresa_id = self.request.session.get('empresa_id')
+        empresa = get_object_or_404(t_empresa, pk=empresa_id)
+        concepto = get_object_or_404(t_conceptos, pk=self.kwargs['id'])
+
+        existe = t_concepto_empresa.objects.filter(
+            empresa=empresa,
+            cod_concepto=concepto
+        ).exists()
+
+        if not existe:
+            initial['desc_concepto_emp'] = concepto.desc_concepto
+
+        return initial
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         empresa_id = self.request.session.get('empresa_id')
@@ -76,26 +95,35 @@ class t_concepto_empresaCreateView(LoginRequiredMixin,CreateView):
         return context
      
     def form_valid(self, form):
-        pk = self.request.POST.get('pk')
-        empresa_id = self.request.session.get('empresa_id')
-        empresa =  get_object_or_404(t_empresa ,pk=empresa_id)
-        print(empresa)
-        if pk:
-            conceptoemp = t_concepto_empresa.objects.get(pk=pk)
-            for field, value in form.cleaned_data.items():
-                setattr(conceptoemp, field, value)
-            conceptoemp.save()
-            messages.success(self.request, 'Concepto empresa actualizado correctamente')
-        else:
-            concepto = get_object_or_404(t_conceptos ,pk=self.kwargs['id'])
-            form.instance.empresa = empresa  
-            form.instance.cod_concepto = concepto
-            form.instance.date_created = datetime.now()
-            form.instance.user_creator = self.request.user
-            messages.success(self.request, 'Registro creado correctamente')
-            return super().form_valid(form)
-        return redirect(self.get_success_url())
-
+        try:
+            pk = self.request.POST.get('pk')
+            empresa_id = self.request.session.get('empresa_id')
+            empresa =  get_object_or_404(t_empresa ,pk=empresa_id)
+            print(empresa)
+            if pk:
+                conceptoemp = t_concepto_empresa.objects.get(pk=pk)
+                for field, value in form.cleaned_data.items():
+                    setattr(conceptoemp, field, value)
+                conceptoemp.save()
+                messages.success(self.request, 'Concepto empresa actualizado correctamente')
+                return redirect(self.get_success_url())
+            else:
+                concepto = get_object_or_404(t_conceptos ,pk=self.kwargs['id'])
+                form.instance.empresa = empresa  
+                form.instance.cod_concepto = concepto
+                form.instance.date_created = datetime.now()
+                form.instance.user_creator = self.request.user
+                response = super().form_valid(form) 
+                messages.success(self.request, 'Registro creado correctamente')
+                return response
+    
+        except IntegrityError:
+            form.add_error(
+                None,
+                'Ya existe este concepto configurado para la empresa.')   
+            return self.form_invalid(form)
+            
+        
     def form_invalid(self, form):
         print(form.errors)
         messages.error(self.request, 'Validar campos del formulario')
@@ -116,6 +144,13 @@ class t_concepto_empresaDeleteView(LoginRequiredMixin,DeleteView):
             'concepto_empresa',
             kwargs={'id': self.object.cod_concepto_id} 
         )
+    
+    def get_queryset(self):
+        # 🔒 evita borrar registros de otra empresa
+        empresa_id = self.request.session.get('empresa_id')
+        return super().get_queryset().filter(empresa_id=empresa_id)
+    
+    
     def post(self, request, *args, **kwargs):
         messages.success(request, 'Registro eliminado correctamente')
         return super().post(request, *args, **kwargs)

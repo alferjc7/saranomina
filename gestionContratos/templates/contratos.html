@@ -3,6 +3,29 @@
 {% block title %}Contratos{% endblock %}
 {% block content %}
 <h2>Ultimos contratos creados</h2>
+<form method="get">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="identificacion" placeholder="Buscar por identificación"
+                        value="{{ request.GET.identificacion }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="contrato" placeholder="Buscar por contrato"
+                        value="{{ request.GET.contrato }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 <div class="table-container">
     <table>
         <thead>
@@ -221,6 +244,8 @@
             const estado = btn.dataset.estado;
             const cesantias = btn.dataset.cesantias;
 
+
+
             // Agregar un input hidden para el pk
             let form = document.getElementById('contrato-form');
             let inputPk = form.querySelector('input[name="pk"]');
@@ -230,6 +255,14 @@
                 inputPk.name = 'pk';
                 form.appendChild(inputPk);
             }
+
+            const tipoSelect = form.querySelector('[name="tipo_cotizante"]');
+            tipoSelect.value = cotizante;
+            tipoSelect.dispatchEvent(new Event('change'));
+
+            setTimeout(() => {
+            form.querySelector('[name="subtipo_cotizante"]').value = subcotizante;
+            }, 500);
 
             inputPk.value = pk;
             form.querySelector('[name="identificacion"]').value = ide;
@@ -250,5 +283,38 @@
             
         });
     });
+</script>
+<script>
+document.getElementById('id_tipo_cotizante').addEventListener('change', function () {
+
+    const tipoCotizanteId = this.value;
+    const subtipoCotizanteSelect = document.getElementById('id_subtipo_cotizante');
+
+    // 🔹 Guardar el subtipo actualmente seleccionado (si existe)
+    const subtipoSeleccionado = subtipoCotizanteSelect.value;
+
+    // Limpiar opciones
+    subtipoCotizanteSelect.innerHTML = '<option value="">---------</option>';
+
+    if (!tipoCotizanteId) return;
+
+    fetch(`/gestioncontratos/ajax/subtipos/?tipo_id=${tipoCotizanteId}`)
+        .then(response => response.json())
+        .then(subtipos => {
+            subtipos.forEach(subtipo => {
+                const option = document.createElement('option');
+                option.value = subtipo.id;
+                option.textContent = subtipo.descripcion;
+
+                // 🔹 Re-seleccionar el subtipo si coincide
+                if (String(subtipo.id) === String(subtipoSeleccionado)) {
+                    option.selected = true;
+                }
+
+                subtipoCotizanteSelect.appendChild(option);
+            });
+        });
+
+});
 </script>
 {% endblock %}

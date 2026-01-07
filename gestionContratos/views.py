@@ -10,9 +10,17 @@ from gestionContratos.models import (t_contrato, t_contrato_banco,
 from gestionContratos.forms import (t_contratoform, t_contrato_banco_form,
                                     t_contrato_entidadesss_form, t_contrato_salario_form,
                                     t_contrato_deducible_form)
-
+from parametros.models import t_tipo_cotizante, t_subtipo_cotizante
+from django.http import JsonResponse
 
 # Create your views here.
+def cargar_subtipos(request):
+    tipo_id = request.GET.get('tipo_id')
+    subtipos = t_subtipo_cotizante.objects.filter(
+        codigo_cotizante=tipo_id
+    ).values('id', 'descripcion')
+    return JsonResponse(list(subtipos), safe=False)
+
 class t_contratosCreateView(LoginRequiredMixin,CreateView):
     model = t_contrato
     form_class = t_contratoform
@@ -24,7 +32,17 @@ class t_contratosCreateView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        identificacion = self.request.GET.get('identificacion')
+        contrato = self.request.GET.get('contrato')
+
         registros = t_contrato.objects.filter(empresa_id = self.request.session.get('empresa_id'))
+        
+        if identificacion:
+            registros = t_contrato.objects.filter(empresa_id = self.request.session.get('empresa_id'), identificacion__identificacion = identificacion)
+
+        if contrato:
+            registros = t_contrato.objects.filter(empresa_id = self.request.session.get('empresa_id'),cod_contrato = contrato)
+            
         context['registros'] = registros
         return context
     
