@@ -34,13 +34,11 @@
                 <th>Codigo contrato</th>
                 <th>Fecha ingreso</th>
                 <th>Fecha fin</th>
-                <th>Tipo salario</th>
                 <th>Tipo contrato</th>
                 <th>Periodo Vac</th>
                 <th>Tipo cotizante</th>
                 <th>Subtipo cotizante</th>
                 <th>Codigo interno</th>
-                <th>Banco</th>
                 <th>Asignar Salario</th>
                 <th>Asignar Banco</th>
                 <th>Asignar Entidad</th>
@@ -53,15 +51,13 @@
             <tr>
                 <td>{{ b.identificacion }}</td>
                 <td>{{ b.cod_contrato }}</td>
-                <td>{{ b.fecha_ingreso }}</td>
-                <td>{{ b.fecha_fin|default:"" }}</td>
-                <td>{{ b.tipo_salario }}</td>
+                <td>{{ b.fecha_ingreso|date:"d/m/Y" }}</td>
+                <td>{{ b.fecha_fin|date:"d/m/Y"|default:"" }}</td>
                 <td>{{ b.tipo_contrato }}</td>
                 <td>{{ b.periodo_vac}}</td>
                 <td>{{ b.tipo_cotizante }}</td>
                 <td>{{ b.subtipo_cotizante }}</td>
                 <td>{{ b.codigo_interno }}</td>
-                <td>{{ b.banco }}</td>
                 <td>
                     <form method="get" action="{% url 'contrato_salario' b.id %}" style="display:inline;">
                         <button type="submit" class="btn btn-sm btn-primary">
@@ -92,10 +88,10 @@
                 </td>
                 <td>
                     <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-ide="{{ b.identificacion.id }}"
-                        data-feci="{{ b.fecha_ingreso|date:'Y-m-d' }}" data-fecf="{{ b.fecha_fin|date:'Y-m-d' }}" data-tiposal="{{ b.tipo_salario.id }}"
+                        data-feci="{{ b.fecha_ingreso|date:'Y-m-d' }}" data-fecf="{{ b.fecha_fin|date:'Y-m-d' }}" 
                         data-tipocont ="{{ b.tipo_contrato.id }}" data-pervac="{{ b.periodo_vac }}"
                         data-cotizante ="{{ b.tipo_cotizante.id }}" data-subcotizante="{{ b.subtipo_cotizante.id }}"
-                        data-codigoi ="{{ b.codigo_interno }}" data-banco="{{ b.banco.id }}"
+                        data-codigoi ="{{ b.codigo_interno }}" 
                         data-proc ="{{ b.procedimiento }}" data-porc="{{ b.porcentaje_retencion }}"
                         data-estado ="{{ b.estado }}" data-cesantias="{{ b.cesantias }}">
                         ✏️ Editar
@@ -135,13 +131,6 @@
                     {% endif %}
                 </div>
                 <div class="form-group2">
-                    {{ form.tipo_salario.label_tag }} <!-- label arriba -->
-                    {{ form.tipo_salario }}
-                    {% if form.tipo_salario.errors %}
-                    <div class="error">{{ form.tipo_salario.errors }}</div>
-                    {% endif %}
-                </div>
-                <div class="form-group2">
                     {{ form.tipo_contrato.label_tag }} <!-- label arriba -->
                     {{ form.tipo_contrato }}
                     {% if form.tipo_contrato.errors %}
@@ -176,13 +165,6 @@
                     {{ form.codigo_interno }}
                     {% if form.codigo_interno.errors %}
                     <div class="error">{{ form.codigo_interno.errors }}</div>
-                    {% endif %}
-                </div>
-                <div class="form-group2">
-                    {{ form.banco.label_tag }} <!-- label arriba -->
-                    {{ form.banco }}
-                    {% if form.banco.errors %}
-                    <div class="error">{{ form.banco.errors }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -232,13 +214,11 @@
             const ide = btn.dataset.ide;
             const feci = btn.dataset.feci;
             const fecf = btn.dataset.fecf;
-            const tiposal = btn.dataset.tiposal;
             const tipocont = btn.dataset.tipocont;
             const pervac = btn.dataset.pervac;
             const cotizante = btn.dataset.cotizante;
             const subcotizante = btn.dataset.subcotizante;
             const codigoi = btn.dataset.codigoi;
-            const banco = btn.dataset.banco;
             const proc = btn.dataset.proc;
             const porc = btn.dataset.porc;
             const estado = btn.dataset.estado;
@@ -268,13 +248,11 @@
             form.querySelector('[name="identificacion"]').value = ide;
             form.querySelector('[name="fecha_ingreso"]').value = feci;
             form.querySelector('[name="fecha_fin"]').value = fecf;
-            form.querySelector('[name="tipo_salario"]').value = tiposal;
             form.querySelector('[name="tipo_contrato"]').value = tipocont;
             form.querySelector('[name="periodo_vac"]').value = pervac;
             form.querySelector('[name="tipo_cotizante"]').value = cotizante;
             form.querySelector('[name="subtipo_cotizante"]').value = subcotizante;
             form.querySelector('[name="codigo_interno"]').value = codigoi;
-            form.querySelector('[name="banco"]').value = banco;
             form.querySelector('[name="procedimiento"]').value = proc;
             form.querySelector('[name="porcentaje_retencion"]').value = porc;
             form.querySelector('[name="estado"]').value = estado;

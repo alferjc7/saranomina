@@ -8,23 +8,24 @@ class t_tipo_ide(models.Model):
     estado_ide = models.BooleanField(verbose_name= 'Estado')
     user_creator = models.CharField(max_length=50,blank= True, null= True)
     date_created = models.DateField()
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def save(self, *args, **kwargs):
         if self.cod_ide:
             self.cod_ide = self.cod_ide.upper()
         if self.desc_ide:
             self.desc_ide = self.desc_ide.upper()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return "%s"%(self.desc_ide)
     
 class t_identificacion(models.Model):
     TIPO_ESTADO = [
         ('','Seleccion una opcion '),
-        (1, 'SOLTER@'),
-        (2, 'CASAD@'),
-        (3, 'DIVORCIAD@'),
+        (1, 'SOLTERO(A)'),
+        (2, 'CASADO(A)'),
+        (3, 'DIVORCIADO(A)'),
         (4, 'UNION LIBRE'),
-        (5, 'VIUD@')
+        (5, 'VIUDO(A)')
     ]
     TIPO_SEXO = [
         ('','Seleccione una opcion '),
@@ -46,7 +47,7 @@ class t_identificacion(models.Model):
     segundo_apellido =  models.CharField(max_length=100, blank= True, null= True, verbose_name= "Segundo apellido")
     fecha_nacimiento = models.DateField(verbose_name= "Fecha nacimiento")
     fecha_exp_doc = models.DateField(verbose_name="Fecha expedicion documento")
-    telefono = models.CharField(max_length=30, verbose_name= "Telefono")
+    telefono = models.CharField(max_length=30, verbose_name= "Telefono", blank = True, null = True)
     celular = models.CharField(max_length=30, verbose_name= "Celular")
     direccion = models.CharField(max_length=100, verbose_name= "Direccion")
     estado_civil = models.IntegerField(
@@ -128,7 +129,7 @@ class t_beneficiario(models.Model):
         null=True
     )
     exogena = models.BooleanField(verbose_name= 'Exogena', default=True)
-
+        
     def save(self, *args, **kwargs):
         if self.nombre_completo:
             self.nombre_completo = self.nombre_completo.upper()

@@ -10,7 +10,7 @@ from gestionContratos.models import (t_contrato, t_contrato_banco,
 from gestionContratos.forms import (t_contratoform, t_contrato_banco_form,
                                     t_contrato_entidadesss_form, t_contrato_salario_form,
                                     t_contrato_deducible_form)
-from parametros.models import t_tipo_cotizante, t_subtipo_cotizante
+from parametros.models import t_subtipo_cotizante, t_entidadesss
 from django.http import JsonResponse
 
 # Create your views here.
@@ -20,6 +20,13 @@ def cargar_subtipos(request):
         codigo_cotizante=tipo_id
     ).values('id', 'descripcion')
     return JsonResponse(list(subtipos), safe=False)
+
+def ajax_entidades_por_tipo(request):
+    tipo = request.GET.get('tipo')
+    entidades = t_entidadesss.objects.filter(tipo=tipo)
+
+    data = [{'id': e.id, 'nombre': e.nombre} for e in entidades]
+    return JsonResponse(data, safe=False)
 
 class t_contratosCreateView(LoginRequiredMixin,CreateView):
     model = t_contrato
@@ -72,6 +79,11 @@ class t_contrato_bancoCreateView(LoginRequiredMixin,CreateView):
     model = t_contrato_banco
     form_class = t_contrato_banco_form
     template_name = 'contrato_banco.html'
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['contrato'] = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -80,7 +92,12 @@ class t_contrato_bancoCreateView(LoginRequiredMixin,CreateView):
 
         context['contrato'] = contrato
         context['registros'] = t_contrato_banco.objects.filter(contrato=contrato)
-        
+
+        estado = self.request.GET.get('estado')
+
+        if estado:
+            context['registros'] = t_contrato_banco.objects.filter(contrato=contrato, estado=estado)
+
         return context
      
     def form_valid(self, form):
@@ -129,6 +146,11 @@ class t_contrato_entidadCreateView(LoginRequiredMixin,CreateView):
     model = t_contrato_entidadesss
     form_class = t_contrato_entidadesss_form
     template_name = 'contrato_entidades_ss.html'
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['contrato'] = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -138,6 +160,11 @@ class t_contrato_entidadCreateView(LoginRequiredMixin,CreateView):
         context['contrato'] = contrato
         context['registros'] = t_contrato_entidadesss.objects.filter(contrato=contrato)
         
+        tipo = self.request.GET.get('tipo')
+
+        if tipo:
+            context['registros'] = t_contrato_entidadesss.objects.filter(contrato=contrato,tipo_entidad = tipo)
+
         return context
      
     def form_valid(self, form):
@@ -187,14 +214,23 @@ class t_contrato_salarioCreateView(LoginRequiredMixin,CreateView):
     form_class = t_contrato_salario_form
     template_name = 'contrato_salario.html'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['contrato'] = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         contrato = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
-
+        
         context['contrato'] = contrato
         context['registros'] = t_contrato_salario.objects.filter(contrato=contrato)
-        
+        estado = self.request.GET.get('estado')
+
+        if estado:
+            context['registros'] = t_contrato_salario.objects.filter(contrato=contrato,estado=estado)
+
         return context
      
     def form_valid(self, form):
@@ -244,6 +280,11 @@ class t_contrato_deducibleCreateView(LoginRequiredMixin,CreateView):
     form_class = t_contrato_deducible_form
     template_name = 'contrato_deducible.html'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['contrato'] = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
+        return kwargs  
+  
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 

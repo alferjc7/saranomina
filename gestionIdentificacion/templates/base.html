@@ -38,7 +38,7 @@
 
             {% with request.path as current %}
             <div class="menu-group
-        {% if '/tipos_ide/' in current or '/identificaciones/' in current or '/beneficiarios/' in current %}
+        {% if '/gestionidentificacion/' in current or '/identificaciones/' in current%}
             active
         {% endif %}
     ">
@@ -50,21 +50,103 @@
 
                 <div class="submenu">
 
-                    <a href="/tipos_ide/" class="{% if '/tipos_ide/' in current %}active-link{% endif %}">
+                    <a href="/gestionidentificacion/tipos_ide/" class="{% if '/tipos_ide/' in current %}active-link{% endif %}">
                         Tipos de Identificación
                     </a>
 
-                    <a href="/identificaciones/" class="{% if '/identificaciones/' in current %}active-link{% endif %}">
+                    <a href="/gestionidentificacion/identificaciones/" class="{% if '/identificaciones/' in current %}active-link{% endif %}">
                         Identificaciones
-                    </a>
-
-                    <a href="/beneficiarios/" class="{% if '/beneficiarios/' in current %}active-link{% endif %}">
-                        Beneficiarios
                     </a>
 
                 </div>
             </div>
             {% endwith %}
+
+            
+            {% with request.path as current %}
+            <div class="menu-group
+        {% if '/gestioncontratos/' in current or '/contrato/' in current%}
+            active
+        {% endif %}
+    ">
+
+                <button class="menu-toggle">
+                    Gestión de Contratos
+                    <span class="arrow">▶</span>
+                </button>
+
+                <div class="submenu">
+
+                    <a href="/gestioncontratos/contratos"
+                        class="{% if '/gestioncontratos/contratos/' in current %}active-link{% endif %}">
+                        Contratos
+                    </a>
+                </div>
+            </div>
+            {% endwith %}
+
+            
+            {% with request.path as current %}
+            <div class="menu-group
+        {% if '/clientes/' in current or '/empresas/' in current %}
+            active
+        {% endif %}
+    ">
+
+                <button class="menu-toggle">
+                    Gestión de Clientes
+                    <span class="arrow">▶</span>
+                </button>
+
+                <div class="submenu">
+
+                    <a href="/gestionclientes/clientes"
+                        class="{% if '/gestionclientes/clientes/' in current %}active-link{% endif %}">
+                        Clientes
+                    </a>
+
+                    <a href="/gestionclientes/empresas"
+                        class="{% if '/gestionclientes/empresas/' in current %}active-link{% endif %}">
+                        Empresas
+                    </a>
+
+
+                    <a href="/gestionclientes/user_empresa"
+                        class="{% if '/gestionclientes/user_empresa/' in current %}active-link{% endif %}">
+                        Asignar Empresas
+                    </a>
+
+
+                </div>
+            </div>
+            {% endwith %}
+
+            
+
+            {% with request.path as current %}
+            <div class="menu-group
+        {% if '/gestionconceptos/' in current or '/conceptos/' in current%}
+            active
+        {% endif %}
+    ">
+
+                <button class="menu-toggle">
+                    Gestión de Conceptos
+                    <span class="arrow">▶</span>
+                </button>
+
+                <div class="submenu">
+
+                    <a href="/gestionconceptos/conceptos"
+                        class="{% if '/gestionconceptos/conceptos/' in current %}active-link{% endif %}">
+                        Conceptos
+                    </a>
+                </div>
+            </div>
+            {% endwith %}
+
+
+
 
             {% with request.path as current %}
             <div class="menu-group
@@ -158,88 +240,6 @@
             </div>
             {% endwith %}
 
-
-
-            {% with request.path as current %}
-            <div class="menu-group
-        {% if '/clientes/' in current or '/empresas/' in current %}
-            active
-        {% endif %}
-    ">
-
-                <button class="menu-toggle">
-                    Gestión de Clientes
-                    <span class="arrow">▶</span>
-                </button>
-
-                <div class="submenu">
-
-                    <a href="/gestionclientes/clientes"
-                        class="{% if '/gestionclientes/clientes/' in current %}active-link{% endif %}">
-                        Clientes
-                    </a>
-
-                    <a href="/gestionclientes/empresas"
-                        class="{% if '/gestionclientes/empresas/' in current %}active-link{% endif %}">
-                        Empresas
-                    </a>
-
-
-                    <a href="/gestionclientes/user_empresa"
-                        class="{% if '/gestionclientes/user_empresa/' in current %}active-link{% endif %}">
-                        Asignar Empresas
-                    </a>
-
-
-                </div>
-            </div>
-            {% endwith %}
-
-
-            {% with request.path as current %}
-            <div class="menu-group
-        {% if '/gestionconceptos/' in current or '/conceptos/' in current%}
-            active
-        {% endif %}
-    ">
-
-                <button class="menu-toggle">
-                    Gestión de Conceptos
-                    <span class="arrow">▶</span>
-                </button>
-
-                <div class="submenu">
-
-                    <a href="/gestionconceptos/conceptos"
-                        class="{% if '/gestionconceptos/conceptos/' in current %}active-link{% endif %}">
-                        Conceptos
-                    </a>
-                </div>
-            </div>
-            {% endwith %}
-
-
-            {% with request.path as current %}
-            <div class="menu-group
-        {% if '/gestioncontratos/' in current or '/contrato/' in current%}
-            active
-        {% endif %}
-    ">
-
-                <button class="menu-toggle">
-                    Gestión de Contratos
-                    <span class="arrow">▶</span>
-                </button>
-
-                <div class="submenu">
-
-                    <a href="/gestioncontratos/contratos"
-                        class="{% if '/gestioncontratos/contratos/' in current %}active-link{% endif %}">
-                        Contratos
-                    </a>
-                </div>
-            </div>
-            {% endwith %}
 
             
 

@@ -3,12 +3,44 @@
 {% block title %}Contratos{% endblock %}
 {% block content %}
 <h2>Entidades de contrato #{{ contrato.cod_contrato }}</h2>
+
+<form method="get">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    <select name="tipo" class="form-control">
+                        <option value="">Buscar por tipo entidad</option>
+                        <option value= "ARL" {% if request.GET.estado == "ARL" %}selected{% endif %}>
+                            ARL
+                        </option>
+                        <option value= "CCF" {% if request.GET.estado == "CCF" %}selected{% endif %}>
+                            CCF
+                        </option>
+                        <option value= "EPS" {% if request.GET.estado == "EPS" %}selected{% endif %}>
+                            EPS
+                        </option>
+                        <option value= "AFP" {% if request.GET.estado == "AFP" %}selected{% endif %}>
+                            AFP
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 <div class="table-container">
     <table>
         <thead>
             <tr>
                 <th>Contrato</th>
                 <th>Tipo entidad</th>
+                <th>Codigo entidad</th>
                 <th>Entidad</th>
                 <th>Fecha inicio</th>
                 <th>Fecha fin</th>
@@ -21,9 +53,10 @@
             <tr>
                 <td>{{ b.contrato.cod_contrato }}</td>
                 <td>{{ b.tipo_entidad }}</td>
+                <td>{{ b.entidad.codigo }}</td>
                 <td>{{ b.entidad }}</td>
-                <td>{{ b.fecha_inicio }}</td>
-                <td>{{ b.fecha_fin|default:"" }}</td>
+                <td>{{ b.fecha_inicio|date:"d/m/Y" }}</td>
+                <td>{{ b.fecha_fin|date:"d/m/Y"|default:"" }}</td>
                 <td>
                     <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-tentidad="{{ b.tipo_entidad }}"
                         data-entidad="{{ b.entidad.id }}"
@@ -92,32 +125,73 @@
 {% endblock %}
 {% block scripts %}
 <script>
-    document.querySelectorAll('.editar-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const pk = btn.dataset.pk;
-            const tentidad = btn.dataset.tentidad;
-            const entidad = btn.dataset.entidad;
-            const feci = btn.dataset.feci;
-            const fecf = btn.dataset.fecf;
-            
-            // Agregar un input hidden para el pk
-            let form = document.getElementById('contentidades-form');
-            let inputPk = form.querySelector('input[name="pk"]');
-            if (!inputPk) {
-                inputPk = document.createElement('input');
-                inputPk.type = 'hidden';
-                inputPk.name = 'pk';
-                form.appendChild(inputPk);
-            }
-            inputPk.value = pk;
+document.querySelectorAll('.editar-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const pk = btn.dataset.pk;
+        const tentidad = btn.dataset.tentidad;
+        const entidad = btn.dataset.entidad;
+        const feci = btn.dataset.feci;
+        const fecf = btn.dataset.fecf;
 
-            // Llenar los campos
-            form.querySelector('[name="tipo_entidad"]').value = tentidad;
-            form.querySelector('[name="entidad"]').value = entidad;
-            form.querySelector('[name="fecha_inicio"]').value = feci;
-            form.querySelector('[name="fecha_fin"]').value = fecf;
-            
-        });
+        const form = document.getElementById('contentidades-form');
+
+        // Hidden PK
+        let inputPk = form.querySelector('input[name="pk"]');
+        if (!inputPk) {
+            inputPk = document.createElement('input');
+            inputPk.type = 'hidden';
+            inputPk.name = 'pk';
+            form.appendChild(inputPk);
+        }
+        inputPk.value = pk;
+
+        // Set tipo
+        const tipoSelect = form.querySelector('[name="tipo_entidad"]');
+        tipoSelect.value = tentidad;
+
+        // Guardamos entidad a re-seleccionar
+        const entidadSelect = form.querySelector('[name="entidad"]');
+        entidadSelect.dataset.selected = entidad;
+
+        // Fechas
+        form.querySelector('[name="fecha_inicio"]').value = feci;
+        form.querySelector('[name="fecha_fin"]').value = fecf;
+
+        // 🔥 FORZAR CHANGE
+        tipoSelect.dispatchEvent(new Event('change'));
     });
+});
+</script>
+<script>
+document.getElementById('id_tipo_entidad').addEventListener('change', function () {
+    const tipo = this.value;
+    const entidadSelect = document.getElementById('id_entidad');
+
+    const entidadSeleccionada = entidadSelect.dataset.selected;
+
+    entidadSelect.innerHTML = '<option value="">---------</option>';
+
+    if (!tipo) return;
+
+    fetch(`/gestioncontratos/ajax/ajax-entidades-por-tipo/?tipo=${tipo}`)
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(entidad => {
+                const option = document.createElement('option');
+                option.value = entidad.id;
+                option.textContent = entidad.nombre;
+
+                // 🔥 RE-SELECCIONAR EN EDICIÓN
+                if (String(entidad.id) === String(entidadSeleccionada)) {
+                    option.selected = true;
+                }
+
+                entidadSelect.appendChild(option);
+            });
+
+            // limpiar after use
+            delete entidadSelect.dataset.selected;
+        });
+});
 </script>
 {% endblock %}

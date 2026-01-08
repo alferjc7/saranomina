@@ -3,19 +3,15 @@
 {% block title %}Beneficiarios{% endblock %}
 
 {% block content %}
+<h2>Beneficiarios</h2>
+
 <form method="get">
-    <h2>Titular</h2>
     <div class="card">
         <div class="form-grid-2">
             <div>
                 <div class="form-group2">
                     <input type="text" name="identificacion" placeholder="Buscar por identificación"
-                        value="{{ request.GET.identificacion }}" required autofocus>
-                </div>
-            </div>
-            <div>
-                <div class="form-group2">
-                    <input type="text" name="nombre" placeholder="Nombre titular" value="{{ nombre }}" disabled="True">
+                        value="{{ request.GET.identificacion }}">
                 </div>
             </div>
             <div>
@@ -26,7 +22,7 @@
         </div>
     </div>
 </form>
-<h2>Beneficiarios</h2>
+
 <div class="table-container">
 <table>
     <thead>
@@ -72,7 +68,7 @@
             </td>
 
             <td>
-                <form method="post" action="{% url 'beneficiario_eliminar' b.pk %}"
+                <form method="post" action="{% url 'beneficiario_eliminar' b.iden_titular.id b.pk %}"
                     onsubmit="return confirm('¿Eliminar este beneficiario?');">
                     {% csrf_token %}
                     <button type="submit">🗑 Eliminar</button>
@@ -87,7 +83,6 @@
 
 <form id="beneficiario-form" method="post">
     {% csrf_token %}
-    {{ form.iden_titular }}
     <div class="card">
 
         <div class="form-grid-2">

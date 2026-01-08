@@ -49,7 +49,6 @@ class t_contrato(models.Model):
     cod_contrato = models.BigIntegerField(verbose_name= "Codigo contrato")
     fecha_ingreso = models.DateField(verbose_name= "Fecha ingreso")
     fecha_fin = models.DateField(verbose_name="Fecha fin" ,blank=True, null=True)
-    tipo_salario = models.ForeignKey(t_tipo_salario, on_delete=models.CASCADE, verbose_name= "Tipo de salario")
     tipo_contrato = models.ForeignKey(t_tipo_contrato, on_delete=models.CASCADE, verbose_name= "Tipo de contrato")
     periodo_vac = models.IntegerField(verbose_name="Periodo de vacaciones",
     validators=[
@@ -59,7 +58,6 @@ class t_contrato(models.Model):
     tipo_cotizante = models.ForeignKey(t_tipo_cotizante, on_delete=models.CASCADE, verbose_name= "Tipo cotizante")
     subtipo_cotizante = models.ForeignKey(t_subtipo_cotizante, on_delete=models.CASCADE, verbose_name= "Subtipo cotizante")
     codigo_interno = models.CharField(max_length=16, null = True, blank= True)
-    banco = models.ForeignKey(t_banco, on_delete=models.CASCADE, verbose_name= "Banco") 
     procedimiento = models.CharField(max_length=1, choices= PROCEDIMIENTORET)
     porcentaje_retencion = models.DecimalField(
         max_digits=5,
@@ -116,7 +114,7 @@ class t_contrato_entidadesss(models.Model):
     TIPO_ENTIDAD = (
         ('AFP', 'AFP'),
         ('EPS', 'EPS'),
-        ('CCF', 'Caja de compensacion'),
+        ('CCF', 'CCF'),
         ('ARL', 'ARL'),
     )
 
@@ -134,7 +132,7 @@ class t_contrato_salario(models.Model):
     
     contrato = models.ForeignKey(t_contrato, on_delete=models.CASCADE, verbose_name= "Contrato")
     tipo_salario = models.ForeignKey(t_tipo_salario, on_delete=models.CASCADE, verbose_name= "Tipo de salario")
-    salario = models.DecimalField(max_digits=12, decimal_places=2, verbose_name= "Salario")
+    salario = models.DecimalField(max_digits=12, decimal_places=0, verbose_name= "Salario")
     fecha_inicio = models.DateField(verbose_name= "Fecha inicio")
     fecha_fin = models.DateField(verbose_name="Fecha fin" ,blank=True, null=True)
     estado = models.BooleanField(default= True, verbose_name= "Estado") 
@@ -153,9 +151,9 @@ class t_contrato_deducibles(models.Model):
         )
     contrato = models.ForeignKey(t_contrato, on_delete=models.CASCADE, verbose_name= "Contrato")
     tipo_deducible = models.CharField(choices= TIPO_DEDUCIBLE, verbose_name= "Tipo deducible")
-    valor = models.DecimalField(max_digits=12, decimal_places=2, verbose_name= "Valor")
+    valor = models.DecimalField(max_digits=12, decimal_places=0, verbose_name= "Valor")
     fecha_inicio = models.DateField(verbose_name= "Fecha inicio")
-    fecha_fin = models.DateField(verbose_name="Fecha fin" ,blank=True, null=True)
+    fecha_fin = models.DateField(verbose_name="Fecha fin")
     user_creator = models.CharField(max_length=50,blank= True, null= True)
     date_created = models.DateField(blank= True, null= True)
 

@@ -3,6 +3,31 @@
 {% block title %}Contratos{% endblock %}
 {% block content %}
 <h2>Bancos de contrato #{{ contrato.cod_contrato }}</h2>
+
+<form method="get">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    <select name="estado" class="form-control">
+                        <option value="">Buscar por estado</option>
+                        <option value= True {% if request.GET.estado == True %}selected{% endif %}>
+                            ACTIVO
+                        </option>
+                        <option value= False {% if request.GET.estado == False %}selected{% endif %}>
+                            INACTIVO
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 <div class="table-container">
     <table>
         <thead>
@@ -25,9 +50,14 @@
                 <td>{{ b.banco }}</td>
                 <td>{{ b.cuenta }}</td>
                 <td>{{ b.numero_cuenta }}</td>
-                <td>{{ b.fecha_inicio }}</td>
-                <td>{{ b.fecha_fin|default:"" }}</td>
-                <td>{{ b.estado }}</td>
+                <td>{{ b.fecha_inicio|date:"d/m/Y" }}</td>
+                <td>{{ b.fecha_fin|date:"d/m/Y"|default:"" }}</td>
+                <td>{%  if b.estado %}
+                    ACTIVO
+                    {% else %}
+                    INACTIVO
+                    {% endif %}
+                </td>
                 <td>
                     <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-banco="{{ b.banco.id }}"
                         data-cuenta="{{ b.cuenta }}" data-ncuenta="{{ b.numero_cuenta }}" data-feci="{{ b.fecha_inicio|date:'Y-m-d' }}"

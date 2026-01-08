@@ -7,9 +7,10 @@
 <table>
     <thead>
         <tr>
-            <th>Codigo Cliente</th>
+            <th>Cliente</th>
             <th>Codigo Empresa</th>
             <th>Nit Empresa</th>
+            <th>Digito verificacion</th>
             <th>Razon social</th>
             <th>Direccion</th>
             <th>Telefono</th>
@@ -20,9 +21,10 @@
     <tbody>
         {% for b in registros %}
         <tr>
-            <td>{{ b.codigo_cliente }}</td>
+            <td>{{ b.codigo_cliente.nombre_cliente }}</td>
             <td>{{ b.codigo_empresa }}</td>
             <td>{{ b.nit_empresa }}</td>
+            <td>{{ b.digito_verificacion }}</td>
             <td>{{ b.razon_social }}</td>
             <td>{{ b.direccion }}</td>
             <td>{{ b.telefono }}</td>
@@ -31,6 +33,7 @@
                     data-codigo="{{ b.codigo_cliente.id }}"
                     data-codigoe="{{ b.codigo_empresa }}" 
                     data-nit="{{ b.nit_empresa }}"
+                    data-dig="{{ b.digito_verificacion }}"
                     data-razon="{{ b.razon_social }}"
                     data-direccion="{{ b.direccion }}"
                     data-telefono="{{ b.telefono }}">
@@ -77,14 +80,21 @@
                 {% endif %}
                 </div>
                 <div class="form-group2">
+                {{form.digito_verificacion.label_tag }} <!-- label arriba -->
+                {{form.digito_verificacion}}
+                {% if form.digito_verificacion.errors %}
+                <div class="error">{{ form.digito_verificacion.errors }}</div>
+                {% endif %}
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
                 {{form.razon_social.label_tag }} <!-- label arriba -->
                 {{form.razon_social}}
                 {% if form.razon_social.errors %}
                 <div class="error">{{ form.razon_social.errors }}</div>
                 {% endif %}
                 </div>
-            </div>
-            <div>
                 <div class="form-group2">
                 {{form.direccion.label_tag }} <!-- label arriba -->
                 {{form.direccion}}
@@ -115,6 +125,7 @@
             const codigo = btn.dataset.codigo;
             const codigoe = btn.dataset.codigoe;
             const nit = btn.dataset.nit;
+            const dig = btn.dataset.dig;
             const razon = btn.dataset.razon;
             const direccion = btn.dataset.direccion;
             const telefono = btn.dataset.telefono;
@@ -135,6 +146,7 @@
             form.querySelector('[name="codigo_cliente"]').value = codigo;
             form.querySelector('[name="codigo_empresa"]').value = codigoe;
             form.querySelector('[name="nit_empresa"]').value = nit;
+            form.querySelector('[name="digito_verificacion"]').value = dig;
             form.querySelector('[name="razon_social"]').value= razon;
             form.querySelector('[name="direccion"]').value = direccion;
             form.querySelector('[name="telefono"]').value = telefono;

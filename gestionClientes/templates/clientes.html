@@ -7,8 +7,8 @@
 <table>
     <thead>
         <tr>
-            <th>Codigo Cliente</th>
             <th>Nombre Cliente</th>
+            <th>Celular</th>
             <th>Estado</th>
             <th></th>
             <th></th>
@@ -17,8 +17,8 @@
     <tbody>
         {% for b in registros %}
         <tr>
-            <td>{{ b.codigo_cliente }}</td>
             <td>{{ b.nombre_cliente }}</td>
+            <td>{{ b.celular }}</td>
             <td>{% if b.estado_cliente %}
                 ACTIVO
                 {% else %}
@@ -26,7 +26,7 @@
                 {% endif %}
             </td>
             <td>
-                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-codigo="{{ b.codigo_cliente }}"
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-celular="{{ b.celular }}"
                     data-nombre="{{ b.nombre_cliente }}" 
                     data-estado="{{ b.estado_cliente }}">
                     ✏️ Editar
@@ -52,17 +52,17 @@
             <div>
                 {% csrf_token %}
                 <div class="form-group2">
-                {{ form.codigo_cliente.label_tag }} <!-- label arriba -->
-                {{ form.codigo_cliente }}
-                {% if form.codigo_cliente.errors %}
-                <div class="error">{{ form.codigo_cliente.errors }}</div>
-                {% endif %}
-                </div>
-                <div class="form-group2">
                 {{ form.nombre_cliente.label_tag }}
                 {{ form.nombre_cliente }}
                 {% if form.nombre_cliente.errors %}
                 <div class="error">{{ form.nombre_cliente.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.celular.label_tag }}
+                {{ form.celular }}
+                {% if form.celular.errors %}
+                <div class="error">{{ form.celular.errors }}</div>
                 {% endif %}
                 </div>
                 <br>
@@ -85,7 +85,7 @@
     document.querySelectorAll('.editar-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const pk = btn.dataset.pk;
-            const codigo = btn.dataset.codigo;
+            const celular = btn.dataset.celular;
             const nombre = btn.dataset.nombre;
             const estado = btn.dataset.estado === "True";;
 
@@ -101,7 +101,7 @@
             inputPk.value = pk;
 
             // Llenar los campos
-            form.querySelector('[name="codigo_cliente"]').value = codigo;
+            form.querySelector('[name="celular"]').value = celular;
             form.querySelector('[name="nombre_cliente"]').value = nombre;
             form.querySelector('[name="estado_cliente"]').checked = estado;
         });

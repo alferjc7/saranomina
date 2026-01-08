@@ -47,6 +47,9 @@ class t_beneficiario_form(ModelForm):
                 }
             )
         }
+        exclude = (
+            'iden_titular',)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['tipo_ide_ben'].required = True      # 🔑 evita '--------'

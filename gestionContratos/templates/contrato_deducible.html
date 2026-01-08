@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load formatos %}
 
 {% block title %}Contratos{% endblock %}
 {% block content %}
@@ -20,10 +21,17 @@
             {% for b in registros %}
             <tr>
                 <td>{{ b.contrato.cod_contrato }}</td>
-                <td>{{ b.tipo_deducible }}</td>
-                <td>{{ b.valor }}</td>
-                <td>{{ b.fecha_inicio }}</td>
-                <td>{{ b.fecha_fin|default:"" }}</td>
+                <td>{% if b.tipo_deducible == 'MED' %}
+                    MEDICINA PREPAGADA
+                    {% elif b.tipo_deducible == 'DED' %}
+                    DEPENDIENTE
+                    {% elif b.tipo_deducible == 'VIV' %}
+                    VIVIENDA
+                    {% endif %}
+                </td>
+                <td>{{ b.valor|moneda }}</td>
+                <td>{{ b.fecha_inicio|date:"d/m/Y" }}</td>
+                <td>{{ b.fecha_fin|date:"d/m/Y"|default:"" }}</td>
                 <td>
                     <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-tipoded="{{ b.tipo_deducible }}"
                         data-valor="{{ b.valor }}" data-feci="{{ b.fecha_inicio|date:'Y-m-d' }}"

@@ -1,22 +1,31 @@
 from datetime import datetime
 from django import forms
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponse
 from gestionIdentificacion.models import t_tipo_ide, t_identificacion, t_beneficiario
 from gestionIdentificacion.forms import tipo_ide_form, identificacion_form, t_beneficiario_form
 from django.views.generic import CreateView, DeleteView
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.contrib.messages import get_messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import logout
+from django.db.models.deletion import ProtectedError
+
 
 
 # Create your views here.
 @login_required
 def tipos_ide(request):
     registros = t_tipo_ide.objects.all().order_by('-id')[:10]
+    
+    codigo = request.GET.get('codigo')
+
+    if codigo:
+        registros = t_tipo_ide.objects.filter(cod_ide = codigo.upper())
+
+    
     form = tipo_ide_form()
     if request.method == 'POST':
         accion = request.POST.get('accion')
@@ -56,6 +65,12 @@ def identificaciones(request):
     form = identificacion_form()
     registros = t_identificacion.objects.all().order_by('-id')[:10]
     
+    identificacion = request.GET.get('identificacion')
+    
+    if identificacion:
+        registros = t_identificacion.objects.filter(identificacion = identificacion)
+
+
     if request.method == 'POST' :
         pk_edit = request.POST.get('edit_id')
         pk_elim = request.POST.get('elim_id')
@@ -82,91 +97,80 @@ def identificaciones(request):
             form = identificacion_form(instance=obj)
         elif accion =='eliminar':
             obj = t_identificacion.objects.get(pk=pk_elim)
-            obj.delete()
-            messages.success(request, 'Registro eliminado correctamente')
+            try:
+                obj.delete()
+                messages.success(request, 'Registro eliminado correctamente')
+            except ProtectedError:
+                messages.error(request,'Esta identificacion ya esta asignada a un contrato!')           
             return redirect('identificaciones')
         
 
 
     return render(request, "identificaciones.html", {"form": form,"registros":registros})
 
-class BeneficiarioCreateView(LoginRequiredMixin, CreateView):
+class t_beneficiarioCreateView(LoginRequiredMixin,CreateView):
     model = t_beneficiario
     form_class = t_beneficiario_form
     template_name = 'beneficiarios.html'
-    context_object_name = 'beneficiarios'
-    success_url = reverse_lazy('beneficiarios')
-    login_url = '/accounts/login/'           # opcional
-    redirect_field_name = 'next'  # opcional
-    
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        # Hacer que el campo iden_titular no se muestre en el formulario
-        form.fields['iden_titular'].widget = forms.HiddenInput()
-        return form
-    
-    def get_initial(self):
-        initial = super().get_initial()
-        identificacion = self.request.GET.get('identificacion')
 
-        if identificacion:
-            try:
-                # Buscar el objeto de t_identificacion que coincida
-                titular = t_identificacion.objects.get(identificacion=identificacion)
-                initial['iden_titular'] = titular
-            except t_identificacion.DoesNotExist:
-                pass  # si no existe, no prellenar nada
-        return initial
-  
-    def form_valid(self, form):
-        pk = self.request.POST.get('pk')
-        if pk:
-            beneficiario = t_beneficiario.objects.get(pk=pk)
-            for field, value in form.cleaned_data.items():
-                setattr(beneficiario, field, value)
-            beneficiario.save()
-            messages.success(self.request, 'Beneficiario actualizado correctamente')
-        else:
-            response = super().form_valid(form)
-            messages.success(self.request, 'Registro creado correctamente')
-        
-        return redirect(self.success_url)
-            
-    def form_invalid(self, form):
-        identificacion = self.request.GET.get('identificacion')
-        storage = get_messages(self.request)
-        for _ in storage:
-            pass  # limpi
-        if identificacion is None:
-            messages.error(self.request, 'Campo identificacion no se encuentra filtrado')
-        
-        return super().form_invalid(form)
-
-    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        identificacion = get_object_or_404(t_identificacion,pk=self.kwargs['id'])
+
+        context['identificacion'] = identificacion
+        context['beneficiarios'] = t_beneficiario.objects.filter(iden_titular=identificacion)
+        
         identificacion = self.request.GET.get('identificacion')
-        print('Aqui')
+
         if identificacion:
-            print('Aqui2')
-            try:
-                titular = t_identificacion.objects.get(identificacion=identificacion)
-                beneficiarios = t_beneficiario.objects.filter(iden_titular__identificacion = identificacion)
-                context['beneficiarios'] = beneficiarios
-                context['nombre'] = "%s %s %s %s"%(titular.nombre,titular.segundo_nombre,titular.apellido,titular.segundo_apellido)  # OJO: atributo, no el objeto
-            except t_identificacion.DoesNotExist:
-                context['nombre'] = ''
+            context['beneficiarios']  = t_beneficiario.objects.filter(iden_titular=identificacion ,iden_beneficiario = identificacion)
+
         return context
+     
+    def form_valid(self, form):
+        pk = self.request.POST.get('pk')
+        print(pk)
+        if pk:
+            beneficiarios= t_beneficiario.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(beneficiarios, field, value)
+            beneficiarios.save()
+            messages.success(self.request, 'Beneficiario actualizado correctamente')
+        else:
+            identificacion = get_object_or_404(t_identificacion,pk=self.kwargs['id'])    
+            form.instance.iden_titular = identificacion
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        
+        return redirect(self.get_success_url())
     
-class BeneficiarioDeleteView(LoginRequiredMixin,DeleteView):
+    def form_invalid(self, form):
+        print(form.errors)
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+    
+    def get_success_url(self):
+        return reverse(
+            'tbeneficiario',
+            kwargs={'id': self.kwargs['id']}
+        )
+    
+class t_beneficiarioDeleteView(LoginRequiredMixin,DeleteView):
     model = t_beneficiario
-    success_url = reverse_lazy('beneficiarios')
     login_url = 'accounts/login'
 
+    def get_success_url(self):
+        return reverse_lazy(
+            'tbeneficiario',
+            kwargs={'id': self.object.iden_titular.id}
+        )
     def post(self, request, *args, **kwargs):
-        messages.success(request, 'Beneficiario eliminado correctamente')
+        messages.success(request, 'Registro eliminado correctamente')
         return super().post(request, *args, **kwargs)
+
 
 @login_required
 def inicio(request):

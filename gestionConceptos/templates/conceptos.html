@@ -4,51 +4,59 @@
 {% block content %}
 <h2>Conceptos</h2>
 <div class="table-container">
-<table>
-    <thead>
-        <tr>
-            <th>Codigo concepto</th>
-            <th>Descripccion</th>
-            <th>Descripcion en ingles</th>
-            <th>Tipo conceptos</th>
-            <th>Concepto Empresa</th>
-            <th>Editar</th>
-            <th>Eliminar</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for b in registros %}
-        <tr>
-            <td>{{ b.cod_concepto }}</td>
-            <td>{{ b.desc_concepto }}</td>
-            <td>{{ b.desc_concepto_eng }}</td>
-            <td>{{ b.tipo_concepto }}</td>
-            <td>
+    <table>
+        <thead>
+            <tr>
+                <th>Codigo concepto</th>
+                <th>Descripcion</th>
+                <th>Descripcion en ingles</th>
+                <th>Tipo conceptos</th>
+                <th>Concepto Empresa</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in registros %}
+            <tr>
+                <td>{{ b.cod_concepto }}</td>
+                <td>{{ b.desc_concepto }}</td>
+                <td>{{ b.desc_concepto_eng }}</td>
+                <td>
+                    {% if b.tipo_concepto == 'DEV' %}
+                    DEVENGO
+                    {% elif b.tipo_concepto == 'DED' %}
+                    DEDUCCION
+                    {% elif b.tipo_concepto == 'PROV' %}
+                    PROVISION
+                    {% endif %}
+                </td>
+                <td>
                     <form method="get" action="{% url 'concepto_empresa' b.id %}" style="display:inline;">
                         <button type="submit" class="btn btn-sm btn-primary">
                             👁️ Concepto Empresa
                         </button>
                     </form>
                 </td>
-            <td>
-                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" 
-                data-codigo = "{{ b.cod_concepto }}" data-desc = "{{ b.desc_concepto }}"
-                data-desceng = "{{ b.desc_concepto_eng }}" data-tipo = "{{ b.tipo_concepto }}">
-                ✏️ Editar
-                </button>
-            </td>
-            <td>
-                <form method="post" action="{% url 'conceptos_eliminar' b.pk %}"
+                <td>
+                    <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-codigo="{{ b.cod_concepto }}"
+                        data-desc="{{ b.desc_concepto }}" data-desceng="{{ b.desc_concepto_eng }}"
+                        data-tipo="{{ b.tipo_concepto }}">
+                        ✏️ Editar
+                    </button>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'conceptos_eliminar' b.pk %}"
                         onsubmit="return confirm('¿Eliminar este concepto?');">
                         {% csrf_token %}
                         <button type="submit">🗑 Eliminar</button>
-                </form>
-            </td>
+                    </form>
+                </td>
 
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <h2>Crear nuevo concepto</h2>
@@ -58,35 +66,35 @@
         <div class="form-grid-2">
             <div>
                 <div class="form-group2">
-                {{ form.cod_concepto.label_tag }} <!-- label arriba -->
-                {{ form.cod_concepto }}
-                {% if form.cod_concepto.errors %}
-                <div class="error">{{ form.cod_concepto.errors }}</div>
-                {% endif %}
+                    {{ form.cod_concepto.label_tag }} <!-- label arriba -->
+                    {{ form.cod_concepto }}
+                    {% if form.cod_concepto.errors %}
+                    <div class="error">{{ form.cod_concepto.errors }}</div>
+                    {% endif %}
                 </div>
                 <div class="form-group2">
-                {{ form.desc_concepto.label_tag }} <!-- label arriba -->
-                {{ form.desc_concepto }}
-                {% if form.desc_concepto.errors %}
-                <div class="error">{{ form.desc_concepto.errors }}</div>
-                {% endif %}
+                    {{ form.desc_concepto.label_tag }} <!-- label arriba -->
+                    {{ form.desc_concepto }}
+                    {% if form.desc_concepto.errors %}
+                    <div class="error">{{ form.desc_concepto.errors }}</div>
+                    {% endif %}
                 </div>
                 <div class="form-group2">
-                {{ form.desc_concepto_eng.label_tag }} <!-- label arriba -->
-                {{ form.desc_concepto_eng }}
-                {% if form.desc_concepto_eng.errors %}
-                <div class="error">{{ form.desc_concepto_eng.errors }}</div>
-                {% endif %}
+                    {{ form.desc_concepto_eng.label_tag }} <!-- label arriba -->
+                    {{ form.desc_concepto_eng }}
+                    {% if form.desc_concepto_eng.errors %}
+                    <div class="error">{{ form.desc_concepto_eng.errors }}</div>
+                    {% endif %}
                 </div>
                 <div class="form-group2">
-                {{ form.tipo_concepto.label_tag }} <!-- label arriba -->
-                {{ form.tipo_concepto }}
-                {% if form.tipo_concepto.errors %}
-                <div class="error">{{ form.tipo_concepto.errors }}</div>
-                {% endif %}
+                    {{ form.tipo_concepto.label_tag }} <!-- label arriba -->
+                    {{ form.tipo_concepto }}
+                    {% if form.tipo_concepto.errors %}
+                    <div class="error">{{ form.tipo_concepto.errors }}</div>
+                    {% endif %}
                 </div>
             </div>
-            
+
         </div>
     </div>
     <br>
@@ -98,7 +106,7 @@
 <script>
     document.querySelectorAll('.editar-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            
+
             const pk = btn.dataset.pk;
             const codigo = btn.dataset.codigo;
             const desc = btn.dataset.desc;

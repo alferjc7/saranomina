@@ -1,8 +1,34 @@
 {% extends "base.html" %}
+{% load formatos %}
 
 {% block title %}Contratos{% endblock %}
 {% block content %}
 <h2>Salarios de contrato #{{ contrato.cod_contrato }}</h2>
+
+<form method="get">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    <select name="estado" class="form-control">
+                        <option value="">Buscar por estado</option>
+                        <option value= True {% if request.GET.estado == True %}selected{% endif %}>
+                            ACTIVO
+                        </option>
+                        <option value= False {% if request.GET.estado == False %}selected{% endif %}>
+                            INACTIVO
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 <div class="table-container">
     <table>
         <thead>
@@ -23,15 +49,24 @@
             <tr>
                 <td>{{ b.contrato.cod_contrato }}</td>
                 <td>{{ b.tipo_salario }}</td>
-                <td>{{ b.salario }}</td>
-                <td>{{ b.fecha_inicio }}</td>
-                <td>{{ b.fecha_fin|default:"" }}</td>
-                <td>{{ b.estado }}</td>
-                <td>{{ b.retroactivo }}</td>
+                <td>{{ b.salario|moneda }}</td>
+                <td>{{ b.fecha_inicio|date:"d/m/Y" }}</td>
+                <td>{{ b.fecha_fin|date:"d/m/Y"|default:"" }}</td>
+                <td>{% if b.estado %}
+                    ACTIVO
+                    {% else %}
+                    INACTIVO
+                    {% endif %}</td>
+                <td>{% if b.retroactivo %}
+                    SI
+                    {% else %}
+                    NO
+                    {% endif %}</td>
                 <td>
                     <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-tiposal="{{ b.tipo_salario.id }}"
-                        data-salario="{{ b.salario }}" data-feci="{{ b.fecha_inicio|date:'Y-m-d' }}" data-fecf="{{ b.fecha_fin|date:'Y-m-d' }}"
-                        data-estado="{{ b.estado }}" data-retroactivo="{{ b.retroactivo }}">
+                        data-salario="{{ b.salario }}" data-feci="{{ b.fecha_inicio|date:'Y-m-d' }}"
+                        data-fecf="{{ b.fecha_fin|date:'Y-m-d' }}" data-estado="{{ b.estado }}"
+                        data-retroactivo="{{ b.retroactivo }}">
                         ✏️ Editar
                     </button>
                 </td>
@@ -102,7 +137,7 @@
                     <div class="error">{{ form.fecha_fin.errors }}</div>
                     {% endif %}
                 </div>
-                
+
             </div>
 
         </div>
@@ -123,7 +158,7 @@
             const fecf = btn.dataset.fecf;
             const estado = btn.dataset.estado === "True";
             const retroactivo = btn.dataset.retroactivo === "True";
-            
+
             // Agregar un input hidden para el pk
             let form = document.getElementById('contsalario-form');
             let inputPk = form.querySelector('input[name="pk"]');
