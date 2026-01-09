@@ -3,6 +3,24 @@
 {% block title %}Tipos contratos{% endblock %}
 {% block content %}
 <h2>Tipos contratos</h2>
+<form method="get">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="tipo" placeholder="Buscar por tipo contrato"  oninput="this.value = this.value.toUpperCase()"
+                        value="{{ request.GET.tipo }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+    
 <div class="table-container">
 <table>
     <thead>

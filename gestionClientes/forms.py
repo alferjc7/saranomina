@@ -10,6 +10,8 @@ class t_empresa_form(ModelForm):
     class Meta: 
         model = t_empresa
         fields = '__all__'
+        exclude = (
+            'codigo_cliente',)
 
 class usuarioempresa_form(ModelForm):
     class Meta: 

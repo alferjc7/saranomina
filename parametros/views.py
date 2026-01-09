@@ -31,6 +31,14 @@ class tipos_contratosCreateView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         registros = t_tipo_contrato.objects.all().order_by('-pk')[:30]
         context['registros'] = registros
+
+        tipo = self.request.GET.get('tipo')
+
+        if tipo:
+            context['registros'] = t_tipo_contrato.objects.filter(contrato=tipo)
+
+
+
         return context
     
     def form_valid(self, form):
@@ -76,6 +84,19 @@ class tipos_salariosCreateView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         registros = t_tipo_salario.objects.all().order_by('-pk')[:30]
         context['registros'] = registros
+
+        tipo = self.request.GET.get('tipo')
+        
+        estado = self.request.GET.get('estado')
+
+
+        if tipo:
+            context['registros'] = t_tipo_salario.objects.filter(salario=tipo)
+
+        
+        if estado:
+            context['registros'] = t_tipo_salario.objects.filter(estado=estado)
+
         return context
     
     def form_valid(self, form):
@@ -122,6 +143,20 @@ class tipos_cotizantesCreateView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         registros = t_tipo_cotizante.objects.all().order_by('-pk')[:30]
         context['registros'] = registros
+
+        codigo = self.request.GET.get('codigo')
+        
+        estado = self.request.GET.get('estado')
+
+
+        if codigo:
+            context['registros'] = t_tipo_cotizante.objects.filter(codigo=codigo)
+
+        
+        if estado:
+            context['registros'] = t_tipo_cotizante.objects.filter(estado=estado)
+
+
         return context
     
     def form_valid(self, form):
@@ -167,6 +202,26 @@ class subtipos_cotizantesCreateView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         registros = t_subtipo_cotizante.objects.all().order_by('-pk')[:30]
         context['registros'] = registros
+
+        cotizante = self.request.GET.get('cotizante')
+
+        codigo = self.request.GET.get('codigo')
+        
+        estado = self.request.GET.get('estado')
+
+        
+        if cotizante:
+            context['registros'] = t_subtipo_cotizante.objects.filter(codigo_cotizante=cotizante)
+
+
+        if codigo:
+            context['registros'] = t_subtipo_cotizante.objects.filter(codigo=codigo)
+
+        
+        if estado:
+            context['registros'] = t_subtipo_cotizante.objects.filter(estado=estado)
+
+
         return context
     
     def form_valid(self, form):
@@ -285,6 +340,21 @@ class bancosCreateView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         registros = t_banco.objects.all().order_by('-pk')[:30]
         context['registros'] = registros
+
+        codigo = self.request.GET.get('codigo')
+        
+        banco = self.request.GET.get('banco')
+
+        
+        if banco:
+            context['registros'] = t_banco.objects.filter(banco=banco)
+
+
+        if codigo:
+            context['registros'] = t_banco.objects.filter(codigo_pse=codigo)
+
+
+
         return context
     
     def form_valid(self, form):
@@ -400,6 +470,18 @@ class entidadesssCreateView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         registros = t_entidadesss.objects.all().order_by('-pk')[:30]
         context['registros'] = registros
+        
+        codigo = self.request.GET.get('codigo')
+        
+        tipo = self.request.GET.get('tipo')
+
+        if tipo:
+            context['registros'] = t_entidadesss.objects.filter(tipo=tipo)
+
+        if codigo:
+            context['registros'] = t_entidadesss.objects.filter(codigo=codigo)
+
+
         context['form_excel'] = CargaExcelForm()
         return context
     

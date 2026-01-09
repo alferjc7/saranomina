@@ -292,7 +292,13 @@ class t_contrato_deducibleCreateView(LoginRequiredMixin,CreateView):
 
         context['contrato'] = contrato
         context['registros'] = t_contrato_deducibles.objects.filter(contrato=contrato)
-        
+
+        tipo = self.request.GET.get('tipo')
+
+        if tipo:
+            context['registros'] = t_contrato_deducibles.objects.filter(contrato=contrato,tipo_deducible=tipo)
+
+
         return context
      
     def form_valid(self, form):

@@ -10,8 +10,9 @@
             <th>Nombre Cliente</th>
             <th>Celular</th>
             <th>Estado</th>
-            <th></th>
-            <th></th>
+            <th>Empresas</th>
+            <th>Editar</th>
+            <th>Eliminar</th>
         </tr>
     </thead>
     <tbody>
@@ -24,6 +25,13 @@
                 {% else %}
                 INACTIVO
                 {% endif %}
+            </td>
+            <td>
+                    <form method="get" action="{% url 'empresas' b.id %}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            🏭 Empresas
+                        </button>
+                    </form>
             </td>
             <td>
                 <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-celular="{{ b.celular }}"

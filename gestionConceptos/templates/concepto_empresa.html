@@ -11,6 +11,8 @@
                 <th>Descripcion</th>
                 <th>Tipo redondeo</th>
                 <th>Sin valor</th>
+                <th>Concepto espejo</th>
+                <th>Concepto cliente</th>
                 <th>Editar</th>
                 <th>Eliminar</th>
             </tr>
@@ -20,11 +22,14 @@
             <tr>
                 <td>{{ b.cod_concepto }}</td>
                 <td>{{ b.desc_concepto_emp }}</td>
-                <td>{{ b.tipo_redondeo }}</td>
-                <td>{{ b.sin_valor }}</td>
+                <td>{{ b.get_tipo_redondeo_display}}</td>
+                <td>{{ b.get_sin_valor_display }}</td>
+                <td>{{ b.concepto_espejo|default_if_none:'' }}</td>
+                <td>{{ b.concepto_cliente|default_if_none:'' }}</td>
                 <td>
                     <button type="button" class="editar-btn" data-pk="{{ b.pk }}"
                         data-desconcepto="{{ b.desc_concepto_emp }}" data-redondeo="{{ b.tipo_redondeo }}"
+                        data-conceptoe="{{ b.concepto_espejo.id|default_if_none:'' }}" data-conceptoc="{{ b.concepto_cliente|default_if_none:'' }}"
                         data-svalor="{{ b.sin_valor }}" >
                         ✏️ Editar
                     </button>
@@ -78,6 +83,23 @@
                     {% endif %}
                 </div>
             </div>
+            <div>
+                <div class="form-group2">
+                    {{ form.concepto_espejo.label_tag }} <!-- label arriba -->
+                    {{ form.concepto_espejo }}
+                    {% if form.concepto_espejo.errors %}
+                    <div class="error">{{ form.concepto_espejo.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.concepto_cliente.label_tag }} <!-- label arriba -->
+                    {{ form.concepto_cliente }}
+                    {% if form.concepto_cliente.errors %}
+                    <div class="error">{{ form.concepto_cliente.errors }}</div>
+                    {% endif %}
+                </div>
+                
+            </div>
 
         </div>
     </div>
@@ -94,7 +116,9 @@
             const desconcepto = btn.dataset.desconcepto;
             const redondeo = btn.dataset.redondeo;
             const svalor = btn.dataset.svalor;
-        
+            const conceptoe = btn.dataset.conceptoe;
+            const conceptoc = btn.dataset.conceptoc;
+
             // Agregar un input hidden para el pk
             let form = document.getElementById('conceptoemp-form');
             let inputPk = form.querySelector('input[name="pk"]');
@@ -110,6 +134,8 @@
             form.querySelector('[name="desc_concepto_emp"]').value = desconcepto;
             form.querySelector('[name="tipo_redondeo"]').value = redondeo;
             form.querySelector('[name="sin_valor"]').value = svalor;
+            form.querySelector('[name="concepto_espejo"]').value = conceptoe;
+            form.querySelector('[name="concepto_cliente"]').value = conceptoc;
  
         });
     });

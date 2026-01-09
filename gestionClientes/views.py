@@ -1,10 +1,11 @@
+from datetime import datetime
 from django.contrib import messages
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import CreateView, DeleteView
 from gestionClientes.models import t_cliente, t_empresa, UsuarioEmpresa
 from gestionClientes.forms import t_cliente_form, t_empresa_form, usuarioempresa_form
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 
 
@@ -50,48 +51,61 @@ class clienteDeleteView(LoginRequiredMixin,DeleteView):
         return super().post(request, *args, **kwargs)
 
     
+
 class empresasCreateView(LoginRequiredMixin, CreateView):
     model = t_empresa
     form_class = t_empresa_form
     template_name = 'empresas.html'
-    context_object_name = 'empresas'
-    success_url = reverse_lazy('empresas')
-    login_url = '/accounts/login/'           # opcional
-    redirect_field_name = 'next'  # opcional
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        registros = t_empresa.objects.all().order_by('-pk')[:30]
-        context['registros'] = registros
+        cliente = get_object_or_404(t_cliente,pk=self.kwargs['id'])
+        
+        context['cliente'] = cliente
+        context['registros'] = t_empresa.objects.filter(codigo_cliente=cliente)
+        
         return context
     
     def form_valid(self, form):
         pk = self.request.POST.get('pk')
-        print(pk)
         if pk:
             empresa = t_empresa.objects.get(pk=pk)
             for field, value in form.cleaned_data.items():
                 setattr(empresa, field, value)
             empresa.save()
-            messages.success(self.request, 'Registro actualizado correctamente')
+            messages.success(self.request, 'Empresa actualizada correctamente')
         else:
-            response = super().form_valid(form)
+            cliente = get_object_or_404(t_cliente,pk=self.kwargs['id'])
+            form.instance.codigo_cliente = cliente
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
             messages.success(self.request, 'Registro creado correctamente')
-        return redirect(self.success_url)
-        
+            return super().form_valid(form)
+        return redirect(self.get_success_url())
+   
     def form_invalid(self, form):
-        pk = self.request.POST.get('pk')
-        print(pk)
+        print(form.errors)
         messages.error(self.request, 'Validar campos del formulario')
         return super().form_invalid(form)
-
+    
+    def get_success_url(self):
+        return reverse(
+            'empresas',
+            kwargs={'id': self.kwargs['id']}
+        )
+    
 class empresasDeleteView(LoginRequiredMixin,DeleteView):
     model = t_empresa
-    success_url = reverse_lazy('empresas')
     login_url = 'accounts/login'
-
+    
+    def get_success_url(self):
+        return reverse_lazy(
+            'empresas',
+            kwargs={'id': self.object.codigo_cliente.id}
+        )
+    
     def post(self, request, *args, **kwargs):
-        messages.success(request, 'Empresa eliminado correctamente')
+        messages.success(request, 'Registro eliminado correctamente')
         return super().post(request, *args, **kwargs)
     
 class userempresaCreateView(LoginRequiredMixin, CreateView):

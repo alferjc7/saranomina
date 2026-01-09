@@ -4,6 +4,34 @@
 {% block title %}Contratos{% endblock %}
 {% block content %}
 <h2>Deducibles de contrato #{{ contrato.cod_contrato }}</h2>
+
+<form method="get">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    <select name="tipo" class="form-control">
+                        <option value="">Buscar por tipo deducible</option>
+                        <option value= "MED" {% if request.GET.estado == "MED" %}selected{% endif %}>
+                            MEDICINA PREPAGADA
+                        </option>
+                        <option value= "VIV" {% if request.GET.estado == "VIV" %}selected{% endif %}>
+                            VIVIENDA
+                        </option>
+                        <option value= "DED" {% if request.GET.estado == "DED" %}selected{% endif %}>
+                            DEPENDIENTE
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 <div class="table-container">
     <table>
         <thead>

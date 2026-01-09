@@ -3,6 +3,37 @@
 {% block title %}Tipos salarios{% endblock %}
 {% block content %}
 <h2>Tipos salarios</h2>
+<form method="get">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="tipo" placeholder="Buscar por tipo salario"  oninput="this.value = this.value.toUpperCase()"
+                        value="{{ request.GET.tipo }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <select name="estado" class="form-control">
+                        <option value="">Buscar por estado</option>
+                        <option value= True {% if request.GET.estado == True %}selected{% endif %}>
+                            ACTIVO
+                        </option>
+                        <option value= False {% if request.GET.estado == False %}selected{% endif %}>
+                            INACTIVO
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
 <div class="table-container">
 <table>
     <thead>

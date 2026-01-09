@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django import forms
 from django.forms import ModelForm, ValidationError
 from gestionContratos.models import (t_contrato, t_contrato_banco, 
@@ -217,6 +218,25 @@ class t_contrato_salario_form(ModelForm):
     def __init__(self, *args, **kwargs):
         self.contrato = kwargs.pop('contrato', None)
         super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        if instance.pk is None:
+            t_contrato_salario.objects.filter(
+                contrato=instance.contrato,
+                tipo_salario=instance.tipo_salario,
+                estado=True,
+                fecha_fin__isnull=True
+            ).update(
+                estado=False,
+                fecha_fin=instance.fecha_inicio - timedelta(days=1)
+            )
+
+        if commit:
+            instance.save()
+
+        return instance
     
     class Meta:
         model = t_contrato_salario        

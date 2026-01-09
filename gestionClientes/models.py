@@ -27,14 +27,16 @@ class t_empresa(models.Model):
     razon_social = models.CharField(max_length=200, verbose_name="Razon social")
     direccion = models.CharField(max_length=200, verbose_name="Direccion empresa")
     telefono = models.CharField(max_length=24, verbose_name="Telefono")
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    
+    def save(self, *args, **kwargs):
         if self.codigo_empresa:
-            self.codidgo_empresa = self.codigo_empresa.upper()
+            self.codigo_empresa = self.codigo_empresa.upper()
         if self.razon_social:
             self.razon_social = self.razon_social.upper()
         if self.direccion:
             self.direccion = self.direccion.upper()
+        super().save(*args, **kwargs)
+    
     def __str__(self):
         return self.codigo_empresa
 

@@ -3,6 +3,59 @@
 {% block title %}Subtipos cotizantes{% endblock %}
 {% block content %}
 <h2>Subtipos cotizantes</h2>
+<form method="get">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    <select name="cotizante" class="form-control">
+                        <option value="">Buscar por estado</option>
+                        <option value= 1 {% if request.GET.cotizante == 1 %}selected{% endif %}>
+                            DEPENDIENTE
+                        </option>
+                        <option value= 2 {% if request.GET.cotizante == 2 %}selected{% endif %}>
+                            SERVICIO DOMESTICO
+                        </option>
+                        <option value= 3 {% if request.GET.cotizante == 3 %}selected{% endif %}>
+                            INDEPENDIENTE
+                        </option>
+                        <option value= 5 {% if request.GET.cotizante == 5 %}selected{% endif %}>
+                            APRENDIZ SENA
+                        </option>
+                        <option value= 7 {% if request.GET.cotizante == 7 %}selected{% endif %}>
+                            PENSIONADO
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="codigo" placeholder="Buscar por codigo"  oninput="this.value = this.value.toUpperCase()"
+                        value="{{ request.GET.codigo }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <select name="estado" class="form-control">
+                        <option value="">Buscar por estado</option>
+                        <option value= True {% if request.GET.estado == True %}selected{% endif %}>
+                            ACTIVO
+                        </option>
+                        <option value= False {% if request.GET.estado == False %}selected{% endif %}>
+                            INACTIVO
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
 <div class="table-container">
 <table>
     <thead>

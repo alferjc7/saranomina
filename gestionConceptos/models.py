@@ -62,6 +62,15 @@ class t_concepto_empresa(models.Model):
     desc_concepto_emp = models.CharField(max_length=100, verbose_name= "Descripcion concepto")
     tipo_redondeo = models.CharField(max_length=2, choices= TIPO_REDONDEO ,verbose_name= "Tipo de redondeo")
     sin_valor = models.CharField(max_length=2, choices= SIN_VALOR ,verbose_name= "Sin valor")
+    concepto_espejo = models.ForeignKey(
+        t_conceptos,
+        on_delete=models.SET_NULL,   
+        blank=True,                  
+        null=True,                  
+        related_name='concepto_espejo',
+        verbose_name="Concepto espejo"
+    )
+    concepto_cliente = models.CharField(max_length=10, verbose_name= "Concepto cliente", blank = True, null = True)
     user_creator = models.CharField(max_length=50,blank= True, null= True)
     date_created = models.DateField(blank= True, null= True)
     

@@ -24,6 +24,18 @@ class t_conceptosCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         registros = t_conceptos.objects.all().order_by('-pk')[:30]
         context['registros'] = registros
+
+        
+        concepto = self.request.GET.get('concepto')
+        tipo = self.request.GET.get('tipo')
+
+
+        if concepto:
+            context['registros'] = t_conceptos.objects.filter(cod_concepto=concepto)
+        
+        if tipo:
+            context['registros'] = t_conceptos.objects.filter(tipo_concepto=tipo)
+
         return context
     
     def get_form_kwargs(self):

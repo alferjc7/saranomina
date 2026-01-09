@@ -3,6 +3,37 @@
 {% block title %}Tipos cotizantes{% endblock %}
 {% block content %}
 <h2>Tipos cotizantes</h2>
+<form method="get">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="codigo" placeholder="Buscar por codigo"  oninput="this.value = this.value.toUpperCase()"
+                        value="{{ request.GET.codigo }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <select name="estado" class="form-control">
+                        <option value="">Buscar por estado</option>
+                        <option value= True {% if request.GET.estado == True %}selected{% endif %}>
+                            ACTIVO
+                        </option>
+                        <option value= False {% if request.GET.estado == False %}selected{% endif %}>
+                            INACTIVO
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
 <div class="table-container">
 <table>
     <thead>
