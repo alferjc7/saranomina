@@ -2,6 +2,7 @@ from datetime import datetime
 from django import forms
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponse
+from openpyxl import Workbook
 from gestionIdentificacion.models import t_tipo_ide, t_identificacion, t_beneficiario
 from gestionIdentificacion.forms import tipo_ide_form, identificacion_form, t_beneficiario_form
 from django.views.generic import CreateView, DeleteView
@@ -12,8 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import logout
 from django.db.models.deletion import ProtectedError
-
-
+from openpyxl.utils import get_column_letter
 
 # Create your views here.
 @login_required
@@ -28,6 +28,7 @@ def tipos_ide(request):
     
     form = tipo_ide_form()
     if request.method == 'POST':
+    
         accion = request.POST.get('accion')
         pk_edit = request.POST.get('edit_id')
         pk_elim = request.POST.get('elim_id')
@@ -56,6 +57,33 @@ def tipos_ide(request):
             obj.delete()
             messages.success(request, 'Registro eliminado correctamente')
             return redirect('tipos_ide')
+        elif accion == 'exportar_excel':
+            wb = Workbook()
+            ws = wb.active
+            ws.title = 'TiposIdentificacion'
+
+            ws.append(['CODIGO', 'DESCRIPCION','ESTADO'])
+
+            registros = t_tipo_ide.objects.all().order_by('-pk')
+
+            for r in registros:
+                ws.append([r.cod_ide, r.desc_ide, 'ACTIVO' if r.estado_ide else 'INACTIVO'])
+
+            for column_cells in ws.columns:
+                max_length = 0
+                column = get_column_letter(column_cells[0].column)
+
+                for cell in column_cells:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+
+                ws.column_dimensions[column].width = max_length + 2 
+
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' )
+            response['Content-Disposition'] = 'attachment; filename=TiposIdentificacion.xlsx'
+            wb.save(response)
+            return response
+
 
 
     return render(request, "tipos_ide.html", {"form": form, "registros": registros})
@@ -69,7 +97,6 @@ def identificaciones(request):
     
     if identificacion:
         registros = t_identificacion.objects.filter(identificacion = identificacion)
-
 
     if request.method == 'POST' :
         pk_edit = request.POST.get('edit_id')
@@ -103,8 +130,36 @@ def identificaciones(request):
             except ProtectedError:
                 messages.error(request,'Esta identificacion ya esta asignada a un contrato!')           
             return redirect('identificaciones')
-        
+        elif accion == 'exportar_excel':
+            wb = Workbook()
+            ws = wb.active
+            ws.title = 'Identificaciones'
 
+            ws.append(['TIPO IDENTIFICACION', 'IDENTIFICACION', 'NOMBRE', 'SEGUNDO NOMBRE', 'APELLIDO', 'SEGUNDO APELLIDO',
+                       'FECHA NACIMIENTO','FECHA EXP DOC','TELEFONO','CELULAR','DIRECCCION', 'ESTADO CIVIL','GENERO',
+                       'CORREO PERSONAL','CORREO COORPORATIVO'])
+
+            registros = t_identificacion.objects.all().order_by('-pk')
+
+            for r in registros:
+                ws.append([r.tipo_ide.desc_ide, r.identificacion, r.nombre, r.segundo_nombre, r.apellido, r.segundo_apellido,
+                           r.fecha_nacimiento, r.fecha_exp_doc,r.telefono, r.celular, r.direccion, r.get_estado_civil_display(), r.get_genero_display(),
+                           r.correo_personal, r.correo_coorporativo])
+
+            for column_cells in ws.columns:
+                max_length = 0
+                column = get_column_letter(column_cells[0].column)
+
+                for cell in column_cells:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+
+                ws.column_dimensions[column].width = max_length + 2 
+
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' )
+            response['Content-Disposition'] = 'attachment; filename=Identificaciones.xlsx'
+            wb.save(response)
+            return response 
 
     return render(request, "identificaciones.html", {"form": form,"registros":registros})
 
@@ -112,6 +167,40 @@ class t_beneficiarioCreateView(LoginRequiredMixin,CreateView):
     model = t_beneficiario
     form_class = t_beneficiario_form
     template_name = 'beneficiarios.html'
+
+    def post(self, request, *args, **kwargs):
+        accion = request.POST.get('accion')
+
+        if accion == 'exportar_excel':
+            wb = Workbook()
+            ws = wb.active
+            ws.title = 'Identificaciones'
+
+            ws.append(['TIPO IDENTIFICACION', 'IDENTIFICACION', 'IDENTIFICACION TITULAR', 'NOMBRE COMPLETO',
+                       'FECHA NACIMIENTO','PARENTESCO','EXOGENA'])
+
+            registros = t_beneficiario.objects.filter(iden_titular = self.kwargs['id'])
+
+            for r in registros:
+                ws.append([r.tipo_ide_ben.desc_ide, r.iden_beneficiario, r.iden_titular.identificacion, r.nombre_completo,
+                           r.fecha_nacimiento, r.get_parentesco_display(), 'VERDADERO' if r.exogena else 'FALSO'])
+
+            for column_cells in ws.columns:
+                max_length = 0
+                column = get_column_letter(column_cells[0].column)
+
+                for cell in column_cells:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+
+                ws.column_dimensions[column].width = max_length + 2 
+
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' )
+            response['Content-Disposition'] = 'attachment; filename=Beneficiarios.xlsx'
+            wb.save(response)
+            return response 
+    
+        return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -1,6 +1,8 @@
 from datetime import datetime
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
+from openpyxl import Workbook
 from gestionClientes.models import t_empresa
 from gestionConceptos.models import t_conceptos, t_concepto_empresa
 from gestionConceptos.forms import t_conceptosform, t_concepto_empresaform
@@ -8,6 +10,7 @@ from django.views.generic import CreateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse, reverse_lazy
 from django.db import IntegrityError
+from openpyxl.utils import get_column_letter
 
 
 # Create your views here.
@@ -19,6 +22,38 @@ class t_conceptosCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('conceptos')
     login_url = '/accounts/login/'           # opcional
     redirect_field_name = 'next'  # opcional
+
+    def post(self, request, *args, **kwargs):
+        accion = request.POST.get('accion')
+        
+        if accion == 'exportar_excel':
+            wb = Workbook()
+            ws = wb.active
+            ws.title = 'Conceptos'
+
+            ws.append(['CODIGO', 'DESCRIPCION', 'DESCRIPCION EN INGLES', 'TIPO CONCEPTO'])
+
+            registros = t_conceptos.objects.all()
+
+            for r in registros:
+                ws.append([r.cod_concepto, r.desc_concepto, r.desc_concepto_eng, r.get_tipo_concepto_display()])
+
+            for column_cells in ws.columns:
+                max_length = 0
+                column = get_column_letter(column_cells[0].column)
+
+                for cell in column_cells:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+
+                ws.column_dimensions[column].width = max_length + 2 
+
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' )
+            response['Content-Disposition'] = 'attachment; filename=Conceptos.xlsx'
+            wb.save(response)
+            return response 
+
+        return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

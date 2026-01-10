@@ -22,9 +22,9 @@ class EmpresaManager(models.Manager):
     
 class t_conceptos(models.Model):
     TIPO_CONCEPTO = (
-        ('DEV', 'Devengo'),
-        ('DED', 'Deduccion'),
-        ('PRO', 'Porvision'),
+        ('DEV', 'DEVENGO'),
+        ('DED', 'DEDUCCION'),
+        ('PRO', 'PROVISION'),
     )
     cod_concepto = models.CharField(max_length=5, verbose_name= "Codigo concepto", unique= True)
     desc_concepto = models.CharField(max_length=100, verbose_name= "Descripcion concepto")

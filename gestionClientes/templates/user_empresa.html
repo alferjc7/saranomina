@@ -2,7 +2,18 @@
 
 {% block title %}Empresas de usuarios{% endblock %}
 {% block content %}
-<h2>Empresas</h2>
+<div class="header-entidades">
+    <h2 class="titulo-entidades">Asignacion de empresas</h2>
+    <div class="acciones-entidades">
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" name="accion" value="exportar_excel" class="btn btn-success">
+                📥 Exportar
+            </button>
+        </form>
+    </div>
+</div>
+
 <div class="table-container">
     <table>
         <thead>

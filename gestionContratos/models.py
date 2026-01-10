@@ -28,20 +28,20 @@ class EmpresaManager(models.Manager):
 class t_contrato(models.Model):
 
     ESTADOS = (
-        ('A', 'Activo'),
-        ('S', 'Suspendido'),
-        ('T', 'Terminado'),
+        ('A', 'ACTIVO'),
+        ('S', 'SUSPENDIDO'),
+        ('T', 'TERMINADO'),
     )
     CESANTIAS = (
-        ('L50', 'Ley 50'),
-        ('RT', 'Regimen Tradicional'),
-        ('I', 'Integral'),
-        ('A', 'Aprendices'),
+        ('L50', 'LEY 50'),
+        ('RT', 'REGIMEN TRADICIONAL'),
+        ('I', 'INTEGRAL'),
+        ('A', 'APRENDICES'),
     )
 
     PROCEDIMIENTORET = (
-        ('1', 'Procentimiento 1'),
-        ('2', 'Procedimiento 2'),
+        ('1', 'PROCEDIMIENTO 1'),
+        ('2', 'PROCEDIMIENTO 2'),
     )
 
     empresa = models.ForeignKey(t_empresa, on_delete=models.CASCADE, verbose_name= "Empresa")
@@ -94,8 +94,8 @@ class t_contrato(models.Model):
 
 class t_contrato_banco(models.Model):
     TIPO_CUENTA = (
-        ('A', 'Ahorro'),
-        ('C', 'Corriente'),
+        ('A', 'AHORRO'),
+        ('C', 'CORRIENTE'),
     )
     contrato = models.ForeignKey(t_contrato, on_delete=models.CASCADE, verbose_name= "Contrato")
     banco = models.ForeignKey(t_banco, on_delete=models.CASCADE, verbose_name= "Banco")
@@ -145,9 +145,9 @@ class t_contrato_salario(models.Model):
 
 class t_contrato_deducibles(models.Model):
     TIPO_DEDUCIBLE = (
-        ('DED', 'Dependiente'),
-        ('MED', 'Medicina prepagada'),
-        ('VIV', 'Vivienda'),
+        ('DED', 'DEPENDIENTE'),
+        ('MED', 'MEDICINA PREPAGADA'),
+        ('VIV', 'VIVIENDA'),
         )
     contrato = models.ForeignKey(t_contrato, on_delete=models.CASCADE, verbose_name= "Contrato")
     tipo_deducible = models.CharField(choices= TIPO_DEDUCIBLE, verbose_name= "Tipo deducible")

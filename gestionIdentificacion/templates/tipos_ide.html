@@ -3,7 +3,18 @@
 {% block title %}Tipos de Identificación{% endblock %}
 
 {% block content %}
-<h2>Tipos de Identificación</h2>
+<div class="header-entidades">
+    <h2 class="titulo-entidades">Tipos de identificacion</h2>
+    <div class="acciones-entidades">
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" name="accion" value="exportar_excel" class="btn btn-success">
+                📥 Exportar
+            </button>
+        </form>
+    </div>
+</div>
+
 <form method="get">
     <div class="card">
         <div class="form-grid-2">

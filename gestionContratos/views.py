@@ -1,9 +1,11 @@
 from datetime import datetime
+from operator import concat
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView, DeleteView
+from openpyxl import Workbook
 from gestionContratos.models import (t_contrato, t_contrato_banco, 
                                      t_contrato_entidadesss, t_contrato_salario,
                                      t_contrato_deducibles)
@@ -11,7 +13,10 @@ from gestionContratos.forms import (t_contratoform, t_contrato_banco_form,
                                     t_contrato_entidadesss_form, t_contrato_salario_form,
                                     t_contrato_deducible_form)
 from parametros.models import t_subtipo_cotizante, t_entidadesss
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
+from openpyxl.utils import get_column_letter
+
+
 
 # Create your views here.
 def cargar_subtipos(request):
@@ -34,8 +39,46 @@ class t_contratosCreateView(LoginRequiredMixin,CreateView):
     template_name = 'contratos.html'
     context_object_name = 'contratos'
     success_url = reverse_lazy('contratos')
-    login_url = '/accounts/login/'           # opcional
-    redirect_field_name = 'next'  # opcional
+    login_url = '/accounts/login/'          
+    redirect_field_name = 'next'  
+
+    def post(self, request, *args, **kwargs):
+        accion = request.POST.get('accion')
+        
+        if accion == 'exportar_excel':
+            wb = Workbook()
+            ws = wb.active
+            ws.title = 'Contratos'
+
+            ws.append(['EMPRESA', 'IDENTIFICACION', 'NOMBRE COMPLETO', 'CODIGO CONTRATO', 'FECHA INGRESO' ,
+                       'FECHA FIN','TIPO CONTRATO','PERIODO VACACIONES', 'TIPO COTIZANTE', 'SUBTIPO COTIZANTE',
+                       'CODIGO INTERNO','PROCEDIMIENTO RET','PORCENTAJE RET','ESTADO','REGIMEN CESANTIAS'])
+
+            registros = t_contrato.objects.filter(empresa_id = self.request.session.get('empresa_id'))
+
+            for r in registros:
+                ws.append([r.empresa.razon_social, r.identificacion.identificacion, 
+                           f"{r.identificacion.nombre or ''} {r.identificacion.segundo_nombre or ''} {r.identificacion.apellido or ''} {r.identificacion.segundo_apellido or ''}".strip(),
+                           r.cod_contrato, r.fecha_ingreso, r.fecha_fin, r.tipo_contrato.contrato, r.periodo_vac,
+                           r.tipo_cotizante.descripcion, r.subtipo_cotizante.descripcion, r.codigo_interno, r.get_procedimiento_display(),
+                           r.porcentaje_retencion, r.get_estado_display(), r.get_cesantias_display()])
+
+            for column_cells in ws.columns:
+                max_length = 0
+                column = get_column_letter(column_cells[0].column)
+
+                for cell in column_cells:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+
+                ws.column_dimensions[column].width = max_length + 2 
+
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' )
+            response['Content-Disposition'] = 'attachment; filename=Contratos.xlsx'
+            wb.save(response)
+            return response 
+
+        return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -80,6 +123,43 @@ class t_contrato_bancoCreateView(LoginRequiredMixin,CreateView):
     form_class = t_contrato_banco_form
     template_name = 'contrato_banco.html'
     
+    def post(self, request, *args, **kwargs):
+        accion = request.POST.get('accion')
+        
+        if accion == 'exportar_excel':
+            wb = Workbook()
+            ws = wb.active
+            ws.title = 'Contrato_banco'
+
+            ws.append(['EMPRESA', 'CONTRATO', 'NOMBRE COMPLETO', 'BANCO', 'TIPO CUENTA', 'NUMERO CUENTA', 
+                       'FECHA INICIO' ,'FECHA FIN','ESTADO'])
+
+            contrato = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
+        
+            registros = t_contrato_banco.objects.filter(contrato=contrato)
+
+            for r in registros:
+                ws.append([r.contrato.empresa.razon_social, r.contrato.cod_contrato, 
+                           f"{r.contrato.identificacion.nombre or ''} {r.contrato.identificacion.segundo_nombre or ''} {r.contrato.identificacion.apellido or ''} {r.contrato.identificacion.segundo_apellido or ''}".strip(),
+                           r.banco.banco, r.get_cuenta_display() , r.numero_cuenta, r.fecha_inicio, r.fecha_fin, 
+                           'ACTIVO' if r.estado else 'INACTIVO'])
+
+            for column_cells in ws.columns:
+                max_length = 0
+                column = get_column_letter(column_cells[0].column)
+
+                for cell in column_cells:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+
+                ws.column_dimensions[column].width = max_length + 2 
+
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' )
+            response['Content-Disposition'] = 'attachment; filename=Contrato_banco.xlsx'
+            wb.save(response)
+            return response 
+        return super().post(request, *args, **kwargs)
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['contrato'] = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
@@ -147,6 +227,43 @@ class t_contrato_entidadCreateView(LoginRequiredMixin,CreateView):
     form_class = t_contrato_entidadesss_form
     template_name = 'contrato_entidades_ss.html'
     
+    def post(self, request, *args, **kwargs):
+        accion = request.POST.get('accion')
+        
+        if accion == 'exportar_excel':
+            wb = Workbook()
+            ws = wb.active
+            ws.title = 'Contrato_entidades'
+
+            ws.append(['EMPRESA', 'CONTRATO', 'NOMBRE COMPLETO', 'TIPO ENTIDAD','CODIGO ENTIDAD' ,'ENTIDAD', 
+                       'FECHA INICIO' ,'FECHA FIN'])
+
+            contrato = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
+        
+            registros = t_contrato_entidadesss.objects.filter(contrato=contrato)
+
+            for r in registros:
+                ws.append([r.contrato.empresa.razon_social, r.contrato.cod_contrato, 
+                           f"{r.contrato.identificacion.nombre or ''} {r.contrato.identificacion.segundo_nombre or ''} {r.contrato.identificacion.apellido or ''} {r.contrato.identificacion.segundo_apellido or ''}".strip(),
+                           r.get_tipo_entidad_display(), r.entidad.codigo, r.entidad.nombre, r.fecha_inicio, r.fecha_fin])
+
+            for column_cells in ws.columns:
+                max_length = 0
+                column = get_column_letter(column_cells[0].column)
+
+                for cell in column_cells:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+
+                ws.column_dimensions[column].width = max_length + 2 
+
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' )
+            response['Content-Disposition'] = 'attachment; filename=Contrato_entidades.xlsx'
+            wb.save(response)
+            return response 
+        
+        return super().post(request, *args, **kwargs)
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['contrato'] = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
@@ -214,6 +331,43 @@ class t_contrato_salarioCreateView(LoginRequiredMixin,CreateView):
     form_class = t_contrato_salario_form
     template_name = 'contrato_salario.html'
 
+    def post(self, request, *args, **kwargs):
+        accion = request.POST.get('accion')
+        
+        if accion == 'exportar_excel':
+            wb = Workbook()
+            ws = wb.active
+            ws.title = 'Contrato_salario'
+
+            ws.append(['EMPRESA', 'CONTRATO', 'NOMBRE COMPLETO', 'TIPO SALARIO', 'FECHA INICIO' ,
+                       'FECHA FIN','ESTADO','RETROACTIVO'])
+
+            contrato = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
+        
+            registros = t_contrato_salario.objects.filter(contrato=contrato)
+
+            for r in registros:
+                ws.append([r.contrato.empresa.razon_social, r.contrato.cod_contrato, 
+                           f"{r.contrato.identificacion.nombre or ''} {r.contrato.identificacion.segundo_nombre or ''} {r.contrato.identificacion.apellido or ''} {r.contrato.identificacion.segundo_apellido or ''}".strip(),
+                           r.tipo_salario.salario, r.fecha_inicio, r.fecha_fin, 'ACTIVO' if r.estado else 'INACTIVO', 'SI' if r.retroactivo else 'NO'])
+
+            for column_cells in ws.columns:
+                max_length = 0
+                column = get_column_letter(column_cells[0].column)
+
+                for cell in column_cells:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+
+                ws.column_dimensions[column].width = max_length + 2 
+
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' )
+            response['Content-Disposition'] = 'attachment; filename=Contrato_salario.xlsx'
+            wb.save(response)
+            return response 
+
+        return super().post(request, *args, **kwargs)
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['contrato'] = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
@@ -279,6 +433,43 @@ class t_contrato_deducibleCreateView(LoginRequiredMixin,CreateView):
     model = t_contrato_deducibles
     form_class = t_contrato_deducible_form
     template_name = 'contrato_deducible.html'
+
+    def post(self, request, *args, **kwargs):
+        accion = request.POST.get('accion')
+        
+        if accion == 'exportar_excel':
+            wb = Workbook()
+            ws = wb.active
+            ws.title = 'Contrato_deducibles'
+
+            ws.append(['EMPRESA', 'CONTRATO', 'NOMBRE COMPLETO', 'TIPO DEDUCIBLE', 'VALOR', 'FECHA INICIO' ,
+                       'FECHA FIN'])
+
+            contrato = get_object_or_404(t_contrato,pk=self.kwargs['contrato_id'])
+        
+            registros = t_contrato_deducibles.objects.filter(contrato=contrato)
+
+            for r in registros:
+                ws.append([r.contrato.empresa.razon_social, r.contrato.cod_contrato, 
+                           f"{r.contrato.identificacion.nombre or ''} {r.contrato.identificacion.segundo_nombre or ''} {r.contrato.identificacion.apellido or ''} {r.contrato.identificacion.segundo_apellido or ''}".strip(),
+                           r.get_tipo_deducible_display(), r.valor, r.fecha_inicio, r.fecha_fin])
+
+            for column_cells in ws.columns:
+                max_length = 0
+                column = get_column_letter(column_cells[0].column)
+
+                for cell in column_cells:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+
+                ws.column_dimensions[column].width = max_length + 2 
+
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' )
+            response['Content-Disposition'] = 'attachment; filename=Contrato_deducibles.xlsx'
+            wb.save(response)
+            return response 
+
+        return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
