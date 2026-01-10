@@ -15,6 +15,7 @@ urlpatterns = [
     path("gestionclientes/", include("gestionClientes.urls")),
     path("gestioncontratos/", include("gestionContratos.urls")),
     path("gestionconceptos/", include("gestionConceptos.urls")),
+    path("gestionnomina/", include("gestionNomina.urls")),
     path("gestionidentificacion/", include("gestionIdentificacion.urls")),
     path('logout/', logout_view, name='logout'),
     path('api/token/', obtain_auth_token),

@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from parametros.models import (t_tipo_contrato, t_tipo_salario, t_tipo_cotizante, 
                                t_subtipo_cotizante, t_banco, t_entidadesss,
-                               t_conceptos_salario)
+                               t_conceptos_salario, t_tipo_nomina)
 from gestionConceptos.models import t_conceptos
 
 class tipo_contratoform(ModelForm):
@@ -45,7 +45,10 @@ class t_conceptos_salarioform(ModelForm):
         self.fields['concepto'].queryset = t_conceptos.objects.filter(
             tipo_concepto='DEV')
         
-
+class t_tipo_nominaform(ModelForm):
+    class Meta:
+        model = t_tipo_nomina
+        fields = '__all__'
 
 class CargaExcelForm(forms.Form):
     archivo_excel = forms.FileField(

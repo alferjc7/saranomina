@@ -351,6 +351,19 @@ textarea {
     }
 }
 
+.form-grid-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .form-grid-4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+
 /* SELECT */
 .form-groupselect {
     display: flex;

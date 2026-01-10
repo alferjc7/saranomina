@@ -4,7 +4,7 @@ from django.forms import ModelForm, ValidationError
 from gestionContratos.models import (t_contrato, t_contrato_banco, 
                                      t_contrato_entidadesss, t_contrato_salario,
                                      t_contrato_deducibles)
-from parametros.models import (t_tipo_cotizante, t_subtipo_cotizante, t_entidadesss)
+from parametros.models import (t_tipo_cotizante, t_subtipo_cotizante, t_entidadesss, t_tipo_nomina)
 
 class t_contratoform(ModelForm):
     class Meta:

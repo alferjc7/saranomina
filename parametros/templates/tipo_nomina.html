@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Tipos de nomina{% endblock %}
+{% block content %}
+<h2>Tipos de nomina</h2>
+<form method="get">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="codigo" placeholder="Buscar por codigo"  oninput="this.value = this.value.toUpperCase()"
+                        value="{{ request.GET.codigo }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <select name="estado" class="form-control">
+                        <option value="">Buscar por estado</option>
+                        <option value= True {% if request.GET.estado == True %}selected{% endif %}>
+                            ACTIVO
+                        </option>
+                        <option value= False {% if request.GET.estado == False %}selected{% endif %}>
+                            INACTIVO
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="table-container">
+<table>
+    <thead>
+        <tr>
+            <th>Codigo</th>
+            <th>Descripcion</th>
+            <th>Estado</th>
+            <th>Asignar en creacion de contrato</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in registros %}
+        <tr>
+            <td>{{ b.codigo }}</td>
+            <td>{{ b.descripcion }}</td>
+            <td>{% if b.estado %}
+                ACTIVO
+                {% else %}
+                INACTIVO
+                {% endif %}
+            </td>
+
+            <td>{% if b.asigna_contrato %}
+                SI
+                {% else %}
+                NO
+                {% endif %}
+            </td>
+            
+            <td>
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" 
+                    data-codigo="{{ b.codigo }}" data-descripcion="{{ b.descripcion }}" data-estado="{{ b.estado }}"
+                    data-asigna="{{ b.asigna_contrato }}">
+                    ✏️ Editar
+                </button>
+            </td>
+            <td>
+                <form method="post" action="{% url 'tipo_nomina_eliminar' b.pk %}"
+                    onsubmit="return confirm('¿Eliminar este tipo de nomina?');">
+                    {% csrf_token %}
+                    <button type="submit">🗑 Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<h2>Nuevo tipo de nomina</h2>
+<form id="tiponomina-form" method="POST">
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                 <div class="form-group2">
+                {{ form.codigo.label_tag }} <!-- label arriba -->
+                {{ form.codigo }}
+                {% if form.codigo.errors %}
+                <div class="error">{{ form.codigo.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.descripcion.label_tag }} <!-- label arriba -->
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                <div class="error">{{ form.descripcion.errors }}</div>
+                {% endif %}
+                </div>
+            <br>
+                <label for="Estado">Estado tipo</label>
+                <label class="switch">
+                {{form.estado}}
+                <span class="slider"></span>
+                </label>
+            <br>
+                <label for="Estado">Asignar a contrato</label>
+                <label class="switch">
+                {{form.asigna_contrato}}
+                <span class="slider"></span>
+                </label>
+            
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pk = btn.dataset.pk;
+            const codigo = btn.dataset.codigo;
+            const descripcion = btn.dataset.descripcion;
+            const estado = btn.dataset.estado === "True";
+            const asigna = btn.dataset.asigna === "True";
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('tiponomina-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+            inputPk.value = pk;
+
+            // Llenar los campos
+            form.querySelector('[name="codigo"]').value = codigo;
+            form.querySelector('[name="descripcion"]').value = descripcion;
+            form.querySelector('[name="estado"]').checked = estado;
+            form.querySelector('[name="asigna_contrato"]').checked = asigna;
+            
+        });
+    });
+</script>
+{% endblock %}

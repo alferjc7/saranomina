@@ -50,6 +50,7 @@
                 <th>Tipo cotizante</th>
                 <th>Subtipo cotizante</th>
                 <th>Codigo interno</th>
+                <th>Tipo nomina</th>
                 <th>Asignar Salario</th>
                 <th>Asignar Banco</th>
                 <th>Asignar Entidad</th>
@@ -69,6 +70,7 @@
                 <td>{{ b.tipo_cotizante }}</td>
                 <td>{{ b.subtipo_cotizante }}</td>
                 <td>{{ b.codigo_interno }}</td>
+                <td>{{ b.tipo_nomina }}</td>
                 <td>
                     <form method="get" action="{% url 'contrato_salario' b.id %}" style="display:inline;">
                         <button type="submit" class="btn btn-sm btn-primary">
@@ -102,7 +104,7 @@
                         data-feci="{{ b.fecha_ingreso|date:'Y-m-d' }}" data-fecf="{{ b.fecha_fin|date:'Y-m-d' }}" 
                         data-tipocont ="{{ b.tipo_contrato.id }}" data-pervac="{{ b.periodo_vac }}"
                         data-cotizante ="{{ b.tipo_cotizante.id }}" data-subcotizante="{{ b.subtipo_cotizante.id }}"
-                        data-codigoi ="{{ b.codigo_interno }}" 
+                        data-codigoi ="{{ b.codigo_interno }}"  data-tiponom ="{{ b.tipo_nomina.id }}"
                         data-proc ="{{ b.procedimiento }}" data-porc="{{ b.porcentaje_retencion }}"
                         data-estado ="{{ b.estado }}" data-cesantias="{{ b.cesantias }}">
                         ✏️ Editar
@@ -208,6 +210,13 @@
                     <div class="error">{{ form.cesantias.errors }}</div>
                     {% endif %}
                 </div>
+                 <div class="form-group2">
+                    {{ form.tipo_nomina.label_tag }} <!-- label arriba -->
+                    {{ form.tipo_nomina }}
+                    {% if form.tipo_nomina.errors %}
+                    <div class="error">{{ form.tipo_nomina.errors }}</div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -226,6 +235,7 @@
             const feci = btn.dataset.feci;
             const fecf = btn.dataset.fecf;
             const tipocont = btn.dataset.tipocont;
+            const tiponom = btn.dataset.tiponom;
             const pervac = btn.dataset.pervac;
             const cotizante = btn.dataset.cotizante;
             const subcotizante = btn.dataset.subcotizante;
@@ -260,6 +270,7 @@
             form.querySelector('[name="fecha_ingreso"]').value = feci;
             form.querySelector('[name="fecha_fin"]').value = fecf;
             form.querySelector('[name="tipo_contrato"]').value = tipocont;
+            form.querySelector('[name="tipo_nomina"]').value = tiponom;
             form.querySelector('[name="periodo_vac"]').value = pervac;
             form.querySelector('[name="tipo_cotizante"]').value = cotizante;
             form.querySelector('[name="subtipo_cotizante"]').value = subcotizante;

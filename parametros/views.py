@@ -6,11 +6,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from parametros.models import (t_tipo_contrato, t_tipo_salario, 
                                t_tipo_cotizante, t_subtipo_cotizante,
-                               t_banco, t_entidadesss, t_conceptos_salario)
+                               t_banco, t_entidadesss, t_conceptos_salario, t_tipo_nomina)
 from parametros.forms import (tipo_contratoform, tipo_salarioform, 
                               tipo_cotizanteform, subtipo_cotizanteform,
                               bancoform, t_entidadesssform, CargaExcelForm, 
-                              t_conceptos_salarioform)
+                              t_conceptos_salarioform, t_tipo_nominaform)
 from django.views.generic import CreateView, DeleteView
 from openpyxl import load_workbook
 from django.http import HttpResponse
@@ -559,3 +559,62 @@ class t_conceptos_salarioDeleteView(LoginRequiredMixin,DeleteView):
         messages.success(request, 'Tipo de contraro eliminado correctamente')
         return super().post(request, *args, **kwargs)
     
+    
+class tipo_nominaCreateView(LoginRequiredMixin,CreateView):
+    model = t_tipo_nomina
+    form_class = t_tipo_nominaform
+    template_name = 'tipo_nomina.html'
+    context_object_name = 'tipo_nomina'
+    success_url = reverse_lazy('tipo_nomina')
+    login_url = '/accounts/login/'           # opcional
+    redirect_field_name = 'next'  # opcional
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        registros = t_tipo_nomina.objects.all().order_by('-pk')[:30]
+        context['registros'] = registros
+
+        codigo = self.request.GET.get('codigo')
+        
+        estado = self.request.GET.get('estado')
+
+        
+        if codigo:
+            context['registros'] = t_tipo_nomina.objects.filter(codigo=codigo)
+
+        
+        if estado:
+            context['registros'] = t_tipo_nomina.objects.filter(estado=estado)
+
+
+        return context
+    
+    def form_valid(self, form):
+        pk = self.request.POST.get('pk')
+        if pk:
+            tipo_nomina = t_tipo_nomina.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(tipo_nomina, field, value)
+            tipo_nomina.save()
+            messages.success(self.request, 'Tipo de nomina actualizada correctamente')
+        else:
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+
+        return redirect(self.success_url)
+    
+    def form_invalid(self, form):
+        print(form.errors)
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+    
+class tipo_nominaDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_tipo_nomina
+    success_url = reverse_lazy('tipo_nomina')
+    login_url = 'accounts/login'
+
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Tipo de nomina eliminada correctamente')
+        return super().post(request, *args, **kwargs)

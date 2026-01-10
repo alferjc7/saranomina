@@ -3,7 +3,7 @@ from gestionClientes.models import t_empresa
 from gestionIdentificacion.models import t_identificacion
 from parametros.models import (t_tipo_salario, t_tipo_contrato, 
                                t_tipo_cotizante, t_subtipo_cotizante, 
-                               t_banco, t_entidadesss)
+                               t_banco, t_entidadesss, t_tipo_nomina)
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class EmpresaQuerySet(models.QuerySet):
@@ -71,7 +71,8 @@ class t_contrato(models.Model):
     ) 
 
     estado = models.CharField(max_length=1, choices=ESTADOS, default='A') 
-    cesantias = models.CharField(max_length=3, choices=CESANTIAS) 
+    cesantias = models.CharField(max_length=3, choices=CESANTIAS)
+    tipo_nomina = models.ForeignKey(t_tipo_nomina, on_delete=models.CASCADE, limit_choices_to={'asigna_contrato': True}, verbose_name= "Tipo de nomina") 
     user_creator = models.CharField(max_length=50,blank= True, null= True)
     date_created = models.DateField(blank= True, null= True)
 

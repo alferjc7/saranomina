@@ -5,7 +5,8 @@ from parametros.views import (tipos_contratosCreateView, tipo_contratosDeleteVie
                               subtipos_cotizantesCreateView, subtipo_cotizantesDeleteView,
                               bancosCreateView,bancosDeleteView,
                               entidadesssCreateView, entidadesssDeleteView,
-                              t_conceptos_salarioCreateView,t_conceptos_salarioDeleteView)
+                              t_conceptos_salarioCreateView,t_conceptos_salarioDeleteView,
+                              tipo_nominaCreateView,tipo_nominaDeleteView)
 urlpatterns = [
     path("tipos_contratos/", tipos_contratosCreateView.as_view(), name="tipos_contratos"),
     path("tipos_contratos_eliminar/<int:pk>/", tipo_contratosDeleteView.as_view(), name="tipos_contratos_eliminar"),
@@ -21,5 +22,7 @@ urlpatterns = [
     path("entidades_ss_eliminar/<int:pk>/", entidadesssDeleteView.as_view(), name="entidades_ss_eliminar"),
     path("conceptos_salario/", t_conceptos_salarioCreateView.as_view(), name="conceptos_salario"),
     path("conceptos_salario_eliminar/<int:pk>/", t_conceptos_salarioDeleteView.as_view(), name="conceptos_salario_eliminar"),
+    path("tipo_nomina/", tipo_nominaCreateView.as_view(), name="tipo_nomina"),
+    path("tipo_nomina/<int:pk>/", tipo_nominaDeleteView.as_view(), name="tipo_nomina_eliminar"),
     
 ]

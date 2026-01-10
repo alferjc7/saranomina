@@ -103,3 +103,22 @@ class t_conceptos_salario(models.Model):
     concepto = models.ForeignKey(t_conceptos, on_delete=models.CASCADE, verbose_name= "Concepto")
     user_creator = models.CharField(max_length=50,blank= True, null= True)
     date_created = models.DateField(blank= True, null= True)
+
+
+    
+class t_tipo_nomina(models.Model):
+    codigo = models.CharField(max_length=2, verbose_name="Codigo")
+    descripcion = models.CharField(max_length=100, verbose_name="Descripcion")
+    estado = models.BooleanField(default=True, verbose_name="Estado")
+    asigna_contrato = models.BooleanField(default=True, verbose_name="Se asigna a contrato")
+    user_creator = models.CharField(max_length=50,blank= True, null= True)
+    date_created = models.DateField(blank= True, null= True)
+    def save(self, *args, **kwargs):
+        if self.codigo:
+            self.codigo = self.codigo.upper()
+        if self.descripcion:
+            self.descripcion = self.descripcion.upper()
+        return super().save(*args, **kwargs)
+    def __str__(self):
+        return self.descripcion
+    

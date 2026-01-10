@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Periodos de nomina{% endblock %}
+{% block content %}
+<h2>Periodos de nomina</h2>
+
+<form method="get">
+    <div class="card">
+        <div class="form-grid-4">
+            <div class="form-group2">
+                <select name="tipo">
+                    <option value="">-- Tipo de nómina --</option>
+                    {% for tipo in tipos_nomina %}
+                    <option value="{{ tipo.id }}" {% if tipo_seleccionado == tipo.id %} selected {% endif %}>
+                        {{ tipo.descripcion }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="anio" placeholder="Buscar por año" value="{{ request.GET.anio }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="mes" placeholder="Buscar por mes" value="{{ request.GET.mes }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Empresa</th>
+                <th>Codigo</th>
+                <th>Tipo nomina</th>
+                <th>Año</th>
+                <th>Mes</th>
+                <th>Periodo</th>
+                <th>Fecha inicio</th>
+                <th>Fecha fin</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for periodo in periodo_nomina %}
+            <tr>
+                <td>{{ periodo.empresa.razon_social }}</td>
+                <td>{{ periodo.codigo }}</td>
+                <td>{{ periodo.tipo_nomina.descripcion }}</td>
+                <td>{{ periodo.anio }}</td>
+                <td>{{ periodo.mes }}</td>
+                <td>{{ periodo.periodo }}</td>
+                <td>{{ periodo.fecha_inicio|date:"d/m/Y"}}</td>
+                <td>{{ periodo.fecha_fin|date:"d/m/Y"}}</td>
+                <td>
+                    <form method="post" action="{% url 'periodo_nomina_eliminar' periodo.pk %}"
+                        onsubmit="return confirm('¿Eliminar este periodo?');">
+                        {% csrf_token %}
+                        <button type="submit">🗑 Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2>Nuevo periodo</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+
+                <div class="form-group2">
+                    {{ form.tipo_nomina.label_tag }}
+                    {{ form.tipo_nomina }}
+                </div>
+                <div class="form-group2">
+                    {{ form.anio.label_tag }}
+                    {{ form.anio }}
+                </div>
+                <div class="form-group2">
+                    {{ form.mes.label_tag }}
+                    {{ form.mes }}
+                </div>
+                <div class="form-group2">
+                    {{ form.periodo.label_tag }}
+                    {{ form.periodo }}
+                </div>
+                <br>
+                <div class="form-group2">
+                    <button type="submit" class="btn-primary">
+                        Crear períodos
+                    </button>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    {{ form.fecha_inicio.label_tag }}
+                    {{ form.fecha_inicio }}
+                </div>
+                <div class="form-group2">
+                    {{ form.fecha_fin.label_tag }}
+                    {{ form.fecha_fin }}
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+{% endblock %}
+{% block scripts %}
+{% endblock %}
