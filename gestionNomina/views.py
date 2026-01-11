@@ -46,6 +46,7 @@ class periodo_nominaListView(LoginRequiredMixin,ListView):
         form = GenerarPeriodoNominaForm(request.POST)
 
         if form.is_valid():
+            ejecucion_automatica = form.cleaned_data['ejecucion_automatica']
             empresa = t_empresa.objects.get(id=request.session.get('empresa_id'))
             tipo_nomina = form.cleaned_data['tipo_nomina']
             anio = form.cleaned_data['anio']
@@ -54,25 +55,49 @@ class periodo_nominaListView(LoginRequiredMixin,ListView):
             fecha_inicio = form.cleaned_data['fecha_inicio']
             fecha_fin = form.cleaned_data['fecha_fin']
 
+            existe = False
+            validar_adicionales = False
             # Evitar duplicados
-            existe = t_periodo_nomina.objects.filter(
-                empresa = empresa,
-                tipo_nomina = tipo_nomina,
-                anio = anio
-            ).exists()
+            if tipo_nomina.asigna_contrato == False :
+                if all([tipo_nomina, anio, mes, periodo, fecha_inicio, fecha_fin]):
+                    existe = t_periodo_nomina.objects.filter(
+                        empresa = empresa,
+                        tipo_nomina = tipo_nomina,
+                        anio = anio,
+                        mes = mes,
+                        periodo  = periodo,
+                        fecha_inicio = fecha_inicio,
+                        fecha_fin = fecha_fin
+                    ).exists()
+                
+                else:
+                    validar_adicionales = True
+                    messages.error(request, "Para este tipo de Nomina se deben diligenciar todos los campos.")    
+            else:
+                existe = t_periodo_nomina.objects.filter(
+                    empresa = empresa,
+                    tipo_nomina = tipo_nomina,
+                    anio = anio
+                ).exists()
 
             if existe:
                 messages.error(request, "Ya existen períodos para ese año y tipo de nómina.")
             else:
-                crear_periodos(
-                    empresa,
-                    tipo_nomina,
-                    anio,
-                    mes,
-                    periodo 
-                )
-                messages.success(request, "Períodos creados correctamente.")
-
+                try:
+                    crear_periodos(
+                        ejecucion_automatica,
+                        empresa,
+                        tipo_nomina,
+                        anio,
+                        mes,
+                        periodo,
+                        fecha_inicio,
+                        fecha_fin
+                    )
+                    if validar_adicionales == False:
+                        messages.success(request, "Períodos creados correctamente.")
+                except ValueError as e:
+                    messages.error(request, str(e))
         else:
             print(form.errors)
 

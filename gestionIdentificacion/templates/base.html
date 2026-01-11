@@ -88,6 +88,29 @@
             
             {% with request.path as current %}
             <div class="menu-group
+        {% if '/gestionnomina/' in current or '/periodo_nomina/' in current%}
+            active
+        {% endif %}
+    ">
+
+                <button class="menu-toggle">
+                    Gestión de Nomina
+                    <span class="arrow">▶</span>
+                </button>
+
+                <div class="submenu">
+
+                    <a href="/gestionnomina/periodo_nomina"
+                        class="{% if '/gestionnomina/periodo_nomina/' in current %}active-link{% endif %}">
+                        Periodos de Nomina
+                    </a>
+                </div>
+            </div>
+            {% endwith %}
+
+            
+            {% with request.path as current %}
+            <div class="menu-group
         {% if '/clientes/' in current or '/empresas/' in current %}
             active
         {% endif %}

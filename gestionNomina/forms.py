@@ -10,6 +10,17 @@ class t_periodo_nominaform(ModelForm):
         exclude = ('codigo',)
         
 class GenerarPeriodoNominaForm(forms.Form):
+    ejecucion_automatica = forms.BooleanField(
+        label="Ejecución automática",
+        required=False,   
+        initial=True,   
+        widget=forms.CheckboxInput(
+            attrs={
+                'class': 'form-check-input',
+                'role': 'switch'
+            }
+        )
+    )
     tipo_nomina = forms.ModelChoiceField(
         queryset=t_tipo_nomina.objects.all(),
         label="Tipo de nómina"

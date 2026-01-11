@@ -82,7 +82,13 @@
     <div class="card">
         <div class="form-grid-2">
             <div>
-
+                <label for="Estado">Ejecucion automatica</label>
+                <label class="switch">
+                {{form.ejecucion_automatica}}
+                <span class="slider"></span>
+                </label>
+                <br>
+                <br>
                 <div class="form-group2">
                     {{ form.tipo_nomina.label_tag }}
                     {{ form.tipo_nomina }}
