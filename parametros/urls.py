@@ -6,7 +6,9 @@ from parametros.views import (tipos_contratosCreateView, tipo_contratosDeleteVie
                               bancosCreateView,bancosDeleteView,
                               entidadesssCreateView, entidadesssDeleteView,
                               t_conceptos_salarioCreateView,t_conceptos_salarioDeleteView,
-                              tipo_nominaCreateView,tipo_nominaDeleteView)
+                              tipo_nominaCreateView,tipo_nominaDeleteView,
+                              parametro_generalCreateView, parametro_generalDeleteView,
+                              parametro_DetalleCreateView,parametro_detalleDeleteView)
 urlpatterns = [
     path("tipos_contratos/", tipos_contratosCreateView.as_view(), name="tipos_contratos"),
     path("tipos_contratos_eliminar/<int:pk>/", tipo_contratosDeleteView.as_view(), name="tipos_contratos_eliminar"),
@@ -24,5 +26,9 @@ urlpatterns = [
     path("conceptos_salario_eliminar/<int:pk>/", t_conceptos_salarioDeleteView.as_view(), name="conceptos_salario_eliminar"),
     path("tipo_nomina/", tipo_nominaCreateView.as_view(), name="tipo_nomina"),
     path("tipo_nomina/<int:pk>/", tipo_nominaDeleteView.as_view(), name="tipo_nomina_eliminar"),
+    path("parametro_general/", parametro_generalCreateView.as_view(), name="parametro_general"),
+    path("parametro_general/<int:pk>/", parametro_generalDeleteView.as_view(), name="parametro_general_eliminar"),
+    path("parametro_general/<int:parametro_id>/parametro_detalle/", parametro_DetalleCreateView.as_view(), name="parametro_detalle"),
+    path("parametro_general/<int:parametro_id>/parametro_detalle_eliminar/<int:pk>", parametro_detalleDeleteView.as_view(), name="parametro_detalle_eliminar"),
     
 ]

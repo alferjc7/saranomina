@@ -1,16 +1,18 @@
 from datetime import datetime
-from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from parametros.models import (t_tipo_contrato, t_tipo_salario, 
                                t_tipo_cotizante, t_subtipo_cotizante,
-                               t_banco, t_entidadesss, t_conceptos_salario, t_tipo_nomina)
+                               t_banco, t_entidadesss, t_conceptos_salario, t_tipo_nomina,
+                               ParametroGeneral, ParametroDetalle)
 from parametros.forms import (tipo_contratoform, tipo_salarioform, 
                               tipo_cotizanteform, subtipo_cotizanteform,
                               bancoform, t_entidadesssform, CargaExcelForm, 
-                              t_conceptos_salarioform, t_tipo_nominaform)
+                              t_conceptos_salarioform, t_tipo_nominaform, 
+                              t_parametrogeneralform, t_parametrodetllleform)
 from django.views.generic import CreateView, DeleteView
 from openpyxl import load_workbook
 from django.http import HttpResponse
@@ -617,4 +619,139 @@ class tipo_nominaDeleteView(LoginRequiredMixin,DeleteView):
 
     def post(self, request, *args, **kwargs):
         messages.success(request, 'Tipo de nomina eliminada correctamente')
+        return super().post(request, *args, **kwargs)
+
+
+    
+class parametro_generalCreateView(LoginRequiredMixin,CreateView):
+    model = ParametroGeneral
+    form_class = t_parametrogeneralform
+    template_name = 'parametro_general.html'
+    context_object_name = 'parametro_general'
+    success_url = reverse_lazy('parametro_general')
+    login_url = '/accounts/login/'           # opcional
+    redirect_field_name = 'next'  # opcional
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        pk = self.request.POST.get('pk')
+
+        if pk:
+            kwargs['instance'] = ParametroGeneral.objects.get(pk=pk)
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        registros = ParametroGeneral.objects.all().order_by('-pk')[:30]
+        context['registros'] = registros
+
+        codigo = self.request.GET.get('codigo')
+        
+        estado = self.request.GET.get('estado')
+
+        
+        if codigo:
+            context['registros'] = ParametroGeneral.objects.filter(codigo=codigo)
+
+        
+        if estado:
+            context['registros'] = ParametroGeneral.objects.filter(activo=estado)
+
+
+        return context
+    
+    def form_valid(self, form):
+        pk = self.request.POST.get('pk')
+        if  pk:
+            parametro = ParametroGeneral.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(parametro, field, value)
+            parametro.save()
+            messages.success(self.request, 'Parametro actualizado correctamente')
+        else:
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        
+        return redirect(self.success_url)
+    
+    def form_invalid(self, form):
+        print(form.errors)
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+    
+class parametro_generalDeleteView(LoginRequiredMixin,DeleteView):
+    model = ParametroGeneral
+    success_url = reverse_lazy('parametro_general')
+    login_url = 'accounts/login'
+
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Parametro eliminado correctamente')
+        return super().post(request, *args, **kwargs)
+
+
+class parametro_DetalleCreateView(LoginRequiredMixin,CreateView):
+    model = ParametroDetalle
+    form_class = t_parametrodetllleform
+    template_name = 'parametro_detalle.html'
+  
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        pk = self.request.POST.get('pk')
+
+        if pk:
+            kwargs['instance'] = ParametroDetalle.objects.get(pk=pk)
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        parametro = get_object_or_404(ParametroGeneral,pk=self.kwargs['parametro_id'])
+
+        context['parametro'] = parametro
+        context['registros'] = ParametroDetalle.objects.filter(parametro=parametro)
+
+        return context
+     
+    def form_valid(self, form):
+        pk = self.request.POST.get('pk')
+        if pk:
+            parametro = ParametroDetalle.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(parametro, field, value)
+            parametro.save()
+            messages.success(self.request, 'Parametro actualizado correctamente')
+        else:
+            form.instance.parametro_id = self.kwargs['parametro_id']
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.get_success_url())
+
+    
+    def form_invalid(self, form):
+        print(form.errors)
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+    
+    def get_success_url(self):
+        return reverse(
+            'parametro_detalle',
+            kwargs={'parametro_id': self.kwargs['parametro_id']}
+        )
+
+
+class parametro_detalleDeleteView(LoginRequiredMixin,DeleteView):
+    model = ParametroDetalle
+    login_url = 'accounts/login'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'parametro_detalle',
+            kwargs={'parametro_id': self.object.parametro_id}
+        )
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Registro eliminado correctamente')
         return super().post(request, *args, **kwargs)

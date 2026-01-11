@@ -104,8 +104,6 @@ class t_conceptos_salario(models.Model):
     user_creator = models.CharField(max_length=50,blank= True, null= True)
     date_created = models.DateField(blank= True, null= True)
 
-
-    
 class t_tipo_nomina(models.Model):
     codigo = models.CharField(max_length=2, verbose_name="Codigo")
     descripcion = models.CharField(max_length=100, verbose_name="Descripcion")
@@ -121,4 +119,73 @@ class t_tipo_nomina(models.Model):
         return super().save(*args, **kwargs)
     def __str__(self):
         return self.descripcion
+
+class ParametroGeneral(models.Model):
+    codigo = models.CharField(
+        max_length=6,
+        unique=True)
+    titulo = models.CharField(
+        max_length=100)
+    descripcion = models.TextField(
+        blank=True)
+    activo = models.BooleanField(
+        default=True)
+    user_creator = models.CharField(max_length=50,blank= True, null= True)
+    date_created = models.DateField(blank= True, null= True)
     
+    
+    def save(self, *args, **kwargs):
+        if self.codigo:
+            self.codigo = self.codigo.upper()
+        if self.titulo:
+            self.titulo = self.titulo.upper()
+        if self.descripcion:
+            self.descripcion = self.descripcion.upper()
+        return super().save(*args, **kwargs)
+    
+
+    def __str__(self):
+        return f"{self.codigo} - {self.titulo}"
+    
+class ParametroDetalle(models.Model):
+    parametro = models.ForeignKey(
+        ParametroGeneral,
+        on_delete=models.CASCADE,
+        related_name="detalles")
+
+    codigo = models.CharField(
+        max_length=6)
+    valor_texto = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True)
+    valor_numerico = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        blank=True,
+        null=True)
+    fecha_inicio = models.DateField(
+        blank=True,
+        null=True)
+    fecha_fin = models.DateField(
+        blank=True,
+        null=True)
+    valor_booleano = models.BooleanField(
+        default=False)
+    activo = models.BooleanField(
+        default=True)
+    user_creator = models.CharField(max_length=50,blank= True, null= True)
+    date_created = models.DateField(blank= True, null= True)
+    
+
+    class Meta:
+        unique_together = ('parametro', 'codigo')
+        
+    def save(self, *args, **kwargs):
+        if self.codigo:
+            self.codigo = self.codigo.upper()
+        if self.valor_texto:
+            self.valor_texto = self.valor_texto.upper()
+        return super().save(*args, **kwargs)
+    def __str__(self):
+        return f"{self.parametro.codigo} - {self.codigo}"

@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Parametros{% endblock %}
+{% block content %}
+<h2>Parametro {{parametro.titulo}}</h2>
+<form method="get">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="codigo" placeholder="Buscar por codigo"  oninput="this.value = this.value.toUpperCase()"
+                        value="{{ request.GET.codigo }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <select name="estado" class="form-control">
+                        <option value="">Buscar por estado</option>
+                        <option value= True {% if request.GET.estado == True %}selected{% endif %}>
+                            ACTIVO
+                        </option>
+                        <option value= False {% if request.GET.estado == False %}selected{% endif %}>
+                            INACTIVO
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="table-container">
+<table>
+    <thead>
+        <tr>
+            <th>Parametro</th>
+            <th>Codigo</th>
+            <th>Valor texto</th>
+            <th>Valor numerico</th>
+            <th>Fecha inicio</th>
+            <th>Fecha fin</th>
+            <th>Valor boolean</th>
+            <th>Estado</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in registros %}
+        <tr>
+            <td>{{ b.parametro.titulo }}</td>
+            <td>{{ b.codigo }}</td>
+            <td>{{ b.valor_texto|default_if_none:'' }}</td>
+            <td>{{ b.valor_numerico|default_if_none:'' }}</td>
+            <td>{{ b.fecha_inicio|default_if_none:'' }}</td>
+            <td>{{ b.fecha_fin|default_if_none:'' }}</td>
+            <td>{{ b.valor_booleano }}</td>
+            <td>{% if b.activo %}
+                ACTIVO
+                {% else %}
+                INACTIVO
+                {% endif %}
+            </td>            
+            <td>
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" 
+                data-parametro="{{ b.parametro.id }}"   
+                data-codigo="{{ b.codigo }}"  data-valort="{{ b.valor_texto|default_if_none:'' }}"
+                data-valorn="{{ b.valor_numerico|default_if_none:''  }}" data-feci="{{ b.fecha_inicio|default_if_none:'' }}"
+                data-fecf="{{ b.fecha_fin|default_if_none:''}}" data-valorb="{{ b.valor_booleano }}" 
+                data-estado="{{ b.activo }}">
+                    ✏️ Editar
+                </button>
+            </td>
+            <td>
+                <form method="post" action="{% url 'parametro_detalle_eliminar' b.parametro.id b.id %}"
+                    onsubmit="return confirm('¿Eliminar este parametro?');">
+                    {% csrf_token %}
+                    <button type="submit">🗑 Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<h2>Nuevo parametro</h2>
+<form id="tiponomina-form" method="POST">
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                 <div class="form-group2">
+                {{ form.codigo.label_tag }} <!-- label arriba -->
+                {{ form.codigo }}
+                {% if form.codigo.errors %}
+                <div class="error">{{ form.codigo.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.valor_texto.label_tag }} <!-- label arriba -->
+                {{ form.valor_texto }}
+                {% if form.valor_texto.errors %}
+                <div class="error">{{ form.valor_texto.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.valor_numerico.label_tag }} <!-- label arriba -->
+                {{ form.valor_numerico }}
+                {% if form.valor_numerico.errors %}
+                <div class="error">{{ form.valor_numerico.errors }}</div>
+                {% endif %}
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                {{ form.fecha_inicio.label_tag }} <!-- label arriba -->
+                {{ form.fecha_inicio }}
+                {% if form.fecha_inicio.errors %}
+                <div class="error">{{ form.fecha_inicio.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.fecha_fin.label_tag }} <!-- label arriba -->
+                {{ form.fecha_fin }}
+                {% if form.fecha_fin.errors %}
+                <div class="error">{{ form.fecha_fin.errors }}</div>
+                {% endif %}
+                </div>
+            <br>
+                <label for="Estado">Valor Booleano</label>
+                <label class="switch">
+                {{form.valor_booleano}}
+                <span class="slider"></span>
+                </label>    
+            <br>
+            <br>
+                <label for="Estado">Estado</label>
+                <label class="switch">
+                {{form.activo}}
+                <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pk = btn.dataset.pk;
+            const codigo = btn.dataset.codigo;
+            const valorn = btn.dataset.valorn;
+            const valort = btn.dataset.valort;
+            const feci = btn.dataset.feci;
+            const fecf = btn.dataset.fecf;
+            const valorb = btn.dataset.valorb === "True";
+            const estado = btn.dataset.estado === "True";
+            
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('tiponomina-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+            inputPk.value = pk;
+
+            // Llenar los campos
+            form.querySelector('[name="codigo"]').value = codigo;
+            form.querySelector('[name="valor_numerico"]').value = valorn;
+            form.querySelector('[name="valor_texto"]').value = valort;
+            form.querySelector('[name="fecha_inicio"]').value = feci;
+            form.querySelector('[name="fecha_fin"]').value = fecf;
+            form.querySelector('[name="valor_booleano"]').checked = valorb;
+            form.querySelector('[name="activo"]').checked = estado;
+            
+        });
+    });
+</script>
+{% endblock %}
