@@ -188,4 +188,8 @@ class ParametroDetalle(models.Model):
             self.valor_texto = self.valor_texto.upper()
         return super().save(*args, **kwargs)
     def __str__(self):
-        return f"{self.parametro.codigo} - {self.codigo}"
+        codigo = self.codigo or ''
+        valor_texto = self.valor_texto or ''
+        valor_numerico = self.valor_numerico or ''
+        return f"{codigo} - {valor_texto} - {valor_numerico}"
+        

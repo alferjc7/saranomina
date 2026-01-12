@@ -51,6 +51,8 @@
                 <th>Subtipo cotizante</th>
                 <th>Codigo interno</th>
                 <th>Tipo nomina</th>
+                <th>Motivo retiro</th>
+                <th>Fecha retiro</th>
                 <th>Asignar Salario</th>
                 <th>Asignar Banco</th>
                 <th>Asignar Entidad</th>
@@ -71,6 +73,8 @@
                 <td>{{ b.subtipo_cotizante }}</td>
                 <td>{{ b.codigo_interno }}</td>
                 <td>{{ b.tipo_nomina }}</td>
+                <td>{{ b.motivo_retiro|default_if_none:'' }}</td>
+                <td>{{ b.fecha_ret|date:"d/m/Y"|default:"" }}</td>
                 <td>
                     <form method="get" action="{% url 'contrato_salario' b.id %}" style="display:inline;">
                         <button type="submit" class="btn btn-sm btn-primary">
@@ -105,6 +109,7 @@
                         data-tipocont ="{{ b.tipo_contrato.id }}" data-pervac="{{ b.periodo_vac }}"
                         data-cotizante ="{{ b.tipo_cotizante.id }}" data-subcotizante="{{ b.subtipo_cotizante.id }}"
                         data-codigoi ="{{ b.codigo_interno }}"  data-tiponom ="{{ b.tipo_nomina.id }}"
+                        data-movret ="{{ b.motivo_retiro.id }}" data-fecret ="{{ b.fecha_ret|date:'Y-m-d' }}"
                         data-proc ="{{ b.procedimiento }}" data-porc="{{ b.porcentaje_retencion }}"
                         data-estado ="{{ b.estado }}" data-cesantias="{{ b.cesantias }}">
                         ✏️ Editar
@@ -150,6 +155,14 @@
                     <div class="error">{{ form.tipo_contrato.errors }}</div>
                     {% endif %}
                 </div>
+                
+                 <div class="form-group2">
+                    {{ form.tipo_nomina.label_tag }} <!-- label arriba -->
+                    {{ form.tipo_nomina }}
+                    {% if form.tipo_nomina.errors %}
+                    <div class="error">{{ form.tipo_nomina.errors }}</div>
+                    {% endif %}
+                </div>
             </div>
             <div>
                 <div class="form-group2">
@@ -180,6 +193,14 @@
                     <div class="error">{{ form.codigo_interno.errors }}</div>
                     {% endif %}
                 </div>
+                
+                <div class="form-group2">
+                    {{ form.cesantias.label_tag }} <!-- label arriba -->
+                    {{ form.cesantias }}
+                    {% if form.cesantias.errors %}
+                    <div class="error">{{ form.cesantias.errors }}</div>
+                    {% endif %}
+                </div>
             </div>
             <div>
                 <div class="form-group2">
@@ -204,17 +225,18 @@
                     {% endif %}
                 </div>
                 <div class="form-group2">
-                    {{ form.cesantias.label_tag }} <!-- label arriba -->
-                    {{ form.cesantias }}
-                    {% if form.cesantias.errors %}
-                    <div class="error">{{ form.cesantias.errors }}</div>
+                    {{ form.motivo_retiro.label_tag }} <!-- label arriba -->
+                    {{ form.motivo_retiro }}
+                    {% if form.motivo_retiro.errors %}
+                    <div class="error">{{ form.motivo_retiro.errors }}</div>
                     {% endif %}
                 </div>
-                 <div class="form-group2">
-                    {{ form.tipo_nomina.label_tag }} <!-- label arriba -->
-                    {{ form.tipo_nomina }}
-                    {% if form.tipo_nomina.errors %}
-                    <div class="error">{{ form.tipo_nomina.errors }}</div>
+                
+                <div class="form-group2">
+                    {{ form.fecha_ret.label_tag }} <!-- label arriba -->
+                    {{ form.fecha_ret }}
+                    {% if form.fecha_ret.errors %}
+                    <div class="error">{{ form.fecha_ret.errors }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -236,6 +258,8 @@
             const fecf = btn.dataset.fecf;
             const tipocont = btn.dataset.tipocont;
             const tiponom = btn.dataset.tiponom;
+            const movret = btn.dataset.movret;
+            const fecret = btn.dataset.fecret;
             const pervac = btn.dataset.pervac;
             const cotizante = btn.dataset.cotizante;
             const subcotizante = btn.dataset.subcotizante;
@@ -244,8 +268,6 @@
             const porc = btn.dataset.porc;
             const estado = btn.dataset.estado;
             const cesantias = btn.dataset.cesantias;
-
-
 
             // Agregar un input hidden para el pk
             let form = document.getElementById('contrato-form');
@@ -271,6 +293,8 @@
             form.querySelector('[name="fecha_fin"]').value = fecf;
             form.querySelector('[name="tipo_contrato"]').value = tipocont;
             form.querySelector('[name="tipo_nomina"]').value = tiponom;
+            form.querySelector('[name="motivo_retiro"]').value = movret;
+            form.querySelector('[name="fecha_ret"]').value = fecret;
             form.querySelector('[name="periodo_vac"]').value = pervac;
             form.querySelector('[name="tipo_cotizante"]').value = cotizante;
             form.querySelector('[name="subtipo_cotizante"]').value = subcotizante;

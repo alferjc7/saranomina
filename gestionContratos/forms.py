@@ -23,6 +23,12 @@ class t_contratoform(ModelForm):
                     'class': 'form-control'
                 }
             ),
+            'fecha_ret': forms.DateInput(
+                attrs={
+                    'type': 'date',
+                    'class': 'form-control'
+                }
+            ),
         }
         exclude = (
             'empresa',
