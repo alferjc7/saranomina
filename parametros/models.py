@@ -191,5 +191,5 @@ class ParametroDetalle(models.Model):
         codigo = self.codigo or ''
         valor_texto = self.valor_texto or ''
         valor_numerico = self.valor_numerico or ''
-        return f"{codigo} - {valor_texto} - {valor_numerico}"
+        return f"{valor_texto}"
         

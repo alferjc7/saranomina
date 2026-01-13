@@ -90,6 +90,6 @@ class t_concepto_empresa(models.Model):
         return super().save(*args, **kwargs)
     
     def __str__(self):
-        return self.cod_concepto
+        return self.desc_concepto_emp
 
 

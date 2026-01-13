@@ -1,7 +1,8 @@
 from django.db import models
 from gestionClientes.models import t_empresa
-from parametros.models import t_tipo_nomina
-
+from parametros.models import t_tipo_nomina, ParametroDetalle
+from gestionConceptos.models import t_concepto_empresa
+from gestionContratos.models import t_contrato
 
 class t_periodo_nomina(models.Model):
 
@@ -29,6 +30,8 @@ class t_periodo_nomina(models.Model):
 
     fecha_inicio = models.DateField(verbose_name="Fecha inicio")
     fecha_fin = models.DateField(verbose_name="Fecha fin")
+    user_creator = models.CharField(max_length=50,blank= True, null= True)
+    date_created = models.DateField(blank= True, null= True)
 
     class Meta:
         unique_together = (
@@ -55,3 +58,183 @@ class t_periodo_nomina(models.Model):
     def __str__(self):
         return f"{self.empresa} - {self.anio}-{self.mes} P{self.periodo}"
     
+
+class t_logica_calculo(models.Model):
+
+    empresa = models.ForeignKey(
+        t_empresa,
+        on_delete=models.CASCADE,
+        verbose_name="Empresa"
+    )
+
+    tipo_nomina = models.ForeignKey(
+        t_tipo_nomina,
+        on_delete=models.CASCADE,
+        verbose_name="Tipo de Nomina"
+    )
+    
+    modulo = models.ForeignKey(
+        ParametroDetalle, 
+        on_delete=models.CASCADE, 
+        limit_choices_to={'parametro__codigo': 'MOD'}, 
+        verbose_name= "Modulo", blank = True, null = True) 
+    
+    periodo = models.IntegerField(verbose_name="Periodo")    
+    concepto = models.ForeignKey(
+        t_concepto_empresa, 
+        on_delete=models.CASCADE, 
+        verbose_name= "Concepto"
+        ) 
+
+    logica = models.CharField(max_length=200,blank= True, null= True)
+    orden = models.IntegerField(verbose_name="Orden")
+    user_creator = models.CharField(max_length=50,blank= True, null= True)
+    date_created = models.DateField(blank= True, null= True)
+
+
+    
+    class Meta:
+        verbose_name = "Lógica de cálculo"
+        verbose_name_plural = "Lógicas de cálculo"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['empresa', 'tipo_nomina', 'periodo', 'concepto'],
+                name='uq_logica_empresa_nomina_periodo_concepto'
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.empresa} - {self.concepto} - {self.logica}"
+
+
+class t_acumulado_empleado(models.Model):
+
+    contrato = models.ForeignKey(
+        t_contrato,
+        on_delete=models.CASCADE,
+        verbose_name="Contrato"
+    )
+
+    anio = models.IntegerField(verbose_name="Año")
+    mes = models.IntegerField(verbose_name="Mes")
+    periodo = models.IntegerField(verbose_name="Periodo")
+class t_acumulado_empleado(models.Model):
+
+    contrato = models.ForeignKey(
+        t_contrato,
+        on_delete=models.CASCADE,
+        verbose_name="Contrato"
+    )
+
+    tipo_nomina = models.ForeignKey(
+        t_tipo_nomina,
+        on_delete=models.CASCADE,
+        verbose_name="Tipo de nómina"
+    )
+
+    anio = models.IntegerField(verbose_name="Año")
+    mes = models.IntegerField(verbose_name="Mes")
+    periodo = models.IntegerField(verbose_name="Periodo")
+
+    fecha_novedad = models.DateField(
+        verbose_name="Fecha novedad",
+        blank=True,
+        null=True
+    )
+
+    fecha_inicio = models.DateField(
+        verbose_name="Fecha inicio",
+        blank=True,
+        null=True
+    )
+
+    fecha_fin = models.DateField(
+        verbose_name="Fecha fin",
+        blank=True,
+        null=True
+    )
+
+    concepto = models.ForeignKey(
+        t_concepto_empresa,
+        on_delete=models.CASCADE,
+        verbose_name="Concepto"
+    )
+
+    unidad = models.DecimalField(
+        max_digits=10,
+        decimal_places=0,
+        default=0,
+        verbose_name="Unidad"
+    )
+
+    base = models.DecimalField(
+        max_digits=15,
+        decimal_places=0,
+        default=0,
+        verbose_name="Base"
+    )
+
+    valor = models.DecimalField(
+        max_digits=15,
+        decimal_places=0,
+        default=0,
+        verbose_name="Valor"
+    )
+
+    modulo = models.ForeignKey(
+        ParametroDetalle,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        limit_choices_to={'parametro__codigo': 'MOD'},
+        verbose_name="Módulo"
+    )
+
+    t01 = models.CharField(max_length=100, blank=True, null=True)
+    v01 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t02 = models.CharField(max_length=100, blank=True, null=True)
+    v02 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t03 = models.CharField(max_length=100, blank=True, null=True) 
+    v03 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t04 = models.CharField(max_length=100, blank=True, null=True)
+    v04 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t05 = models.CharField(max_length=100, blank=True, null=True)
+    v05 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t06 = models.CharField(max_length=100, blank=True, null=True) 
+    v06 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t07 = models.CharField(max_length=100, blank=True, null=True)
+    v07 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t08 = models.CharField(max_length=100, blank=True, null=True)
+    v08 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t09 = models.CharField(max_length=100, blank=True, null=True) 
+    v09 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t10 = models.CharField(max_length=100, blank=True, null=True)
+    v10 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t11 = models.CharField(max_length=100, blank=True, null=True)
+    v11 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t12 = models.CharField(max_length=100, blank=True, null=True) 
+    v12 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t13 = models.CharField(max_length=100, blank=True, null=True) 
+    v13 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t14 = models.CharField(max_length=100, blank=True, null=True)
+    v14 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t15 = models.CharField(max_length=100, blank=True, null=True)
+    v15 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t16 = models.CharField(max_length=100, blank=True, null=True) 
+    v16 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t17 = models.CharField(max_length=100, blank=True, null=True)
+    v17 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t18 = models.CharField(max_length=100, blank=True, null=True)
+    v18 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t19 = models.CharField(max_length=100, blank=True, null=True) 
+    v19 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    t20 = models.CharField(max_length=100, blank=True, null=True)
+    v20 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    ft01 = models.CharField(max_length=100, blank=True, null=True)
+    f01 = models.DateField(blank=True, null=True)
+    ft02 = models.CharField(max_length=100, blank=True, null=True)
+    f02 = models.DateField(blank=True, null=True)
+    ft03 = models.CharField(max_length=100, blank=True, null=True)
+    f03 = models.DateField(blank=True, null=True)
+    ft04 = models.CharField(max_length=100, blank=True, null=True)
+    f04 = models.DateField(blank=True, null=True)

@@ -1,6 +1,8 @@
 from django import forms
+from django.db import connection
 from django.forms import ModelForm, ValidationError
-from gestionNomina.models import t_periodo_nomina
+from gestionNomina.models import t_periodo_nomina, t_logica_calculo, t_acumulado_empleado
+from gestionConceptos.models import t_concepto_empresa
 from parametros.models import t_tipo_nomina
 
 class t_periodo_nominaform(ModelForm):
@@ -8,7 +10,49 @@ class t_periodo_nominaform(ModelForm):
         model = t_periodo_nomina
         fields = '__all__'
         exclude = ('codigo',)
+
+class t_acumulaldo_empleadoform(ModelForm):
+    class Meta:
+        model = t_acumulado_empleado
+        fields = '__all__'
+
+class t_logica_calculoform(ModelForm):
+    logica = forms.ChoiceField(
+        choices=[],
+        required=False,
+        label="Lógica de cálculo"
+    )
+
+    class Meta:
+        model = t_logica_calculo
+        fields = '__all__'
+        exclude = ('empresa',)
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
+        self.fields['logica'].choices = [('', 'Seleccione un concepto')]
+
+        concepto_id = None
+
+        self.fields['logica'].choices += self._obtener_prc(concepto_id)
+
+    def _obtener_prc(self, concepto_id):
+        cursor = connection.cursor()
+        print('aca')
+        sql = """
+         SELECT upper(routine_name)
+            FROM information_schema.routines
+            WHERE routine_type = 'PROCEDURE'
+              AND routine_name LIKE 'prc_%'
+            ORDER BY routine_name
+        """
+        cursor.execute(sql)
+        resultados = cursor.fetchall()
+
+        return [(r[0], r[0]) for r in resultados]
+
+
 class GenerarPeriodoNominaForm(forms.Form):
     ejecucion_automatica = forms.BooleanField(
         label="Ejecución automática",
