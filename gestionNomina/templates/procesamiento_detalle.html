@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Procesar{% endblock %}
+{% block content %}
+<h2>Procesamiento detalle</h2>
+<div class="table-container" style="height: 5%;">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Codigo</th>
+                <th>Estado</th>
+                <th>Fecha creacion</th>
+                <th>Fecha finalizacion</th>
+                <th>Mensaje</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pr in procesos %}
+            <tr>
+                <td>{{ pr.periodo_nomina.codigo }}</td>
+                <td>{{ pr.get_estado_display }}</td>
+                <td>{{ pr.date_created }}</td>
+                <td>{{ pr.date_finished }}</td>
+                <td>{{ pr.mensaje_error }}</td>
+                <td>{{ pr.user_creator }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</form>
+{% endblock %}
+{% block scripts %}
+{% endblock %}

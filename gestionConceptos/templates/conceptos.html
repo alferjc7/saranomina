@@ -66,15 +66,7 @@
                 <td>{{ b.cod_concepto }}</td>
                 <td>{{ b.desc_concepto }}</td>
                 <td>{{ b.desc_concepto_eng }}</td>
-                <td>
-                    {% if b.tipo_concepto == 'DEV' %}
-                    DEVENGO
-                    {% elif b.tipo_concepto == 'DED' %}
-                    DEDUCCION
-                    {% elif b.tipo_concepto == 'PROV' %}
-                    PROVISION
-                    {% endif %}
-                </td>
+                <td>{{ b.get_tipo_concepto_display }}</td>
                 <td>
                     <form method="get" action="{% url 'concepto_empresa' b.id %}" style="display:inline;">
                         <button type="submit" class="btn btn-sm btn-primary">

@@ -93,3 +93,35 @@ class t_concepto_empresa(models.Model):
         return self.desc_concepto_emp
 
 
+class t_grupo_concepto(models.Model):
+    codigo = models.CharField(
+        max_length=6,
+        unique=True)
+    titulo = models.CharField(
+        max_length=100)
+    descripcion = models.TextField(
+        blank=True)
+    user_creator = models.CharField(max_length=50,blank= True, null= True)
+    date_created = models.DateField(blank= True, null= True)
+
+    def save(self, *args, **kwargs):
+        if self.codigo:
+            self.codigo = self.codigo.upper()
+        if self.titulo:
+            self.titulo = self.titulo.upper()
+        if self.descripcion:
+            self.descripcion = self.descripcion.upper()
+        return super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.codigo} - {self.titulo}"
+    
+class t_grupo_concepto_det(models.Model):
+    grupo = models.ForeignKey(t_grupo_concepto,  on_delete=models.CASCADE, verbose_name= "Grupo")
+    concepto = models.ForeignKey(t_concepto_empresa, on_delete=models.CASCADE, verbose_name="Concepto") 
+    user_creator = models.CharField(max_length=50,blank= True, null= True)
+    date_created = models.DateField(blank= True, null= True)
+
+    class Meta:
+        unique_together = ('grupo', 'concepto')   
+        

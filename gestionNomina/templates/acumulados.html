@@ -1,31 +1,89 @@
 {% extends "base.html" %}
+{% load formatos %}
 
-{% block title %}Reportes{% endblock %}
+{% block title %}Acumulados{% endblock %}
 {% block content %}
-<h2>Reportes</h2>
+<h2>Acumulados</h2>
+
+<form method="get">
+    <div class="card">
+        <div class="form-grid-6">
+    
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="contrato" placeholder="Contrato" value="{{ request.GET.contrato }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="anio" placeholder="Año" value="{{ request.GET.anio }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="mes" placeholder="Mes" value="{{ request.GET.mes }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="periodo" placeholder="Periodo" value="{{ request.GET.periodo }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="concepto" placeholder="Concepto" value="{{ request.GET.concepto }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
 <div class="table-container">
 <table>
     <thead>
         <tr>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Acciones</th>
+            <th>Empresa</th>
+            <th>Contrato</th>
+            <th>identificacion</th>
+            <th>Tipo Nomina</th>
+            <th>Año</th>
+            <th>Mes</th>
+            <th>Periodo</th>
+            <th>Fecha novedad</th>
+            <th>Fecha inicio</th>
+            <th>Fecha fin</th>
+            <th>Concepto</th>
+            <th>Desc Concepto</th>
+            <th>Unidad</th>
+            <th>Base</th>
+            <th>Valor</th>
+            <th>Modulo</th>
         </tr>
     </thead>
     <tbody>
-        {% for reporte in reportes %}
+        {% for reporte in acumulados %}
         <tr>
-            <td>{{ reporte.nombre }}</td>
-            <td>{{ reporte.descripcion }}</td>
-            <td>
-                <a href="{% url 'generar_reporte' reporte.id %}">
-                    Generar
-                </a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="3">No hay reportes disponibles</td>
+            <td>{{ reporte.contrato.empresa.razon_social }}</td>
+            <td>{{ reporte.contrato.cod_contrato }}</td>
+            <td>{{ reporte.contrato.identificacion.identificacion }}</td>
+            <td>{{ reporte.tipo_nomina }}</td>
+            <td>{{ reporte.anio }}</td>
+            <td>{{ reporte.mes }}</td>
+            <td>{{ reporte.periodo }}</td>
+            <td>{{ reporte.fecha_novedad|date:"d/m/Y" }}</td>
+            <td>{{ reporte.fecha_inicio|date:"d/m/Y" }}</td>
+            <td>{{ reporte.fecha_fin|date:"d/m/Y" }}</td>
+            <td>{{ reporte.concepto.cod_concepto.cod_concepto }}</td>
+            <td>{{ reporte.concepto.desc_concepto_emp }}</td>
+            <td>{{ reporte.unidad }}</td>
+            <td>{{ reporte.base|moneda }}</td>
+            <td>{{ reporte.valor|moneda }}</td>
+            <td>{{ reporte.modulo }}</td>
         </tr>
         {% endfor %}
     </tbody>

@@ -104,3 +104,9 @@ class GenerarPeriodoNominaForm(forms.Form):
                 'class': 'form-control'
             }
         ))
+    estado = forms.BooleanField(
+        required= False,
+        label = "Estado",
+        initial= True,
+        disabled= True
+        )

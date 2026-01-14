@@ -30,6 +30,7 @@ class t_periodo_nomina(models.Model):
 
     fecha_inicio = models.DateField(verbose_name="Fecha inicio")
     fecha_fin = models.DateField(verbose_name="Fecha fin")
+    estado = models.BooleanField(default=True, verbose_name= "Estado")
     user_creator = models.CharField(max_length=50,blank= True, null= True)
     date_created = models.DateField(blank= True, null= True)
 
@@ -106,18 +107,6 @@ class t_logica_calculo(models.Model):
     def __str__(self):
         return f"{self.empresa} - {self.concepto} - {self.logica}"
 
-
-class t_acumulado_empleado(models.Model):
-
-    contrato = models.ForeignKey(
-        t_contrato,
-        on_delete=models.CASCADE,
-        verbose_name="Contrato"
-    )
-
-    anio = models.IntegerField(verbose_name="Año")
-    mes = models.IntegerField(verbose_name="Mes")
-    periodo = models.IntegerField(verbose_name="Periodo")
 class t_acumulado_empleado(models.Model):
 
     contrato = models.ForeignKey(
@@ -238,3 +227,31 @@ class t_acumulado_empleado(models.Model):
     f03 = models.DateField(blank=True, null=True)
     ft04 = models.CharField(max_length=100, blank=True, null=True)
     f04 = models.DateField(blank=True, null=True)
+
+class t_proceso_nomina(models.Model):
+
+    ESTADOS = (
+        ("P", "PROCESANDO"),
+        ("F", "FINALIZADO"),
+        ("X", "ERROR"),
+    )
+
+    periodo_nomina = models.ForeignKey(
+        t_periodo_nomina,
+        on_delete=models.CASCADE,
+        verbose_name="Periodo nómina"
+    )
+
+    estado = models.CharField(
+        max_length=1,
+        choices=ESTADOS,
+        default="P",
+        verbose_name= "Estado"
+    )
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_finished = models.DateTimeField(blank=True, null=True)
+
+    mensaje_error = models.TextField(blank=True, null=True)
+
+    user_creator = models.CharField(max_length=50, blank=True, null=True)

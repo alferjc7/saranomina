@@ -46,6 +46,7 @@
                 <th>Año</th>
                 <th>Mes</th>
                 <th>Periodo</th>
+                <th>Estado</th>
                 <th>Fecha inicio</th>
                 <th>Fecha fin</th>
                 <th>Eliminar</th>
@@ -60,6 +61,12 @@
                 <td>{{ periodo.anio }}</td>
                 <td>{{ periodo.mes }}</td>
                 <td>{{ periodo.periodo }}</td>
+                <td>{% if periodo.estado %}
+                    ABIERTO
+                    {% else %}
+                    CERRADO
+                    {% endif %}
+                </td>
                 <td>{{ periodo.fecha_inicio|date:"d/m/Y"}}</td>
                 <td>{{ periodo.fecha_fin|date:"d/m/Y"}}</td>
                 <td>
@@ -82,13 +89,6 @@
     <div class="card">
         <div class="form-grid-2">
             <div>
-                <label for="Estado">Ejecucion automatica</label>
-                <label class="switch">
-                {{form.ejecucion_automatica}}
-                <span class="slider"></span>
-                </label>
-                <br>
-                <br>
                 <div class="form-group2">
                     {{ form.tipo_nomina.label_tag }}
                     {{ form.tipo_nomina }}
@@ -121,6 +121,20 @@
                     {{ form.fecha_fin.label_tag }}
                     {{ form.fecha_fin }}
                 </div>
+                <br>
+                <label for="Estado">Estado</label>
+                <label class="switch">
+                {{form.estado}}
+                <span class="slider"></span>
+                </label>
+                <br>
+                <br>
+                <label for="Estado">Ejecucion automatica</label>
+                <label class="switch">
+                {{form.ejecucion_automatica}}
+                <span class="slider"></span>
+                </label>
+                <br>
             </div>
         </div>
     </div>

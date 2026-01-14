@@ -193,12 +193,9 @@ class t_concepto_empresaDeleteView(LoginRequiredMixin,DeleteView):
         )
     
     def get_queryset(self):
-        # 🔒 evita borrar registros de otra empresa
         empresa_id = self.request.session.get('empresa_id')
         return super().get_queryset().filter(empresa_id=empresa_id)
-    
-    
+        
     def post(self, request, *args, **kwargs):
         messages.success(request, 'Registro eliminado correctamente')
         return super().post(request, *args, **kwargs)
-
