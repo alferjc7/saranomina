@@ -4,8 +4,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from openpyxl import Workbook
 from gestionClientes.models import t_empresa
-from gestionConceptos.models import t_conceptos, t_concepto_empresa
-from gestionConceptos.forms import t_conceptosform, t_concepto_empresaform
+from gestionConceptos.models import (t_conceptos, t_concepto_empresa, 
+                                     t_grupo_concepto, t_grupo_concepto_det)
+from gestionConceptos.forms import (t_conceptosform, t_concepto_empresaform, 
+                                    t_grupo_conceptoform, t_grupo_conceptodetform)
 from django.views.generic import CreateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse, reverse_lazy
@@ -196,6 +198,117 @@ class t_concepto_empresaDeleteView(LoginRequiredMixin,DeleteView):
         empresa_id = self.request.session.get('empresa_id')
         return super().get_queryset().filter(empresa_id=empresa_id)
         
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Registro eliminado correctamente')
+        return super().post(request, *args, **kwargs)
+
+
+class grupo_conceptoCreateView(LoginRequiredMixin,CreateView):
+    model = t_grupo_concepto
+    form_class = t_grupo_conceptoform
+    template_name = 'grupo_concepto.html'
+    context_object_name = 'grupo_concepto'
+    success_url = reverse_lazy('grupo_concepto')
+    login_url = '/accounts/login/'           # opcional
+    redirect_field_name = 'next'  # opcional
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        registros = t_grupo_concepto.objects.all().order_by('-pk')[:30]
+        context['registros'] = registros
+
+        codigo = self.request.GET.get('codigo')
+        
+        if codigo:
+            context['registros'] = t_grupo_concepto.objects.filter(codigo=codigo)
+
+        return context
+    
+    def form_valid(self, form):
+        pk = self.request.POST.get('pk')
+        if  pk:
+            grupo = t_grupo_concepto.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(grupo, field, value)
+            grupo.save()
+            messages.success(self.request, 'Grupo actualizado correctamente')
+        else:
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        
+        return redirect(self.success_url)
+    
+    def form_invalid(self, form):
+        print(form.errors)
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+    
+class grupo_conceptoDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_grupo_concepto
+    success_url = reverse_lazy('grupo_concepto')
+    login_url = 'accounts/login'
+
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Parametro eliminado correctamente')
+        return super().post(request, *args, **kwargs)
+
+
+class grupo_conceptodetCreateView(LoginRequiredMixin,CreateView):
+    model = t_grupo_concepto_det
+    form_class = t_grupo_conceptodetform
+    template_name = 'grupo_concepto_det.html'
+  
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        grupo = get_object_or_404(t_grupo_concepto,pk=self.kwargs['id'])
+
+        context['grupo'] = grupo
+        context['registros'] = t_grupo_concepto_det.objects.filter(grupo=grupo, concepto__empresa_id = self.request.session.get('empresa_id'))
+
+        return context
+     
+    def form_valid(self, form):
+        pk = self.request.POST.get('pk')
+        if pk:
+            grupo = t_grupo_concepto_det.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(grupo, field, value)
+            grupo.save()
+            messages.success(self.request, 'Grupo actualizado correctamente')
+        else:
+            grupo = t_grupo_concepto.objects.get(pk=self.kwargs['id'])
+            form.instance.grupo = grupo
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.get_success_url())
+
+    
+    def form_invalid(self, form):
+        print(form.errors)
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+    
+    def get_success_url(self):
+        return reverse(
+            'grupo_concepto_det',
+            kwargs={'id': self.kwargs['id']}
+        )
+
+
+class grupo_conceptodetDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_grupo_concepto_det
+    login_url = 'accounts/login'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'grupo_concepto_det',
+            kwargs={'id': self.object.grupo_id}
+        )
     def post(self, request, *args, **kwargs):
         messages.success(request, 'Registro eliminado correctamente')
         return super().post(request, *args, **kwargs)

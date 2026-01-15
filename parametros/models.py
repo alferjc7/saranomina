@@ -161,7 +161,7 @@ class ParametroDetalle(models.Model):
         null=True)
     valor_numerico = models.DecimalField(
         max_digits=15,
-        decimal_places=2,
+        decimal_places=3,
         blank=True,
         null=True)
     fecha_inicio = models.DateField(

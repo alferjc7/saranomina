@@ -25,3 +25,9 @@ class t_grupo_conceptodetform(ModelForm):
     class Meta:
         model = t_grupo_concepto_det
         fields = '__all__'
+        exclude = (
+            'grupo',)
+    
+    
+    
+    

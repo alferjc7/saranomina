@@ -117,8 +117,14 @@ class t_grupo_concepto(models.Model):
         return f"{self.codigo} - {self.titulo}"
     
 class t_grupo_concepto_det(models.Model):
+    
+    OPERACION = (
+        ('+', 'SUMAR'),
+        ('-', 'RESTAR'),)
+
     grupo = models.ForeignKey(t_grupo_concepto,  on_delete=models.CASCADE, verbose_name= "Grupo")
     concepto = models.ForeignKey(t_concepto_empresa, on_delete=models.CASCADE, verbose_name="Concepto") 
+    operacion = models.CharField(max_length=1, choices= OPERACION ,verbose_name= "Operacion")    
     user_creator = models.CharField(max_length=50,blank= True, null= True)
     date_created = models.DateField(blank= True, null= True)
 
