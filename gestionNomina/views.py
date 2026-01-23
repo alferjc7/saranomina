@@ -4,16 +4,59 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, CreateView, DeleteView
-from gestionNomina.models import t_periodo_nomina, t_logica_calculo, t_acumulado_empleado, t_proceso_nomina
+from gestionNomina.models import (t_periodo_nomina, t_logica_calculo, 
+                                  t_acumulado_empleado, t_proceso_nomina, t_logica_calculo_filtro)
 from gestionConceptos.models import t_concepto_empresa
 from gestionNomina.utils import crear_periodos
-from gestionNomina.forms import GenerarPeriodoNominaForm, t_logica_calculoform, t_acumulaldo_empleadoform
+from gestionNomina.forms import (GenerarPeriodoNominaForm, t_logica_calculoform, t_acumulaldo_empleadoform, 
+                                 FiltroTipoContratoForm, FiltroTipoCotizanteForm)
 from gestionClientes.models import t_empresa
 from django.contrib import messages
-from parametros.models import t_tipo_nomina
+from parametros.models import t_tipo_nomina, t_tipo_contrato, t_tipo_cotizante
 from django.http import JsonResponse
 from django.db import connection, transaction
 from django.utils import timezone
+from django.db.models import OuterRef, Subquery, IntegerField
+from django.db.models.functions import Coalesce
+from threading import Thread
+
+
+def ejecutar_nomina_background(proceso_id, periodo):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SET client_min_messages TO NOTICE;")
+            cursor.execute(
+                """
+                CALL prc_procesar_nomina(
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s
+                )
+                """,
+                [
+                    periodo.empresa_id,
+                    periodo.tipo_nomina_id,
+                    periodo.anio,
+                    periodo.mes,
+                    periodo.periodo,
+                    periodo.fecha_inicio,
+                    periodo.fecha_fin,
+                    proceso_id,
+                    periodo.id
+                ]
+            )
+
+        t_proceso_nomina.objects.filter(id=proceso_id).update(
+            estado="F",
+            progreso=100,
+            mensaje_error="SIN ERRORES",
+            date_finished=timezone.now()
+        )
+
+    except Exception as e:
+        t_proceso_nomina.objects.filter(id=proceso_id).update(
+            estado="X",
+            mensaje_error=str(e),
+            date_finished=timezone.now()
+        )
 
 def procedimientos_por_concepto(request):
     concepto_id = request.GET.get('concepto_id')
@@ -37,6 +80,25 @@ def procedimientos_por_concepto(request):
         procedimientos = [row[0] for row in cursor.fetchall()]
 
     return JsonResponse(procedimientos, safe=False)
+
+def progreso_nomina_ajax(request, periodo_id):
+    proceso = (
+        t_proceso_nomina.objects
+        .filter(periodo_nomina_id=periodo_id)
+        .order_by("-id")
+        .first()
+    )
+
+    if not proceso:
+        return JsonResponse({
+            "progreso": 0,
+            "estado": None
+        })
+
+    return JsonResponse({
+        "progreso": proceso.progreso,
+        "estado": proceso.estado
+    })
 
 def conceptos_por_empresa(request):
     empresa_id = request.session.get('empresa_id')
@@ -200,8 +262,6 @@ class AcumuladosListView(LoginRequiredMixin,ListView):
 
     def get_queryset(self):
         empresa_id = self.request.session.get('empresa_id')
-        
-        qs = t_acumulado_empleado.objects.filter(contrato__empresa_id=empresa_id)
 
         contrato = self.request.GET.get('contrato')
         anio = self.request.GET.get('anio')
@@ -209,42 +269,65 @@ class AcumuladosListView(LoginRequiredMixin,ListView):
         periodo = self.request.GET.get('periodo')
         concepto = self.request.GET.get('concepto')
 
+        # 👉 Si no hay ningún filtro, NO mostrar nada
+        if not any([contrato, anio, mes, periodo, concepto]):
+            return t_acumulado_empleado.objects.none()
+
+        qs = t_acumulado_empleado.objects.filter(
+            contrato__empresa_id=empresa_id
+        )
+
         if contrato:
-            qs = qs.filter(contrato__empresa_id=empresa_id, contrato__cod_contrato=contrato)
-            # o si es código / texto:
-            # qs = qs.filter(contrato__codigo__icontains=contrato)
+            qs = qs.filter(contrato__cod_contrato__icontains=contrato)
 
         if anio:
-            qs = qs.filter(contrato__empresa_id=empresa_id, anio=anio)
+            qs = qs.filter(anio=anio)
 
         if mes:
-            qs = qs.filter(contrato__empresa_id=empresa_id, mes=mes)
+            qs = qs.filter(mes=mes)
 
         if periodo:
-            qs = qs.filter(contrato__empresa_id=empresa_id, periodo=periodo)
+            qs = qs.filter(periodo_nomina__codigo=periodo)
 
         if concepto:
-            qs = qs.filter(contrato__empresa_id=empresa_id, concepto__cod_concepto__cod_concepto = concepto)
-        
-        if not any([contrato, anio, mes, periodo, concepto]):
-            qs = qs[:20]
-        
-        return qs
+            qs = qs.filter(concepto__cod_concepto=concepto)
 
+        return qs
+    
 class ProcesamientoNominaView(View):
 
     template_name = "procesamiento_nomina.html"
 
     def get(self, request):
-        periodos = t_periodo_nomina.objects.filter(
-            empresa_id=self.request.session.get('empresa_id'),
-            estado=True
-        ).order_by("anio", "mes", "periodo")
+        empresa_id = self.request.session.get('empresa_id')
+        ultimo_proceso = (
+            t_proceso_nomina.objects
+            .filter(periodo_nomina=OuterRef('pk'))
+            .order_by('-id')
+        )
 
-        anio = self.request.GET.get('anio')
-        mes = self.request.GET.get('mes')
-        periodo = self.request.GET.get('periodo')
-        codigo = self.request.GET.get('codigo')
+        periodos = (
+            t_periodo_nomina.objects
+            .filter(empresa_id=empresa_id, estado=True)
+            .annotate(
+                progreso=Coalesce(
+                    Subquery(
+                        ultimo_proceso.values('progreso')[:1],
+                        output_field=IntegerField()
+                    ),
+                    0
+                ),
+                estado_proceso=Subquery(
+                    ultimo_proceso.values('estado')[:1]
+                )
+            )
+            .order_by("anio", "mes", "periodo")
+        )
+        
+        anio = request.GET.get('anio')
+        mes = request.GET.get('mes')
+        periodo = request.GET.get('periodo')
+        codigo = request.GET.get('codigo')
 
         if anio:
             periodos = periodos.filter(anio=anio)
@@ -256,86 +339,50 @@ class ProcesamientoNominaView(View):
             periodos = periodos.filter(periodo=periodo)
 
         if codigo:
-            periodos = periodos.filter(codigo = codigo)
-        
-        if not any([anio, mes, periodo, codigo]):
-            periodos = periodos[:30]
-        
+            periodos = periodos.filter(codigo__icontains=codigo)
 
-        procesos = t_proceso_nomina.objects.filter(
-            periodo_nomina__empresa_id = self.request.session.get('empresa_id')
-            )
-
+     
         return render(request, self.template_name, {
-            "periodos": periodos,
-            "procesos": procesos
+        "periodos": periodos,
         })
 
+    @transaction.non_atomic_requests
     def post(self, request):
+
         periodos_ids = request.POST.getlist("periodos")
 
         if not periodos_ids:
-            messages.warning(request, "Debe seleccionar al menos un período")
-            return redirect("procesamiento_nomina")
+            return JsonResponse({"error": "No periodos"}, status=400)
+
+        procesos = []
 
         for periodo_id in periodos_ids:
-
             periodo = t_periodo_nomina.objects.select_related(
                 "empresa", "tipo_nomina"
             ).get(id=periodo_id)
-         
+
             proceso = t_proceso_nomina.objects.create(
-            periodo_nomina= periodo,
-            estado="P",
-            user_creator=request.user.username
+                periodo_nomina=periodo,
+                estado="P",
+                progreso=0,
+                user_creator=request.user.username
             )
 
-            try:
-                with connection.cursor() as cursor:
-                    cursor.execute("SET client_min_messages TO NOTICE;")
-                    cursor.execute(
-                    """
-                    CALL prc_procesar_nomina(
-                        %s, %s, %s, %s, %s, %s, %s, %s
-                    )
-                    """,
-                        [
-                            periodo.empresa_id,
-                            periodo.tipo_nomina_id,
-                            periodo.anio,
-                            periodo.mes,
-                            periodo.periodo,
-                            periodo.fecha_inicio,
-                            periodo.fecha_fin,
-                            proceso.id
-                        ]
-                    )
+            procesos.append(proceso.id)
 
-                # 3️⃣ Finalizar proceso
-                proceso.estado = "F"
-                proceso.date_finished = timezone.now()
-                proceso.save()
+            # 🚀 Lanzamos el proceso en background
+            Thread(
+                target=ejecutar_nomina_background,
+                args=(proceso.id, periodo),
+                daemon=True
+            ).start()
 
-            except Exception as e:
-                proceso.estado = "X"
-                proceso.mensaje_error = str(e)
-                proceso.date_finished = timezone.now()
-                proceso.save()
-
-                messages.error(
-                    request,
-                    f"Error procesando período {periodo.anio}-{periodo.mes}-{periodo.periodo}"
-                )
-
-        messages.success(request, "Procesamiento de nómina ejecutado")
-
-        messages.success(
-            request,
-            "Procesos de nómina creados correctamente"
-        )
-        return redirect("procesamiento_nomina")
-
-
+        # ⚡ Respondemos inmediatamente
+        return JsonResponse({
+            "ok": True,
+            "procesos": procesos
+        })
+                            
 class procesamiento_detalleListView(LoginRequiredMixin,ListView):
     model = t_proceso_nomina
     template_name = 'procesamiento_detalle.html'
@@ -347,3 +394,74 @@ class procesamiento_detalleListView(LoginRequiredMixin,ListView):
         qs = t_proceso_nomina.objects.filter(periodo_nomina_id = id)
 
         return qs
+
+
+class LogicaFiltrosView(View):
+
+    template_name = "filtros.html"
+
+    def get(self, request, id):
+        
+        tipo_contratos =   t_logica_calculo_filtro.objects.filter(logica_calculo_id = id, campo = 'tipo_contrato_id')
+        tipos  = t_tipo_contrato.objects.all()
+        tipos_map = {c.id: c.contrato for c in tipos}
+        tipo_cotizantes =   t_logica_calculo_filtro.objects.filter(logica_calculo_id = id, campo = 'tipo_cotizante_id')
+        tipos_c =  t_tipo_cotizante.objects.all()
+        tipos_c_map = {c.id: c.descripcion for c in tipos_c}
+        
+        context = {
+            "form_tipo_contrato": FiltroTipoContratoForm(prefix="contrato"),
+            "tipo_contrato": tipo_contratos,
+            "tipos_map": tipos_map,
+            "form_tipo_cotizante": FiltroTipoCotizanteForm(prefix="cotizante"),
+            "tipo_cotizante": tipo_cotizantes,
+            "tipos_c_map": tipos_c_map,
+
+
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, id):
+
+        if 'contrato-submit' in request.POST:
+            form = FiltroTipoContratoForm(
+                request.POST,
+                prefix="contrato"
+            )
+            campo = "tipo_contrato_id"
+        elif 'cotizante-submit' in request.POST:
+            form = FiltroTipoCotizanteForm(
+                request.POST,
+                prefix="cotizante"
+            )
+            campo = "tipo_cotizante_id"
+        else:
+            return redirect(request.path)
+
+        if form.is_valid():
+            filtro = form.save(commit=False)
+            filtro.campo = campo
+            filtro.logica_calculo_id = id
+            contrato = form.cleaned_data['valor']
+            filtro.valor = str(contrato.id)
+            filtro.user_creator = request.user.username
+            filtro.save()
+        
+        print(form.errors)
+
+
+        return redirect(request.path)
+    
+
+class LogicaFiltrosDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_logica_calculo_filtro
+    login_url = 'accounts/login'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'logica_filtros',
+            kwargs={'id': self.object.logica_calculo_id}
+        )
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Registro eliminado correctamente')
+        return super().post(request, *args, **kwargs)

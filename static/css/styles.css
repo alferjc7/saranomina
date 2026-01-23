@@ -184,6 +184,28 @@ body {
     border-radius: 4px;
 }
 
+.form-group2 .select2-container {
+    width: 90% !important;
+}
+
+.form-group2 .select2-selection--single {
+    height: 42px !important;
+    min-height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-group2 .select2-selection__rendered {
+    line-height: 50px;
+}
+
+.form-group2 .select2-selection__arrow {
+    height: 28px;
+}
+
 
 .form-group3 input,
 .form-group3 select,
@@ -259,6 +281,10 @@ button:hover {
     vertical-align: middle;
     border-right: 1px solid gray; /* 🔵 azul oscuro */
 
+}
+
+.td-valor {
+    text-align: right;
 }
 
 /* Hover filas */
@@ -529,4 +555,44 @@ textarea {
 .acciones-entidades {
     display: flex;
     gap: 10px;
+}
+.progress-container {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    background-color: #e9ecef;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    transition: width 0.4s ease;
+}
+
+.progress-running {
+    background-color: #0d6efd; /* azul */
+}
+
+.progress-success {
+    background-color: #198754; /* verde */
+}
+
+.progress-error {
+    background-color: #dc3545; /* rojo */
+}
+
+.progress-empty {
+    background-color: #adb5bd; /* gris */
+}
+
+.progress-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #000;
+    top: 0;
+    line-height: 20px;
 }

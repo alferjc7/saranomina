@@ -91,8 +91,6 @@ class t_logica_calculo(models.Model):
     orden = models.IntegerField(verbose_name="Orden")
     user_creator = models.CharField(max_length=50,blank= True, null= True)
     date_created = models.DateField(blank= True, null= True)
-
-
     
     class Meta:
         verbose_name = "Lógica de cálculo"
@@ -179,6 +177,12 @@ class t_acumulado_empleado(models.Model):
         verbose_name="Módulo"
     )
 
+    periodo_nomina = models.ForeignKey(
+        t_periodo_nomina,
+        on_delete=models.CASCADE,
+        verbose_name="Periodo Nomina"
+    )
+
     t01 = models.CharField(max_length=100, blank=True, null=True)
     v01 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
     t02 = models.CharField(max_length=100, blank=True, null=True)
@@ -248,10 +252,46 @@ class t_proceso_nomina(models.Model):
         default="P",
         verbose_name= "Estado"
     )
-
+    progreso = models.PositiveSmallIntegerField(
+        default=0,
+        verbose_name="Progreso (%)"
+    )
     date_created = models.DateTimeField(auto_now_add=True)
     date_finished = models.DateTimeField(blank=True, null=True)
-
     mensaje_error = models.TextField(blank=True, null=True)
-
     user_creator = models.CharField(max_length=50, blank=True, null=True)
+
+
+class t_logica_calculo_filtro(models.Model):
+    OPERADOR_CHOICES = [
+    ('IN', 'EN LISTA'),
+    ('NOT_IN', 'NO EN LA LISTA'),
+    ]
+    
+    logica_calculo = models.ForeignKey(
+        t_logica_calculo,
+        on_delete=models.CASCADE,
+        related_name='filtros',
+        verbose_name="Lógica de cálculo"
+    )
+    campo = models.CharField(
+        max_length=50,
+        verbose_name="Campo a evaluar"
+    )
+    operador = models.CharField(
+        max_length=20,
+        choices=OPERADOR_CHOICES,
+        verbose_name="Operador"
+    )
+    valor = models.IntegerField(verbose_name= 'Valor')
+    
+    user_creator = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    date_created = models.DateField(
+        blank=True,
+        null=True
+    )
+

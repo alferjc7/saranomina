@@ -1,6 +1,7 @@
 from datetime import timedelta
 from django import forms
 from django.forms import ModelForm, ValidationError
+from gestionIdentificacion.models import t_identificacion
 from gestionContratos.models import (t_contrato, t_contrato_banco, 
                                      t_contrato_entidadesss, t_contrato_salario,
                                      t_contrato_deducibles)
@@ -28,6 +29,10 @@ class t_contratoform(ModelForm):
                     'type': 'date',
                     'class': 'form-control'
                 }
+            ),
+               'identificacion': forms.Select(
+                attrs={'class': 'select-identificacion'
+                       }
             ),
         }
         exclude = (

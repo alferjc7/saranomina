@@ -49,8 +49,10 @@
         <tr>
             <th>Empresa</th>
             <th>Contrato</th>
-            <th>identificacion</th>
+            <th>Identificacion</th>
+            <th>Nombre completo</th>
             <th>Tipo Nomina</th>
+            <th>Periodo Nomina</th>
             <th>Año</th>
             <th>Mes</th>
             <th>Periodo</th>
@@ -71,18 +73,22 @@
             <td>{{ reporte.contrato.empresa.razon_social }}</td>
             <td>{{ reporte.contrato.cod_contrato }}</td>
             <td>{{ reporte.contrato.identificacion.identificacion }}</td>
+            <td>{{ reporte.contrato.identificacion.nombre|default:'' }} {{ reporte.contrato.identificacion.segundo_nombre|default:''}} 
+                {{ reporte.contrato.identificacion.apellido|default:'' }} {{ reporte.contrato.identificacion.segundo_apellido|default:'' }}
+            </td>
             <td>{{ reporte.tipo_nomina }}</td>
+            <td>{{ reporte.periodo_nomina.codigo }}</td>
             <td>{{ reporte.anio }}</td>
             <td>{{ reporte.mes }}</td>
             <td>{{ reporte.periodo }}</td>
             <td>{{ reporte.fecha_novedad|date:"d/m/Y" }}</td>
             <td>{{ reporte.fecha_inicio|date:"d/m/Y" }}</td>
             <td>{{ reporte.fecha_fin|date:"d/m/Y" }}</td>
-            <td>{{ reporte.concepto.cod_concepto.cod_concepto }}</td>
+            <td class="td-valor">{{ reporte.concepto.cod_concepto.cod_concepto }}</td>
             <td>{{ reporte.concepto.desc_concepto_emp }}</td>
-            <td>{{ reporte.unidad }}</td>
-            <td>{{ reporte.base|moneda }}</td>
-            <td>{{ reporte.valor|moneda }}</td>
+            <td class="td-valor">{{ reporte.unidad }}</td>
+            <td class="td-valor">{{ reporte.base|moneda }}</td>
+            <td class="td-valor">{{ reporte.valor|moneda }}</td>
             <td>{{ reporte.modulo }}</td>
         </tr>
         {% endfor %}

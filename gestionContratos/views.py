@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView, DeleteView
 from openpyxl import Workbook
+from gestionIdentificacion.models import t_identificacion
 from gestionContratos.models import (t_contrato, t_contrato_banco, 
                                      t_contrato_entidadesss, t_contrato_salario,
                                      t_contrato_deducibles)
@@ -15,10 +16,59 @@ from gestionContratos.forms import (t_contratoform, t_contrato_banco_form,
 from parametros.models import t_subtipo_cotizante, t_entidadesss
 from django.http import HttpResponse, JsonResponse
 from openpyxl.utils import get_column_letter
-
-
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 # Create your views here.
+
+def ajax_identificaciones(request):
+    q = request.GET.get('q', '').strip()
+    page = int(request.GET.get('page', 1))
+
+    queryset = t_identificacion.objects.all()
+
+    if q:
+        terms = q.split()  # juan carlos perez
+        q_filter = Q()
+
+        for term in terms:
+            q_filter &= (
+                Q(identificacion__icontains=term) |
+                Q(nombre__icontains=term) |
+                Q(segundo_nombre__icontains=term) |
+                Q(apellido__icontains=term) |
+                Q(segundo_apellido__icontains=term)
+            )
+
+        queryset = queryset.filter(q_filter)
+
+    queryset = queryset.order_by('-id')
+
+    paginator = Paginator(queryset, 30)
+    page_obj = paginator.get_page(page)
+
+    results = []
+    for item in page_obj:
+        results.append({
+            "id": item.id,
+            "text": f"{item.identificacion} - {nombre_completo(item)}"
+        })
+
+    return JsonResponse({
+        "results": results,
+        "pagination": {
+            "more": page_obj.has_next()
+        }
+    })
+
+def nombre_completo(item):
+    return " ".join(filter(None, [
+        item.nombre,
+        item.segundo_nombre,
+        item.apellido,
+        item.segundo_apellido
+    ]))
+
 def cargar_subtipos(request):
     tipo_id = request.GET.get('tipo_id')
     subtipos = t_subtipo_cotizante.objects.filter(

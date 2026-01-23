@@ -10,7 +10,14 @@
 </head>
 
 <body>
+    
+<!-- 🔥 LIBRERÍAS PRIMERO, SIN EXCEPCIONES -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.0/dist/js/select2.min.js"></script>
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/select2@4.0.0/dist/css/select2.min.css">
     <!-- TOP BAR -->
     <div class="topbar">
         <div class="logo"><img src="{% static 'img/Logo.png' %}" alt="Sara Nómina" height="120"></div>
@@ -23,7 +30,7 @@
                 {% endif %}
             </span>
             <span><a href="{% url 'seleccionar_empresa' %}" class="empresa-topbar">
-            {{ request.session.codigo_empresa }} - {{ request.session.razon_social }}</a>        
+                    {{ request.session.codigo_empresa }} - {{ request.session.razon_social }}</a>
             </span>
             <span><a href="{% url 'logout' %}">Salir</a></span>
         </div>
@@ -50,11 +57,13 @@
 
                 <div class="submenu">
 
-                    <a href="/gestionidentificacion/tipos_ide/" class="{% if '/tipos_ide/' in current %}active-link{% endif %}">
+                    <a href="/gestionidentificacion/tipos_ide/"
+                        class="{% if '/tipos_ide/' in current %}active-link{% endif %}">
                         Tipos de Identificación
                     </a>
 
-                    <a href="/gestionidentificacion/identificaciones/" class="{% if '/identificaciones/' in current %}active-link{% endif %}">
+                    <a href="/gestionidentificacion/identificaciones/"
+                        class="{% if '/identificaciones/' in current %}active-link{% endif %}">
                         Identificaciones
                     </a>
 
@@ -62,7 +71,7 @@
             </div>
             {% endwith %}
 
-            
+
             {% with request.path as current %}
             <div class="menu-group
         {% if '/gestioncontratos/' in current or '/contrato/' in current%}
@@ -85,7 +94,7 @@
             </div>
             {% endwith %}
 
-            
+
             {% with request.path as current %}
             <div class="menu-group
         {% if '/gestionnomina/' in current or '/periodo_nomina/' in current%}
@@ -122,7 +131,7 @@
                     </a>
                 </div>
 
-                
+
                 <div class="submenu">
 
                     <a href="/gestionnomina/procesamiento"
@@ -130,11 +139,11 @@
                         Procesamiento de Nomina
                     </a>
                 </div>
-          
+
             </div>
             {% endwith %}
 
-            
+
             {% with request.path as current %}
             <div class="menu-group
         {% if '/clientes/' in current or '/empresas/' in current %}
@@ -164,7 +173,7 @@
             </div>
             {% endwith %}
 
-            
+
 
             {% with request.path as current %}
             <div class="menu-group
@@ -186,7 +195,7 @@
                     </a>
                 </div>
 
-                
+
                 <div class="submenu">
 
                     <a href="/gestionconceptos/grupo_concepto"
@@ -309,14 +318,13 @@
             {% endwith %}
 
 
-            
+
 
             <a href="#">Usuarios</a>
             <a href="#">Reportes</a>
         </div>
         <!-- CONTENT -->
         <div class="content">
-
             {% if messages %}
             {% for message in messages %}
             <div class="alert alert-{{ message.level_tag }}">
@@ -328,9 +336,9 @@
             {% block content %}
 
             {% endblock %}
-
         </div>
     </div>
+
 
     <script>
         setTimeout(() => {
@@ -360,6 +368,15 @@
         });
     </script>
 
+    <script>
+        document.querySelectorAll("input[required], select[required], textarea[required]")
+            .forEach(el => {
+                const label = el.closest(".form-group2")?.querySelector("label");
+                if (label && !label.innerHTML.includes("*")) {
+                    label.innerHTML += ' <span class="required">*</span>';
+                }
+            });
+    </script>
     {% block scripts %}{% endblock %}
 
 </body>

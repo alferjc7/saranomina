@@ -1,9 +1,9 @@
 from django import forms
 from django.db import connection
 from django.forms import ModelForm, ValidationError
-from gestionNomina.models import t_periodo_nomina, t_logica_calculo, t_acumulado_empleado
+from gestionNomina.models import t_periodo_nomina, t_logica_calculo, t_acumulado_empleado, t_logica_calculo_filtro
 from gestionConceptos.models import t_concepto_empresa
-from parametros.models import t_tipo_nomina
+from parametros.models import t_tipo_nomina, t_tipo_contrato, t_tipo_cotizante
 
 class t_periodo_nominaform(ModelForm):
     class Meta:
@@ -110,3 +110,24 @@ class GenerarPeriodoNominaForm(forms.Form):
         initial= True,
         disabled= True
         )
+
+class FiltroTipoContratoForm(forms.ModelForm):
+    valor = forms.ModelChoiceField(
+        queryset=t_tipo_contrato.objects.filter(estado=True),
+        label="Tipo de contrato"
+    )
+
+    class Meta:
+        model = t_logica_calculo_filtro
+        fields = ['operador']
+
+
+class FiltroTipoCotizanteForm(forms.ModelForm):
+    valor = forms.ModelChoiceField(
+        queryset=t_tipo_cotizante.objects.filter(estado=True),
+        label="Tipo de cotizante"
+    )
+
+    class Meta:
+        model = t_logica_calculo_filtro
+        fields = ['operador']

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load formatos %}
 
 {% block title %}Procesar{% endblock %}
 {% block content %}
@@ -36,88 +37,159 @@
 </form>
 
 
-<form method="post">
+<form method="post" id="formProcesar">
     {% csrf_token %}
 
-<div class="table-container" style="height: 10%;">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>
-                    <input type="checkbox" id="checkAll">
-                </th>
-                <th>Codigo</th>
-                <th>Año</th>
-                <th>Mes</th>
-                <th>Periodo</th>
-                <th>Tipo nómina</th>
-                <th>Fecha inicio</th>
-                <th>Fecha fin</th>
-                <th>Detalle</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for p in periodos %}
-            <tr>
-                <td>
-                    <input type="checkbox" name="periodos" value="{{ p.id }}">
-                </td>
-                <td>{{ p.codigo }}</td>
-                <td>{{ p.anio }}</td>
-                <td>{{ p.mes }}</td>
-                <td>{{ p.periodo }}</td>
-                <td>{{ p.tipo_nomina }}</td>
-                <td>{{ p.fecha_inicio|date:"d/m/Y" }}</td>
-                <td>{{ p.fecha_fin|date:"d/m/Y" }}</td>
-                <td>
-                <a href="{% url 'procesamiento_detalle' p.id %}" class="btn btn-sm btn-primary">
-                🧾 Detalle proceso
-                </a>
-                </td>
-                
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-<br>
+    <div class="table-container" style="height: 10%;">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" id="checkAll">
+                    </th>
+                    <th>Codigo</th>
+                    <th>Año</th>
+                    <th>Mes</th>
+                    <th>Periodo</th>
+                    <th>Progreso</th>
+                    <th>Tipo nómina</th>
+                    <th>Fecha inicio</th>
+                    <th>Fecha fin</th>
+                    <th>Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in periodos %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="periodos" value="{{ p.id }}">
+                    </td>
+                    <td>{{ p.codigo }}</td>
+                    <td>{{ p.anio }}</td>
+                    <td>{{ p.mes }}</td>
+                    <td>{{ p.periodo }}</td>
+                    <td style="width:180px;">
+                        <div class="progress-container">
+
+                            {% if p.estado_proceso == "F" %}
+                            <div class="progress-bar progress-success" id="bar-{{ p.id }}" style="width: {{ p.progreso }}%;">
+                            </div>
+
+                            {% elif p.estado_proceso == "X" %}
+                            <div class="progress-bar progress-error"  id="bar-{{ p.id }}" style= "width: {{ p.progreso }}%;">
+                            </div>
+
+                            {% elif p.estado_proceso == "P" %}
+                            <div class="progress-bar progress-running"  id="bar-{{ p.id }}" style="width: {{ p.progreso }} %;">
+                            </div>
+
+                            {% else %}
+                            <div class="progress-bar progress-empty"  id="bar-{{ p.id }}" style="width: 0%;">
+                            </div>
+                            {% endif %}
+
+                            <span class="progress-text"  id="text-{{ p.id }}">
+                                {{ p.progreso }}%
+                            </span>
+                        </div>
+                    </td>
+                    <td>{{ p.tipo_nomina }}</td>
+                    <td>{{ p.fecha_inicio|date:"d/m/Y" }}</td>
+                    <td>{{ p.fecha_fin|date:"d/m/Y" }}</td>
+                    <td>
+                        <a href="{% url 'procesamiento_detalle' p.id %}" class="btn btn-sm btn-primary">
+                            🧾 Detalle proceso
+                        </a>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <br>
     <button type="submit" class="btn btn-primary">
         Procesar nómina
     </button>
 </form>
-<div id="progress-container" style="display:none; margin-top:20px;">
-    <div class="progress">
-        <div
-            id="progress-bar"
-            class="progress-bar progress-bar-striped progress-bar-animated"
-            role="progressbar"
-            style="width: 0%">
-            0%
-        </div>
-    </div>
-    <small>Procesando nómina, por favor espere…</small>
-</div>
 {% endblock %}
 {% block scripts %}
 <script>
-document.querySelector("form[method='post']").addEventListener("submit", function () {
-    const container = document.getElementById("progress-container");
-    const bar = document.getElementById("progress-bar");
+function actualizarProgreso(periodoId) {
 
-    container.style.display = "block";
+    const intervalo = setInterval(() => {
 
-    let percent = 0;
+        fetch(`/gestionnomina/ajax/progreso-nomina/${periodoId}/`)
+            .then(response => response.json())
+            .then(data => {
 
-    const interval = setInterval(() => {
-        if (percent < 90) {
-            percent += Math.floor(Math.random() * 5) + 1;
-            bar.style.width = percent + "%";
-            bar.innerText = percent + "%";
+                const bar = document.getElementById(`bar-${periodoId}`);
+                const text = document.getElementById(`text-${periodoId}`);
+
+                if (!bar || !text) {
+                    clearInterval(intervalo);
+                    return;
+                }
+
+                bar.style.width = data.progreso + "%";
+                text.innerText = data.progreso + "%";
+
+                // Cambiar color según estado
+                bar.classList.remove(
+                    "progress-running",
+                    "progress-success",
+                    "progress-error"
+                );
+
+                if (data.estado === "F") {
+                    bar.classList.add("progress-success");
+                    clearInterval(intervalo);
+                } 
+                else if (data.estado === "X") {
+                    bar.classList.add("progress-error");
+                    clearInterval(intervalo);
+                } 
+                else {
+                    bar.classList.add("progress-running");
+                }
+
+            });
+
+    }, 500); // cada 2 segundos
+}
+</script>
+<script>
+document.getElementById("formProcesar").addEventListener("submit", function (e) {
+    e.preventDefault(); 
+
+    const seleccionados = Array.from(
+        document.querySelectorAll('input[name="periodos"]:checked')
+    ).map(cb => cb.value);
+
+    if (seleccionados.length === 0) {
+        alert("Debe seleccionar al menos un período");
+        return;
+    }
+
+    const formData = new FormData(this);
+
+    fetch("", {   // misma URL
+        method: "POST",
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Error al procesar");
         }
-    }, 400);
 
-    // cuando el backend responde, el navegador recarga
-    // y el intervalo se corta solo
+        seleccionados.forEach(periodoId => {
+            actualizarProgreso(periodoId);
+        });
+    })
+    .catch(error => {
+        console.error(error);
+        alert("Error ejecutando el proceso");
+    });
 });
 </script>
 {% endblock %}

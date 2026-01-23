@@ -4,7 +4,7 @@ from gestionContratos.views import (t_contratosCreateView,
                                     t_contrato_entidadCreateView, t_contrato_entidadDeleteView,
                                     t_contrato_salarioCreateView, t_contrato_salarioDeleteView,
                                     t_contrato_deducibleCreateView, t_contrato_deducibleDeleteView, 
-                                    cargar_subtipos, ajax_entidades_por_tipo)
+                                    cargar_subtipos, ajax_entidades_por_tipo, ajax_identificaciones)
 urlpatterns = [
     path("contratos/", t_contratosCreateView.as_view(), name="contratos"),
     path('contratos/<int:contrato_id>/bancos/',t_contrato_bancoCreateView.as_view(),name='contrato_banco'),
@@ -17,4 +17,6 @@ urlpatterns = [
     path('contratos/<int:contrato_id>/deducible/<int:pk>',t_contrato_deducibleDeleteView.as_view(),name='contrato_deducible_eliminar'),
     path('ajax/subtipos/', cargar_subtipos, name='ajax_subtipos'),
     path('ajax/ajax-entidades-por-tipo/',ajax_entidades_por_tipo, name='ajax-entidades_por_tipo'),
+    path("ajax/identificaciones/", ajax_identificaciones, name="ajax_identificaciones"),
+
 ]

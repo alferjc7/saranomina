@@ -14,53 +14,57 @@
     </div>
 </div>
 <div class="table-container">
-<table>
-    <thead>
-        <tr>
-            <th>Empresa</th>
-            <th>Tipo_nomina</th>
-            <th>Modulo</th>
-            <th>Periodo</th>
-            <th>Concepto</th>
-            <th>Logica</th>
-            <th>Orden</th>
-            <th>Editar</th>
-            <th>Eliminar</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for b in registros %}
-        <tr>
-            <td>{{ b.empresa }}</td>
-            <td>{{ b.tipo_nomina }}</td>
-            <td>{{ b.modulo }}</td>
-            <td>{{ b.periodo }}</td>
-            <td>{{ b.concepto }}</td>
-            <td>{{ b.logica }}</td>
-            <td>{{ b.orden }}</td>
-            <td>
-                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" 
-                    data-empresa="{{ b.empresa.id }}"
-                    data-tipon="{{ b.tipo_nomina.id }}"
-                    data-modulo="{{ b.modulo.id }}"
-                    data-periodo="{{ b.periodo }}"
-                    data-concepto="{{ b.concepto.id }}"
-                    data-logica="{{ b.logica }}"
-                    data-orden="{{ b.orden }}">
-                    ✏️ Editar
-                </button>
-            </td>
-            <td>
-                <form method="post" action="{% url 'logica_calculo_eliminar' b.pk %}"
-                    onsubmit="return confirm('¿Eliminar este cliente?');">
-                    {% csrf_token %}
-                    <button type="submit">🗑 Eliminar</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <table>
+        <thead>
+            <tr>
+                <th>Empresa</th>
+                <th>Tipo_nomina</th>
+                <th>Modulo</th>
+                <th>Periodo</th>
+                <th>Concepto</th>
+                <th>Logica</th>
+                <th>Orden</th>
+                <th>Filtrar</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in registros %}
+            <tr>
+                <td>{{ b.empresa }}</td>
+                <td>{{ b.tipo_nomina }}</td>
+                <td>{{ b.modulo }}</td>
+                <td>{{ b.periodo }}</td>
+                <td>{{ b.concepto }}</td>
+                <td>{{ b.logica }}</td>
+                <td>{{ b.orden }}</td>
+                <td>
+                    <form method="get" action="{% url 'logica_filtros' b.id %}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            🔍 Filtrar
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-empresa="{{ b.empresa.id }}"
+                        data-tipon="{{ b.tipo_nomina.id }}" data-modulo="{{ b.modulo.id }}"
+                        data-periodo="{{ b.periodo }}" data-concepto="{{ b.concepto.id }}" data-logica="{{ b.logica }}"
+                        data-orden="{{ b.orden }}">
+                        ✏️ Editar
+                    </button>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'logica_calculo_eliminar' b.pk %}"
+                        onsubmit="return confirm('¿Eliminar este cliente?');">
+                        {% csrf_token %}
+                        <button type="submit">🗑 Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <h2>Nueva logica de calculo</h2>
@@ -70,50 +74,50 @@
             <div>
                 {% csrf_token %}
                 <div class="form-group2">
-                {{ form.tipo_nomina.label_tag }}
-                {{ form.tipo_nomina }}
-                {% if form.tipo_nomina.errors %}
-                <div class="error">{{ form.tipo_nomina.errors }}</div>
-                {% endif %}
+                    {{ form.tipo_nomina.label_tag }}
+                    {{ form.tipo_nomina }}
+                    {% if form.tipo_nomina.errors %}
+                    <div class="error">{{ form.tipo_nomina.errors }}</div>
+                    {% endif %}
                 </div>
 
                 <div class="form-group2">
-                {{ form.modulo.label_tag }}
-                {{ form.modulo }}
-                {% if form.modulo.errors %}
-                <div class="error">{{ form.modulo.errors }}</div>
-                {% endif %}
+                    {{ form.modulo.label_tag }}
+                    {{ form.modulo }}
+                    {% if form.modulo.errors %}
+                    <div class="error">{{ form.modulo.errors }}</div>
+                    {% endif %}
                 </div>
 
                 <div class="form-group2">
-                {{ form.periodo.label_tag }}
-                {{ form.periodo }}
-                {% if form.periodo.errors %}
-                <div class="error">{{ form.periodo.errors }}</div>
-                {% endif %}
+                    {{ form.periodo.label_tag }}
+                    {{ form.periodo }}
+                    {% if form.periodo.errors %}
+                    <div class="error">{{ form.periodo.errors }}</div>
+                    {% endif %}
                 </div>
             </div>
-            <div> 
+            <div>
                 <div class="form-group2">
-                {{ form.concepto.label_tag }}
-                {{ form.concepto }}
-                {% if form.concepto.errors %}
-                <div class="error">{{ form.concepto.errors }}</div>
-                {% endif %}
+                    {{ form.concepto.label_tag }}
+                    {{ form.concepto }}
+                    {% if form.concepto.errors %}
+                    <div class="error">{{ form.concepto.errors }}</div>
+                    {% endif %}
                 </div>
                 <div class="form-group2">
-                {{ form.logica.label_tag }}
-                {{ form.logica }}
-                {% if form.logica.errors %}
-                <div class="error">{{ form.logica.errors }}</div>
-                {% endif %}
+                    {{ form.logica.label_tag }}
+                    {{ form.logica }}
+                    {% if form.logica.errors %}
+                    <div class="error">{{ form.logica.errors }}</div>
+                    {% endif %}
                 </div>
                 <div class="form-group2">
-                {{ form.orden.label_tag }}
-                {{ form.orden }}
-                {% if form.orden.errors %}
-                <div class="error">{{ form.orden.errors }}</div>
-                {% endif %}
+                    {{ form.orden.label_tag }}
+                    {{ form.orden }}
+                    {% if form.orden.errors %}
+                    <div class="error">{{ form.orden.errors }}</div>
+                    {% endif %}
                 </div>
                 <br>
             </div>
@@ -127,7 +131,7 @@
 
     document.querySelectorAll('.editar-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            
+
             const pk = btn.dataset.pk;
             const tipon = btn.dataset.tipon;
             const modulo = btn.dataset.modulo;
@@ -152,75 +156,75 @@
             form.querySelector('[name="modulo"]').value = modulo;
             form.querySelector('[name="periodo"]').value = periodo;
             form.querySelector('[name="concepto"]').value = concepto;
-            form.querySelector('[name="logica"]').value = logica;    
+            form.querySelector('[name="logica"]').value = logica;
             form.querySelector('[name="orden"]').value = orden;
-        
-        
+
+
         });
     });
 </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const selectConcepto = document.getElementById('id_concepto');
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectConcepto = document.getElementById('id_concepto');
 
-    fetch("{% url 'ajax_conceptos_empresa' %}")
-        .then(response => response.json())
-        .then(data => {
-            // limpiar opciones
-            selectConcepto.innerHTML = '';
-
-            // opción vacía
-            const emptyOption = document.createElement('option');
-            emptyOption.value = '';
-            emptyOption.text = '----Seleccione-----';
-            selectConcepto.appendChild(emptyOption);
-
-            // cargar conceptos
-            data.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.id;
-                option.text = `${item.cod_concepto__cod_concepto} : ${item.desc_concepto_emp}`;
-                selectConcepto.appendChild(option);
-            });
-        });
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    const conceptoSelect = document.getElementById('id_concepto');
-    const logicaSelect   = document.getElementById('id_logica');
-
-    conceptoSelect.addEventListener('change', function () {
-        const conceptoId = this.value;
-
-        // limpiar select lógica
-        logicaSelect.innerHTML = '';
-
-        if (!conceptoId) {
-            return;
-        }
-
-        fetch("{% url 'ajax_procedimientos_concepto' %}?concepto_id=" + conceptoId)
+        fetch("{% url 'ajax_conceptos_empresa' %}")
             .then(response => response.json())
             .then(data => {
+                // limpiar opciones
+                selectConcepto.innerHTML = '';
 
                 // opción vacía
                 const emptyOption = document.createElement('option');
                 emptyOption.value = '';
-                emptyOption.text = '---------';
-                logicaSelect.appendChild(emptyOption);
+                emptyOption.text = '----Seleccione-----';
+                selectConcepto.appendChild(emptyOption);
 
-                data.forEach(prc => {
+                // cargar conceptos
+                data.forEach(item => {
                     const option = document.createElement('option');
-                    option.value = prc;
-                    option.text = prc;
-                    logicaSelect.appendChild(option);
+                    option.value = item.id;
+                    option.text = `${item.cod_concepto__cod_concepto} : ${item.desc_concepto_emp}`;
+                    selectConcepto.appendChild(option);
                 });
             });
     });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
 
-});
+        const conceptoSelect = document.getElementById('id_concepto');
+        const logicaSelect = document.getElementById('id_logica');
+
+        conceptoSelect.addEventListener('change', function () {
+            const conceptoId = this.value;
+
+            // limpiar select lógica
+            logicaSelect.innerHTML = '';
+
+            if (!conceptoId) {
+                return;
+            }
+
+            fetch("{% url 'ajax_procedimientos_concepto' %}?concepto_id=" + conceptoId)
+                .then(response => response.json())
+                .then(data => {
+
+                    // opción vacía
+                    const emptyOption = document.createElement('option');
+                    emptyOption.value = '';
+                    emptyOption.text = '---------';
+                    logicaSelect.appendChild(emptyOption);
+
+                    data.forEach(prc => {
+                        const option = document.createElement('option');
+                        option.value = prc;
+                        option.text = prc;
+                        logicaSelect.appendChild(option);
+                    });
+                });
+        });
+
+    });
 </script>
 {% endblock %}

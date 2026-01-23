@@ -71,7 +71,7 @@
                 <td>{{ b.periodo_vac}}</td>
                 <td>{{ b.tipo_cotizante }}</td>
                 <td>{{ b.subtipo_cotizante }}</td>
-                <td>{{ b.codigo_interno }}</td>
+                <td>{{ b.codigo_interno|default_if_none:'' }}</td>
                 <td>{{ b.tipo_nomina }}</td>
                 <td>{{ b.motivo_retiro|default_if_none:'' }}</td>
                 <td>{{ b.fecha_ret|date:"d/m/Y"|default:"" }}</td>
@@ -105,6 +105,8 @@
                 </td>
                 <td>
                     <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-ide="{{ b.identificacion.id }}"
+                        data-ide="{{ b.identificacion.id }}"
+                        data-identext="{{ b.identificacion.identificacion }} - {{ b.identificacion.nombre }} {{ b.identificacion.segundo_nombre }} {{ b.identificacion.apellido }} {{ b.identificacion.segundo_apellido }}"
                         data-feci="{{ b.fecha_ingreso|date:'Y-m-d' }}" data-fecf="{{ b.fecha_fin|date:'Y-m-d' }}" 
                         data-tipocont ="{{ b.tipo_contrato.id }}" data-pervac="{{ b.periodo_vac }}"
                         data-cotizante ="{{ b.tipo_cotizante.id }}" data-subcotizante="{{ b.subtipo_cotizante.id }}"
@@ -128,7 +130,8 @@
         <div class="form-grid-2">
             <div>
                 <div class="form-group2">
-                    {{ form.identificacion.label_tag }} <!-- label arriba -->
+                    {{ form.identificacion.label_tag }}
+                    <br> <!-- label arriba -->
                     {{ form.identificacion }}
                     {% if form.identificacion.errors %}
                     <div class="error">{{ form.identificacion.errors }}</div>
@@ -242,8 +245,7 @@
             </div>
         </div>
     </div>
-    <br>
-    <br>
+
     <button type="submit" name="accion" value="guardar">Guardar</button>
 </form>
 {% endblock %}
@@ -268,7 +270,7 @@
             const porc = btn.dataset.porc;
             const estado = btn.dataset.estado;
             const cesantias = btn.dataset.cesantias;
-
+            
             // Agregar un input hidden para el pk
             let form = document.getElementById('contrato-form');
             let inputPk = form.querySelector('input[name="pk"]');
@@ -288,7 +290,10 @@
             }, 500);
 
             inputPk.value = pk;
-            form.querySelector('[name="identificacion"]').value = ide;
+            const identificacionSelect = $('[name="identificacion"]');
+            const option = new Option(btn.dataset.identext, ide, true, true);
+            identificacionSelect.append(option).trigger('change');
+            
             form.querySelector('[name="fecha_ingreso"]').value = feci;
             form.querySelector('[name="fecha_fin"]').value = fecf;
             form.querySelector('[name="tipo_contrato"]').value = tipocont;
@@ -308,6 +313,7 @@
         });
     });
 </script>
+
 <script>
 document.getElementById('id_tipo_cotizante').addEventListener('change', function () {
 
@@ -339,6 +345,34 @@ document.getElementById('id_tipo_cotizante').addEventListener('change', function
             });
         });
 
+});
+</script>
+
+<script>
+$(function () {
+    console.log("🔥 Select2 inicializando");
+
+    $('.select-identificacion').select2({
+        placeholder: 'Buscar por identificación o nombre',
+        minimumInputLength: 1,
+        ajax: {
+            url: "{% url 'ajax_identificaciones' %}",
+            dataType: 'json',
+            delay: 300,
+            data: function (params) {
+                return {
+                    q: params.term,
+                    page: params.page || 1
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data.results,
+                    pagination: { more: data.pagination.more }
+                };
+            }
+        }
+    });
 });
 </script>
 {% endblock %}

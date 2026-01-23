@@ -9,6 +9,7 @@
             <tr>
                 <th>Codigo</th>
                 <th>Estado</th>
+                <th>Progreso</th>
                 <th>Fecha creacion</th>
                 <th>Fecha finalizacion</th>
                 <th>Mensaje</th>
@@ -20,6 +21,7 @@
             <tr>
                 <td>{{ pr.periodo_nomina.codigo }}</td>
                 <td>{{ pr.get_estado_display }}</td>
+                <td>{{ pr.progreso }}</td>
                 <td>{{ pr.date_created }}</td>
                 <td>{{ pr.date_finished }}</td>
                 <td>{{ pr.mensaje_error }}</td>

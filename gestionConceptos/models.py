@@ -54,8 +54,9 @@ class t_concepto_empresa(models.Model):
     )
 
     SIN_VALOR = (
-        ('0', 'Dejar linea en 0'),
-        ('B', 'Borrar linea'),)
+        ('BO', 'BORRAR LINEA'),
+        ('NB', 'NO BORRAR LINEA'),
+        )
 
     empresa = models.ForeignKey(t_empresa, on_delete=models.CASCADE, verbose_name= "Empresa")
     cod_concepto = models.ForeignKey(t_conceptos, on_delete=models.CASCADE, verbose_name= "Concepto")

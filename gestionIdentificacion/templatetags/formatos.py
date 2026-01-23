@@ -1,5 +1,4 @@
 from django import template
-
 register = template.Library()
 
 @register.filter
@@ -9,3 +8,8 @@ def moneda(valor):
         return f"{valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     except:
         return valor
+    
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
