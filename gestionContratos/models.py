@@ -94,6 +94,9 @@ class t_contrato(models.Model):
             self.cod_contrato = (ultimo + 1) if ultimo else 1000000
 
         super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return str(self.cod_contrato)
 
 class t_contrato_banco(models.Model):
     TIPO_CUENTA = (

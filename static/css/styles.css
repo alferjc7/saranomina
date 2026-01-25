@@ -238,7 +238,7 @@ button:hover {
 
 .table-container {
     max-width: 100%;
-    max-height: 450px;          /* scroll vertical */
+    max-height: 650px;          /* scroll vertical */
     overflow-x: auto;           /* scroll horizontal */
     overflow-y: auto;
     border: 1px solid #ccc;
@@ -246,7 +246,7 @@ button:hover {
     border-collapse: separate;
     border-spacing: 0;
     background: #ffffff;
-    min-height: 200px;   /* 👈 evita colapso */
+    min-height: 400px;   /* 👈 evita colapso */
 
 }
 
@@ -576,6 +576,10 @@ textarea {
 
 .progress-success {
     background-color: #198754; /* verde */
+}
+
+.progress-closed {
+    background-color: #2c3e50;
 }
 
 .progress-error {

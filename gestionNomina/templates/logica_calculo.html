@@ -21,6 +21,7 @@
                 <th>Tipo_nomina</th>
                 <th>Modulo</th>
                 <th>Periodo</th>
+                <th>Codigo</th>
                 <th>Concepto</th>
                 <th>Logica</th>
                 <th>Orden</th>
@@ -36,6 +37,7 @@
                 <td>{{ b.tipo_nomina }}</td>
                 <td>{{ b.modulo }}</td>
                 <td>{{ b.periodo }}</td>
+                <td>{{ b.concepto.cod_concepto.cod_concepto }}</td>
                 <td>{{ b.concepto }}</td>
                 <td>{{ b.logica }}</td>
                 <td>{{ b.orden }}</td>
@@ -195,9 +197,13 @@
 
         const conceptoSelect = document.getElementById('id_concepto');
         const logicaSelect = document.getElementById('id_logica');
+        const moduloSelect = document.getElementById('id_modulo');
+
 
         conceptoSelect.addEventListener('change', function () {
             const conceptoId = this.value;
+            const modulo = moduloSelect.value;
+
 
             // limpiar select lógica
             logicaSelect.innerHTML = '';
@@ -206,7 +212,7 @@
                 return;
             }
 
-            fetch("{% url 'ajax_procedimientos_concepto' %}?concepto_id=" + conceptoId)
+            fetch("{% url 'ajax_procedimientos_concepto' %}?concepto_id=" + conceptoId + "&modulo=" + modulo)
                 .then(response => response.json())
                 .then(data => {
 

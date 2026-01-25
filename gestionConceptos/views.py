@@ -59,7 +59,7 @@ class t_conceptosCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        registros = t_conceptos.objects.all().order_by('-pk')[:30]
+        registros = t_conceptos.objects.all().order_by('cod_concepto')
         context['registros'] = registros
 
         

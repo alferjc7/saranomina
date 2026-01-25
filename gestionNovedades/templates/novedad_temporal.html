@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+{% load formatos %}
+
+{% block title %}Novedades{% endblock %}
+{% block content %}
+<div class="header-entidades">
+    <h2 class="titulo-entidades">Novedades temporales</h2>
+    <div class="acciones-entidades">
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" name="accion" value="exportar_excel" class="btn btn-success">
+                📥 Exportar
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Contrato</th>
+                <th>Concepto</th>
+                <th>Tipo Nomina</th>
+                <th>Periodo Nomina</th>
+                <th>Año</th>
+                <th>Mes</th>
+                <th>Periodo</th>
+                <th>Fecha novedad</th>
+                <th>Fecha inicio</th>
+                <th>Fecha fin</th>
+                <th>Unidad</th>
+                <th>Base</th>
+                <th>Valor</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in registros %}
+            <tr>
+                <td>{{ b.contrato.cod_contrato }}</td>
+                <td>{{ b.concepto.cod_concepto.cod_concepto }}</td>
+                <td>{{ b.tipo_nomina }}</td>
+                <td>{{ b.periodo_nomina.codigo }}</td>
+                <td>{{ b.anio }}</td>
+                <td>{{ b.mes }}</td>
+                <td>{{ b.periodo }}</td>
+                <td>{{ b.fecha_novedad|date:"d/m/Y" }}</td>
+                <td>{{ b.fecha_inicio|date:"d/m/Y" }}</td>
+                <td>{{ b.fecha_fin|date:"d/m/Y" }}</td>
+                <td class="td-valor">{{ b.unidad }}</td>
+                <td class="td-valor">{{ b.base|moneda }}</td>
+                <td class="td-valor">{{ b.valor|moneda }}</td>
+
+                <td>
+                    <button type="button" class="editar-btn" data-pk="{{ b.pk }}" data-codigo="{{ b.cod_concepto }}"
+                        data-desc="{{ b.desc_concepto }}" data-desceng="{{ b.desc_concepto_eng }}"
+                        data-tipo="{{ b.tipo_concepto }}">
+                        ✏️ Editar
+                    </button>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'novedad_temporal_eliminar' b.pk %}"
+                        onsubmit="return confirm('¿Eliminar esta novedad?');">
+                        {% csrf_token %}
+                        <button type="submit">🗑 Eliminar</button>
+                    </form>
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2>Crear nueva novedad</h2>
+<form id="conceptos-form" method="POST">
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    {{ form.concepto.label_tag }} <!-- label arriba -->
+                    {{ form.concepto }}
+                    {% if form.concepto.errors %}
+                    <div class="error">{{ form.concepto.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group2">
+                    {{ form.contrato.label_tag }} <!-- label arriba -->
+                    {{ form.contrato }}
+                    {% if form.contrato.errors %}
+                    <div class="error">{{ form.contrato.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group2">
+                    {{ form.tipo_nomina.label_tag }} <!-- label arriba -->
+                    {{ form.tipo_nomina }}
+                    {% if form.tipo_nomina.errors %}
+                    <div class="error">{{ form.tipo_nomina.errors }}</div>
+                    {% endif %}
+                </div>
+
+
+                <div class="form-group2">
+                    {{ form.periodo_nomina.label_tag }} <!-- label arriba -->
+                    {{ form.periodo_nomina }}
+                    {% if form.periodo_nomina.errors %}
+                    <div class="error">{{ form.periodo_nomina.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.anio.label_tag }} <!-- label arriba -->
+                    {{ form.anio }}
+                    {% if form.anio.errors %}
+                    <div class="error">{{ form.anio.errors }}</div>
+                    {% endif %}
+                </div>
+
+            </div>
+            <div>
+                <div class="form-group2">
+                    {{ form.mes.label_tag }} <!-- label arriba -->
+                    {{ form.mes }}
+                    {% if form.mes.errors %}
+                    <div class="error">{{ form.mes.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.periodo.label_tag }} <!-- label arriba -->
+                    {{ form.periodo }}
+                    {% if form.periodo.errors %}
+                    <div class="error">{{ form.periodo.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group2">
+                    {{ form.fecha_novedad.label_tag }} <!-- label arriba -->
+                    {{ form.fecha_novedad }}
+                    {% if form.fecha_novedad.errors %}
+                    <div class="error">{{ form.fecha_novedad.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group2">
+                    {{ form.fecha_inicio.label_tag }} <!-- label arriba -->
+                    {{ form.fecha_inicio }}
+                    {% if form.fecha_inicio.errors %}
+                    <div class="error">{{ form.fecha_inicio.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group2">
+                    {{ form.fecha_fin.label_tag }} <!-- label arriba -->
+                    {{ form.fecha_fin }}
+                    {% if form.fecha_fin.errors %}
+                    <div class="error">{{ form.fecha_fin.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    {{ form.unidad.label_tag }} <!-- label arriba -->
+                    {{ form.unidad }}
+                    {% if form.unidad.errors %}
+                    <div class="error">{{ form.unidad.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group2">
+                    {{ form.base.label_tag }} <!-- label arriba -->
+                    {{ form.base }}
+                    {% if form.base.errors %}
+                    <div class="error">{{ form.base.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group2">
+                    {{ form.valor.label_tag }} <!-- label arriba -->
+                    {{ form.valor }}
+                    {% if form.valor.errors %}
+                    <div class="error">{{ form.valor.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <br>
+                <div class="switch-row">
+                    <span class="switch-label">Estado: </span>
+                    <label class="switch">
+                        {{form.estado}}
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+    $(function () {
+        $('.select-periodo_nomina').select2({
+            placeholder: 'Buscar por codigo, anio, mes o periodo',
+            minimumInputLength: 1,
+            ajax: {
+                url: "{% url 'ajax_periodosn' %}",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data.results,
+                        pagination: { more: data.pagination.more }
+                    };
+                }
+            }
+        });
+    });
+</script>
+<script>
+    $(function () {
+        $('.select-concepto').select2({
+            placeholder: 'Buscar por codigo concepto o nombre',
+            minimumInputLength: 1,
+            ajax: {
+                url: "{% url 'ajax_conceptos' %}",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data.results,
+                        pagination: { more: data.pagination.more }
+                    };
+                }
+            }
+        });
+    });
+</script>
+<script>
+    $(function () {
+        console.log("🔥 Select2 inicializando");
+
+        $('.select-contrato').select2({
+            placeholder: 'Buscar por codigo contrato o nombre',
+            minimumInputLength: 1,
+            ajax: {
+                url: "{% url 'ajax_contratos' %}",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data.results,
+                        pagination: { more: data.pagination.more }
+                    };
+                }
+            }
+        });
+    });
+</script>
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+
+            const pk = btn.dataset.pk;
+            const codigo = btn.dataset.codigo;
+            const desc = btn.dataset.desc;
+            const desceng = btn.dataset.desceng;
+            const tipo = btn.dataset.tipo;
+
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('conceptos-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+
+            inputPk.value = pk;
+            form.querySelector('[name="cod_concepto"]').value = codigo;
+            form.querySelector('[name="desc_concepto"]').value = desc;
+            form.querySelector('[name="desc_concepto_eng"]').value = desceng;
+            form.querySelector('[name="tipo_concepto"]').value = tipo;
+            fo
+        });
+    });
+</script>
+{% endblock %}

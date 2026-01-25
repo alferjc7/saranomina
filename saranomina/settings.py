@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'gestionContratos',
     'gestionConceptos',
     'gestionNomina',
+    'gestionNovedades',
     'parametros',
     'api',
     'accounts',

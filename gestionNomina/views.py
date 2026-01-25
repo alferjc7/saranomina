@@ -5,14 +5,15 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, CreateView, DeleteView
 from gestionNomina.models import (t_periodo_nomina, t_logica_calculo, 
-                                  t_acumulado_empleado, t_proceso_nomina, t_logica_calculo_filtro)
+                                  t_acumulado_empleado, t_proceso_nomina, 
+                                  t_logica_calculo_filtro, t_acumulado_empleado_def)
 from gestionConceptos.models import t_concepto_empresa
 from gestionNomina.utils import crear_periodos
 from gestionNomina.forms import (GenerarPeriodoNominaForm, t_logica_calculoform, t_acumulaldo_empleadoform, 
                                  FiltroTipoContratoForm, FiltroTipoCotizanteForm)
 from gestionClientes.models import t_empresa
 from django.contrib import messages
-from parametros.models import t_tipo_nomina, t_tipo_contrato, t_tipo_cotizante
+from parametros.models import t_tipo_nomina, t_tipo_contrato, t_tipo_cotizante,ParametroDetalle
 from django.http import JsonResponse
 from django.db import connection, transaction
 from django.utils import timezone
@@ -58,8 +59,49 @@ def ejecutar_nomina_background(proceso_id, periodo):
             date_finished=timezone.now()
         )
 
+
+def ejecutar_nomina_cierre(proceso_id, periodo):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SET client_min_messages TO NOTICE;")
+            cursor.execute(
+                """
+                CALL prc_cierre_nomina(
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s
+                )
+                """,
+                [
+                    periodo.empresa_id,
+                    periodo.tipo_nomina_id,
+                    periodo.anio,
+                    periodo.mes,
+                    periodo.periodo,
+                    periodo.fecha_inicio,
+                    periodo.fecha_fin,
+                    proceso_id,
+                    periodo.id
+                ]
+            )
+
+        t_proceso_nomina.objects.filter(id=proceso_id).update(
+            estado="C",
+            progreso=100,
+            mensaje_error="CIERRE FINALIZADO",
+            date_finished=timezone.now()
+        )
+
+    except Exception as e:
+        t_proceso_nomina.objects.filter(id=proceso_id).update(
+            estado="X",
+            mensaje_error=str(e),
+            date_finished=timezone.now()
+        )
+
 def procedimientos_por_concepto(request):
     concepto_id = request.GET.get('concepto_id')
+    modulo_id = request.GET.get('modulo')
+    modulo = ParametroDetalle.objects.get(id = modulo_id).codigo 
+    print(modulo)
 
     if not concepto_id:
         return JsonResponse([], safe=False)
@@ -68,6 +110,12 @@ def procedimientos_por_concepto(request):
     codigo = concepto.cod_concepto.cod_concepto  # ej: 1000
     print(codigo)
 
+    like_pattern = f'prc_{codigo}_%'
+
+    if modulo == 'NOV':
+        like_pattern = 'prc_nov_%'
+
+
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT upper(routine_name)
@@ -75,7 +123,7 @@ def procedimientos_por_concepto(request):
             WHERE routine_type = 'PROCEDURE'
               AND routine_name LIKE %s
             ORDER BY routine_name
-        """, [f'prc_{codigo}_%'])
+        """, [like_pattern])
 
         procedimientos = [row[0] for row in cursor.fetchall()]
 
@@ -222,7 +270,7 @@ class logica_calculoCreateView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        registros = t_logica_calculo.objects.filter(empresa_id = self.request.session.get('empresa_id'))
+        registros = t_logica_calculo.objects.filter(empresa_id = self.request.session.get('empresa_id')).order_by('orden','concepto__cod_concepto__cod_concepto')
         context['registros'] = registros
         return context
     
@@ -293,6 +341,45 @@ class AcumuladosListView(LoginRequiredMixin,ListView):
             qs = qs.filter(concepto__cod_concepto=concepto)
 
         return qs
+
+
+class AcumuladosDefListView(LoginRequiredMixin,ListView):
+    model = t_acumulado_empleado_def
+    template_name = 'acumulados_hist.html'
+    context_object_name = 'acumulados_hist'
+
+    def get_queryset(self):
+        empresa_id = self.request.session.get('empresa_id')
+
+        contrato = self.request.GET.get('contrato')
+        anio = self.request.GET.get('anio')
+        mes = self.request.GET.get('mes')
+        periodo = self.request.GET.get('periodo')
+        concepto = self.request.GET.get('concepto')
+
+        if not any([contrato, anio, mes, periodo, concepto]):
+            return t_acumulado_empleado_def.objects.none()
+
+        qs = t_acumulado_empleado_def.objects.filter(
+            contrato__empresa_id=empresa_id
+        )
+
+        if contrato:
+            qs = qs.filter(contrato__cod_contrato__icontains=contrato)
+
+        if anio:
+            qs = qs.filter(anio=anio)
+
+        if mes:
+            qs = qs.filter(mes=mes)
+
+        if periodo:
+            qs = qs.filter(periodo_nomina__codigo=periodo)
+
+        if concepto:
+            qs = qs.filter(concepto__cod_concepto=concepto)
+
+        return qs
     
 class ProcesamientoNominaView(View):
 
@@ -300,47 +387,50 @@ class ProcesamientoNominaView(View):
 
     def get(self, request):
         empresa_id = self.request.session.get('empresa_id')
-        ultimo_proceso = (
-            t_proceso_nomina.objects
-            .filter(periodo_nomina=OuterRef('pk'))
-            .order_by('-id')
-        )
-
-        periodos = (
-            t_periodo_nomina.objects
-            .filter(empresa_id=empresa_id, estado=True)
-            .annotate(
-                progreso=Coalesce(
-                    Subquery(
-                        ultimo_proceso.values('progreso')[:1],
-                        output_field=IntegerField()
-                    ),
-                    0
-                ),
-                estado_proceso=Subquery(
-                    ultimo_proceso.values('estado')[:1]
-                )
-            )
-            .order_by("anio", "mes", "periodo")
-        )
         
         anio = request.GET.get('anio')
         mes = request.GET.get('mes')
         periodo = request.GET.get('periodo')
         codigo = request.GET.get('codigo')
 
-        if anio:
-            periodos = periodos.filter(anio=anio)
+        if not any([anio, mes, periodo, codigo]):
+            periodos = t_periodo_nomina.objects.none()
+        else:
+            ultimo_proceso = (
+                t_proceso_nomina.objects
+                .filter(periodo_nomina=OuterRef('pk'))
+                .order_by('-id')
+            )
 
-        if mes:
-            periodos = periodos.filter(mes=mes)
+            periodos = (
+                t_periodo_nomina.objects
+                .filter(empresa_id=empresa_id)
+                .annotate(
+                    progreso=Coalesce(
+                        Subquery(
+                            ultimo_proceso.values('progreso')[:1],
+                            output_field=IntegerField()
+                        ),
+                        0
+                    ),
+                    estado_proceso=Subquery(
+                        ultimo_proceso.values('estado')[:1]
+                    )
+                )
+                .order_by("anio", "mes", "periodo")
+            )
 
-        if periodo:
-            periodos = periodos.filter(periodo=periodo)
+            if anio:
+                periodos = periodos.filter(anio=anio)
 
-        if codigo:
-            periodos = periodos.filter(codigo__icontains=codigo)
+            if mes:
+                periodos = periodos.filter(mes=mes)
 
+            if periodo:
+                periodos = periodos.filter(periodo=periodo)
+
+            if codigo:
+                periodos = periodos.filter(codigo__icontains=codigo)
      
         return render(request, self.template_name, {
         "periodos": periodos,
@@ -350,6 +440,8 @@ class ProcesamientoNominaView(View):
     def post(self, request):
 
         periodos_ids = request.POST.getlist("periodos")
+        accion = request.POST.get("accion")
+        print(accion)
 
         if not periodos_ids:
             return JsonResponse({"error": "No periodos"}, status=400)
@@ -361,23 +453,45 @@ class ProcesamientoNominaView(View):
                 "empresa", "tipo_nomina"
             ).get(id=periodo_id)
 
-            proceso = t_proceso_nomina.objects.create(
-                periodo_nomina=periodo,
-                estado="P",
-                progreso=0,
-                user_creator=request.user.username
-            )
+            if accion == 'procesar':
+                if periodo.estado:
+                    proceso = t_proceso_nomina.objects.create(
+                        periodo_nomina=periodo,
+                        estado="P",
+                        progreso=0,
+                        user_creator=request.user.username
+                    )
 
-            procesos.append(proceso.id)
+                    procesos.append(proceso.id)
 
-            # 🚀 Lanzamos el proceso en background
-            Thread(
-                target=ejecutar_nomina_background,
-                args=(proceso.id, periodo),
-                daemon=True
-            ).start()
+                    Thread(
+                        target=ejecutar_nomina_background,
+                        args=(proceso.id, periodo),
+                        daemon=True
+                    ).start()
+                else:
+                    return JsonResponse({"error": "No se puede procesar un periodo cerrado"}, status=400)
 
-        # ⚡ Respondemos inmediatamente
+            elif accion == 'cerrar':
+                if periodo.estado:
+                    proceso = t_proceso_nomina.objects.create(
+                        periodo_nomina=periodo,
+                        estado="P",
+                        progreso=0,
+                        user_creator=request.user.username
+                    )
+
+                    procesos.append(proceso.id)
+
+                    Thread(
+                        target=ejecutar_nomina_cierre,
+                        args=(proceso.id, periodo),
+                        daemon=True
+                    ).start()
+                else:
+                    return JsonResponse({"error": "No se puede procesar un periodo cerrado"}, status=400)
+
+            
         return JsonResponse({
             "ok": True,
             "procesos": procesos
@@ -391,7 +505,7 @@ class procesamiento_detalleListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         id = self.kwargs['id']
         
-        qs = t_proceso_nomina.objects.filter(periodo_nomina_id = id)
+        qs = t_proceso_nomina.objects.filter(periodo_nomina_id = id).order_by('date_created')
 
         return qs
 

@@ -3,7 +3,7 @@
 
 {% block title %}Procesar{% endblock %}
 {% block content %}
-<h2>Periodos abiertos</h2>
+<h2>Buscar periodos a procesar</h2>
 <form method="get">
     <div class="card">
         <div class="form-grid-5">
@@ -52,6 +52,7 @@
                     <th>Mes</th>
                     <th>Periodo</th>
                     <th>Progreso</th>
+                    <th>Estado</th>
                     <th>Tipo nómina</th>
                     <th>Fecha inicio</th>
                     <th>Fecha fin</th>
@@ -72,26 +73,40 @@
                         <div class="progress-container">
 
                             {% if p.estado_proceso == "F" %}
-                            <div class="progress-bar progress-success" id="bar-{{ p.id }}" style="width: {{ p.progreso }}%;">
+                            <div class="progress-bar progress-success" id="bar-{{ p.id }}"
+                                style="width: {{ p.progreso }}%;">
                             </div>
 
                             {% elif p.estado_proceso == "X" %}
-                            <div class="progress-bar progress-error"  id="bar-{{ p.id }}" style= "width: {{ p.progreso }}%;">
+                            <div class="progress-bar progress-error" id="bar-{{ p.id }}"
+                                style="width: {{ p.progreso }}%;">
                             </div>
 
                             {% elif p.estado_proceso == "P" %}
-                            <div class="progress-bar progress-running"  id="bar-{{ p.id }}" style="width: {{ p.progreso }} %;">
+                            <div class="progress-bar progress-running" id="bar-{{ p.id }}"
+                                style="width: {{ p.progreso }} %;">
+                            </div>
+
+                            {% elif p.estado_proceso == "C" %}
+                            <div class="progress-bar progress-closed" id="bar-{{ p.id }}"
+                                style="width: {{ p.progreso }} %;">
                             </div>
 
                             {% else %}
-                            <div class="progress-bar progress-empty"  id="bar-{{ p.id }}" style="width: 0%;">
+                            <div class="progress-bar progress-empty" id="bar-{{ p.id }}" style="width: 0%;">
                             </div>
                             {% endif %}
 
-                            <span class="progress-text"  id="text-{{ p.id }}">
+                            <span class="progress-text" id="text-{{ p.id }}">
                                 {{ p.progreso }}%
                             </span>
                         </div>
+                    </td>
+                    <td>{% if p.estado %}
+                        ABIERTO
+                        {% else %}
+                        CERRADO
+                        {% endif %}
                     </td>
                     <td>{{ p.tipo_nomina }}</td>
                     <td>{{ p.fecha_inicio|date:"d/m/Y" }}</td>
@@ -108,88 +123,121 @@
         </table>
     </div>
     <br>
-    <button type="submit" class="btn btn-primary">
-        Procesar nómina
-    </button>
+    <div class="form-grid-5">
+        <div>
+            <button type="submit" name="accion" value="procesar" class="btn btn-primary">
+                Procesar nómina
+            </button>
+        </div>
+        <div>
+            <button type="submit" name="accion" value="cerrar" class="btn btn-primary">
+                Cerrar nómina
+            </button>
+        </div>
+    </div>
 </form>
 {% endblock %}
 {% block scripts %}
 <script>
-function actualizarProgreso(periodoId) {
+    function actualizarProgreso(periodoId) {
 
-    const intervalo = setInterval(() => {
+        const intervalo = setInterval(() => {
 
-        fetch(`/gestionnomina/ajax/progreso-nomina/${periodoId}/`)
-            .then(response => response.json())
-            .then(data => {
+            fetch(`/gestionnomina/ajax/progreso-nomina/${periodoId}/`)
+                .then(response => response.json())
+                .then(data => {
 
-                const bar = document.getElementById(`bar-${periodoId}`);
-                const text = document.getElementById(`text-${periodoId}`);
+                    const bar = document.getElementById(`bar-${periodoId}`);
+                    const text = document.getElementById(`text-${periodoId}`);
 
-                if (!bar || !text) {
-                    clearInterval(intervalo);
-                    return;
-                }
+                    if (!bar || !text) {
+                        clearInterval(intervalo);
+                        return;
+                    }
 
-                bar.style.width = data.progreso + "%";
-                text.innerText = data.progreso + "%";
+                    bar.style.width = data.progreso + "%";
+                    text.innerText = data.progreso + "%";
 
-                // Cambiar color según estado
-                bar.classList.remove(
-                    "progress-running",
-                    "progress-success",
-                    "progress-error"
-                );
+                    // Cambiar color según estado
+                    bar.classList.remove(
+                        "progress-running",
+                        "progress-success",
+                        "progress-error"
+                    );
 
-                if (data.estado === "F") {
-                    bar.classList.add("progress-success");
-                    clearInterval(intervalo);
-                } 
-                else if (data.estado === "X") {
-                    bar.classList.add("progress-error");
-                    clearInterval(intervalo);
-                } 
-                else {
-                    bar.classList.add("progress-running");
-                }
+                    if (data.estado === "F") {
+                        bar.classList.add("progress-success");
+                        clearInterval(intervalo);
+                    }
+                    else if (data.estado === "X") {
+                        bar.classList.add("progress-error");
+                        clearInterval(intervalo);
+                    }
+                    else {
+                        bar.classList.add("progress-running");
+                    }
 
-            });
+                });
 
-    }, 500); // cada 2 segundos
-}
+        }, 50); // cada 2 segundos
+    }
 </script>
 <script>
-document.getElementById("formProcesar").addEventListener("submit", function (e) {
-    e.preventDefault(); 
+    let accionSeleccionada = null;
 
-    const seleccionados = Array.from(
-        document.querySelectorAll('input[name="periodos"]:checked')
-    ).map(cb => cb.value);
+    document.querySelectorAll('button[name="accion"]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            accionSeleccionada = this.value;
+        });
+    });
 
-    if (seleccionados.length === 0) {
-        alert("Debe seleccionar al menos un período");
-        return;
-    }
+    document.getElementById("formProcesar").addEventListener("submit", function (e) {
+        e.preventDefault();
 
-    const formData = new FormData(this);
-
-    fetch("", {   // misma URL
-        method: "POST",
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Error al procesar");
+        if (!accionSeleccionada) {
+            alert("No se pudo determinar la acción");
+            return;
         }
 
-        seleccionados.forEach(periodoId => {
-            actualizarProgreso(periodoId);
+        const seleccionados = Array.from(
+            document.querySelectorAll('input[name="periodos"]:checked')
+        ).map(cb => cb.value);
+
+        if (seleccionados.length === 0) {
+            alert("Debe seleccionar al menos un período");
+            return;
+        }
+
+        const formData = new FormData(this);
+
+        formData.append("accion", accionSeleccionada);
+
+        fetch("", {  
+            method: "POST",
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error al ejecutar el proceso");
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data.ok) {
+                throw new Error("Respuesta inválida del servidor");
+            }
+
+            seleccionados.forEach(periodoId => {
+                actualizarProgreso(periodoId);
+            });
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Error ejecutando el proceso");
+        })
+        .finally(() => {
+            accionSeleccionada = null;
         });
-    })
-    .catch(error => {
-        console.error(error);
-        alert("Error ejecutando el proceso");
     });
-});
 </script>
 {% endblock %}

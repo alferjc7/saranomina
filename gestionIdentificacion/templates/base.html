@@ -11,7 +11,6 @@
 
 <body>
     
-<!-- 🔥 LIBRERÍAS PRIMERO, SIN EXCEPCIONES -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.0/dist/js/select2.min.js"></script>
@@ -94,6 +93,28 @@
             </div>
             {% endwith %}
 
+                        {% with request.path as current %}
+            <div class="menu-group
+        {% if '/gestionnovedades/' in current or '/novedad_temporal/' in current%}
+            active
+        {% endif %}
+    ">
+
+                <button class="menu-toggle">
+                    Gestión de Novedades
+                    <span class="arrow">▶</span>
+                </button>
+
+                <div class="submenu">
+
+                    <a href="/gestionnovedades/novedad_temporal"
+                        class="{% if '/gestionnovedades/novedad_temporal/' in current %}active-link{% endif %}">
+                        Novedades Temporales
+                    </a>
+                </div>
+            </div>
+            {% endwith %}
+
 
             {% with request.path as current %}
             <div class="menu-group
@@ -128,6 +149,13 @@
                     <a href="/gestionnomina/acumulados"
                         class="{% if '/gestionnomina/acumulados/' in current %}active-link{% endif %}">
                         Acumulados
+                    </a>
+                </div>
+
+                <div class="submenu">
+                    <a href="/gestionnomina/acumulados_hist"
+                        class="{% if '/gestionnomina/acumulados_hist/' in current %}active-link{% endif %}">
+                        Historico de Acumulados
                     </a>
                 </div>
 
