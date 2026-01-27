@@ -92,6 +92,11 @@
                                 style="width: {{ p.progreso }} %;">
                             </div>
 
+                            {% elif p.estado_proceso == "R" %}
+                            <div class="progress-bar progress-reverse" id="bar-{{ p.id }}"
+                                style="width: {{ p.progreso }} %;">
+                            </div>
+
                             {% else %}
                             <div class="progress-bar progress-empty" id="bar-{{ p.id }}" style="width: 0%;">
                             </div>
@@ -134,11 +139,18 @@
                 Cerrar nómina
             </button>
         </div>
+        <div>
+            <button type="submit" name="accion" value="reversar" class="btn btn-primary">
+                Reversar nómina
+            </button>
+        </div>
     </div>
 </form>
 {% endblock %}
 {% block scripts %}
 <script>
+    let paginaRefrescada = false;
+
     function actualizarProgreso(periodoId) {
 
         const intervalo = setInterval(() => {
@@ -161,21 +173,58 @@
                     // Cambiar color según estado
                     bar.classList.remove(
                         "progress-running",
+                        "progress-closed",
+                        "progress-reverse",
                         "progress-success",
                         "progress-error"
                     );
 
-                    if (data.estado === "F") {
-                        bar.classList.add("progress-success");
+                    if (["F", "C", "R", "X"].includes(data.estado)) {
+
+                        if (data.estado === "F") bar.classList.add("progress-success");
+                        if (data.estado === "R") bar.classList.add("progress-reverse");
+                        if (data.estado === "C") bar.classList.add("progress-closed");
+                        if (data.estado === "X") bar.classList.add("progress-error");
+
                         clearInterval(intervalo);
+
+                        if (!paginaRefrescada) {
+                            paginaRefrescada = true;
+
+                            let mensaje = "";
+                            let tipo = "success";
+
+                            if (data.estado === "F") {
+                                mensaje = "Nómina procesada correctamente";
+                                tipo = "success";
+                            }
+                            else if (data.estado === "C") {
+                                mensaje = "El período fue cerrado correctamente";
+                                tipo = "success";
+                            }
+                            else if (data.estado === "R") {
+                                mensaje = "El período fue reversado correctamente";
+                                tipo = "warning";
+                            }
+                            else if (data.estado === "X") {
+                                mensaje = "Ocurrió un error durante el proceso de nómina";
+                                tipo = "error";
+                            }
+                            setTimeout(() => {
+                                const url = new URL(window.location.href);
+
+                                url.searchParams.set("msg", mensaje);
+                                url.searchParams.set("tipo", tipo);
+
+                                window.location.href = url.toString();
+
+                            }, 120);
+                        }
+
+                        return;
                     }
-                    else if (data.estado === "X") {
-                        bar.classList.add("progress-error");
-                        clearInterval(intervalo);
-                    }
-                    else {
-                        bar.classList.add("progress-running");
-                    }
+
+                    bar.classList.add("progress-running");
 
                 });
 
@@ -212,32 +261,32 @@
 
         formData.append("accion", accionSeleccionada);
 
-        fetch("", {  
+        fetch("", {
             method: "POST",
             body: formData
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Error al ejecutar el proceso");
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (!data.ok) {
-                throw new Error("Respuesta inválida del servidor");
-            }
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error al ejecutar el proceso");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.ok) {
+                    throw new Error("Respuesta inválida del servidor");
+                }
 
-            seleccionados.forEach(periodoId => {
-                actualizarProgreso(periodoId);
+                seleccionados.forEach(periodoId => {
+                    actualizarProgreso(periodoId);
+                });
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Error ejecutando el proceso");
+            })
+            .finally(() => {
+                accionSeleccionada = null;
             });
-        })
-        .catch(error => {
-            console.error(error);
-            alert("Error ejecutando el proceso");
-        })
-        .finally(() => {
-            accionSeleccionada = null;
-        });
     });
 </script>
 {% endblock %}

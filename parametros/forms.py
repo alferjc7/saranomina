@@ -119,3 +119,50 @@ class CargaExcelForm(forms.Form):
             'id': 'excel-input'
         })
     )
+
+
+
+class GenerarCalendarioForm(forms.Form):
+    sabado_habil = forms.BooleanField(
+        label="Sabado habil",
+        required=False,   
+        initial=True,   
+        widget=forms.CheckboxInput(
+            attrs={
+                'class': 'form-check-input',
+                'role': 'switch'
+            }
+        )
+    )
+    anio = forms.IntegerField(
+        min_value=2000,
+        max_value=2100,
+        label="Año",
+        required= False
+    )
+    mes  = forms.IntegerField(
+        required = False,
+        min_value=1,
+        max_value=12,
+        label="Mes"
+    )    
+    fecha = forms.DateField(
+        required=False,
+        label="Fecha",
+        widget=forms.DateInput(
+            attrs={
+                'type': 'date',
+                'class': 'form-control'
+            }
+        ))
+    habil = forms.BooleanField(
+        label="Habil",
+        required=False,   
+        initial=True,   
+        widget=forms.CheckboxInput(
+            attrs={
+                'class': 'form-check-input',
+                'role': 'switch'
+            }
+        )
+    )

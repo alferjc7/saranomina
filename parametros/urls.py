@@ -8,7 +8,8 @@ from parametros.views import (tipos_contratosCreateView, tipo_contratosDeleteVie
                               t_conceptos_salarioCreateView,t_conceptos_salarioDeleteView,
                               tipo_nominaCreateView,tipo_nominaDeleteView,
                               parametro_generalCreateView, parametro_generalDeleteView,
-                              parametro_DetalleCreateView,parametro_detalleDeleteView)
+                              parametro_DetalleCreateView,parametro_detalleDeleteView,
+                              t_calendario_LaboralView, t_calendarioDeleteView)
 urlpatterns = [
     path("tipos_contratos/", tipos_contratosCreateView.as_view(), name="tipos_contratos"),
     path("tipos_contratos_eliminar/<int:pk>/", tipo_contratosDeleteView.as_view(), name="tipos_contratos_eliminar"),
@@ -30,5 +31,8 @@ urlpatterns = [
     path("parametro_general/<int:pk>/", parametro_generalDeleteView.as_view(), name="parametro_general_eliminar"),
     path("parametro_general/<int:parametro_id>/parametro_detalle/", parametro_DetalleCreateView.as_view(), name="parametro_detalle"),
     path("parametro_general/<int:parametro_id>/parametro_detalle_eliminar/<int:pk>", parametro_detalleDeleteView.as_view(), name="parametro_detalle_eliminar"),
-    
+    path("calendario/", t_calendario_LaboralView.as_view(), name="calendario"),
+    path("calendario/<int:pk>/", t_calendarioDeleteView.as_view(), name="calendario_eliminar"),
+
+
 ]

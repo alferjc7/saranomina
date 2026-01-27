@@ -75,6 +75,7 @@ class t_contrato(models.Model):
     tipo_nomina = models.ForeignKey(t_tipo_nomina, on_delete=models.CASCADE, limit_choices_to={'asigna_contrato': True}, verbose_name= "Tipo de nomina") 
     motivo_retiro = models.ForeignKey(ParametroDetalle, on_delete=models.CASCADE, limit_choices_to={'parametro__codigo': 'RET'}, verbose_name= "Motivo de retito", blank = True, null = True) 
     fecha_ret = models.DateField(verbose_name="Fecha retiro" ,blank=True, null=True)
+    sabado_habil = models.BooleanField(default=False,verbose_name="Sábado hábil")
     user_creator = models.CharField(max_length=50,blank= True, null= True)
     date_created = models.DateField(blank= True, null= True)
 

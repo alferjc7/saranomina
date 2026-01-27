@@ -112,6 +112,15 @@
                         Novedades Temporales
                     </a>
                 </div>
+                
+                <div class="submenu">
+
+                    <a href="/gestionnovedades/novedad_fija"
+                        class="{% if '/gestionnovedades/novedad_fija/' in current %}active-link{% endif %}">
+                        Novedades Fijas
+                    </a>
+                </div>
+
             </div>
             {% endwith %}
 
@@ -303,6 +312,14 @@
                     <a href="/parametros/parametro_general"
                         class="{% if '/parametros/parametro_general/' in current %}active-link{% endif %}">
                         Listas de valores
+                    </a>
+                </div>
+
+                
+                <div class="submenu">
+                    <a href="/parametros/calendario"
+                        class="{% if '/parametros/calendario/' in current %}active-link{% endif %}">
+                        Calendario festivos
                     </a>
                 </div>
 

@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
-from django.views.generic import CreateView, DeleteView
-from gestionNovedades.models import t_novedad_temporal
-from gestionNovedades.forms import t_novedad_temporalform
+from django.views.generic import CreateView, DeleteView, ListView
+from gestionNovedades.models import t_novedad_temporal, t_novedad_fija, t_novedad_fija_det
+from gestionNovedades.forms import t_novedad_temporalform, t_novedad_fijaform
 from gestionContratos.models import t_contrato
 from gestionConceptos.models import t_concepto_empresa
 from gestionNomina.models import t_periodo_nomina
@@ -164,7 +164,7 @@ class t_novedadCreateView(LoginRequiredMixin, CreateView):
             for field, value in form.cleaned_data.items():
                 setattr(novedad, field, value)
             novedad.save()
-            messages.success(self.request, 'Concepto actualizado correctamente')
+            messages.success(self.request, 'Registro actualizado correctamente')
         else:
             messages.success(self.request, 'Registro creado correctamente')
             return super().form_valid(form)
@@ -182,4 +182,67 @@ class t_novedadDeleteView(LoginRequiredMixin,DeleteView):
     def post(self, request, *args, **kwargs):
         messages.success(request, 'Novedad eliminada correctamente')
         return super().post(request, *args, **kwargs)
+    
+
+
+class t_novedad_fijaCreateView(LoginRequiredMixin, CreateView):
+    model = t_novedad_fija
+    form_class = t_novedad_fijaform
+    template_name = 'novedad_fija.html'
+    context_object_name = 'novedad_fija'
+    success_url = reverse_lazy('novedad_fija')
+    login_url = '/accounts/login/'         
+    redirect_field_name = 'next'  
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        empresa_id = self.request.session.get('empresa_id')
+        registros = t_novedad_fija.objects.filter(contrato__empresa_id=empresa_id, estado = True)
+        context['registros'] = registros
+
+        return context
+        
+    def form_valid(self, form):
+        pk = self.request.POST.get('pk')
+        if pk:
+            novedad = t_novedad_fija.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(novedad, field, value)
+            novedad.save()
+            messages.success(self.request, 'Registro actualizado correctamente')
+        else:
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.success_url)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+
+class t_novedad_fijaDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_novedad_fija
+    success_url = reverse_lazy('novedad_fija')
+    login_url = 'accounts/login'
+
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Novedad eliminada correctamente')
+        return super().post(request, *args, **kwargs)
+
+class t_novedadFijaDetListView(ListView):
+    model = t_novedad_fija_det
+    template_name = 'novedad_fijadet.html'
+    context_object_name = 'novedad_fijadet'
+
+    def get_queryset(self):
+        novedad_id = self.kwargs['novedad_id']
+        return (
+            t_novedad_fija_det.objects.filter(novedad_id=novedad_id).order_by('anio', 'mes', 'periodo')
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['novedad'] = t_novedad_fija.objects.get(
+            id=self.kwargs['novedad_id']
+        )
+        return context
 

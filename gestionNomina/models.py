@@ -183,6 +183,8 @@ class t_acumulado_empleado(models.Model):
         verbose_name="Periodo Nomina"
     )
 
+    novedad_id = models.BigIntegerField(verbose_name= 'Valor', blank  = True, null = True)
+
     t01 = models.CharField(max_length=100, blank=True, null=True)
     v01 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
     t02 = models.CharField(max_length=100, blank=True, null=True)
@@ -311,6 +313,8 @@ class t_acumulado_empleado_def(models.Model):
         verbose_name="Periodo Nomina"
     )
 
+    novedad_id = models.BigIntegerField(verbose_name= 'Valor', blank  = True, null = True)
+
     t01 = models.CharField(max_length=100, blank=True, null=True)
     v01 = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
     t02 = models.CharField(max_length=100, blank=True, null=True)
@@ -368,7 +372,9 @@ class t_proceso_nomina(models.Model):
         ("P", "PROCESANDO"),
         ("F", "FINALIZADO"),
         ("X", "ERROR"),
-        ("C","CERRADO")
+        ("C","CERRADO"),
+        ("R","REVERSADO"),
+        
     )
 
     periodo_nomina = models.ForeignKey(

@@ -192,4 +192,15 @@ class ParametroDetalle(models.Model):
         valor_texto = self.valor_texto or ''
         valor_numerico = self.valor_numerico or ''
         return f"{valor_texto}"
-        
+
+class t_calendario_laboral(models.Model):
+    sabado_habil = models.BooleanField(
+        verbose_name="Sábado hábil"
+    )
+    anio = models.IntegerField(verbose_name="Año")
+    mes = models.IntegerField(verbose_name="Mes")
+    fecha = models.DateField(verbose_name="Fecha")
+    habil = models.BooleanField(default=False, verbose_name="Habil")
+
+    class Meta:
+        unique_together = ("sabado_habil","anio","mes","fecha","habil")

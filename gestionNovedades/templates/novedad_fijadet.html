@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load formatos %}
+
+{% block title %}Novedades fijas{% endblock %}
+{% block content %}
+<div class="header-entidades">
+    <h2 class="titulo-entidades">Novedades fijas</h2>
+    <div class="acciones-entidades">
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" name="accion" value="exportar_excel" class="btn btn-success">
+                📥 Exportar
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Contrato</th>
+                <th>Concepto</th>
+                <th>Tipo Nomina</th>
+                <th>Año</th>
+                <th>Mes</th>
+                <th>Periodo</th>
+                <th>Periodo Nomina</th>
+                <th>Unidad</th>
+                <th>Base</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in novedad_fijadet %}
+            <tr>
+                <td>{{ b.contrato.cod_contrato }}</td>
+                <td>{{ b.concepto.cod_concepto.cod_concepto }}</td>
+                <td>{{ b.tipo_nomina }}</td>
+                <td>{{ b.anio }}</td>
+                <td>{{ b.mes }}</td>
+                <td>{{ b.periodo }}</td>
+                <td>{{ b.periodo_nomina.codigo }}</td>
+                <td class="td-valor">{{ b.unidad }}</td>
+                <td class="td-valor">{{ b.base|moneda }}</td>
+                <td class="td-valor">{{ b.valor|moneda }}</td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+{% block scripts %}
+{% endblock %}

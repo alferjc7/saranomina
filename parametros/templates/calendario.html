@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load formatos %}
+
+{% block title %}Calendario{% endblock %}
+{% block content %}
+
+{% if not calendario %}
+<div class="alert alert-warning">
+    <div class="form-grid-2">
+        <div>
+            <p>
+                No existen días generados para el período
+            </p>
+        </div>
+        <div>
+        </div>
+        {% if anio and mes and sabado_habil %}
+        <div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="anio" value="{{ anio }}">
+                <input type="hidden" name="mes" value="{{ mes }}">
+                <input type="hidden" name="sabadohabil" value="{{ sabado_habil }}">
+
+                <button type="submit" name="accion" value="generar" class="btn btn-primary">
+                    ⚙️ Generar días del mes
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<h2>Calendario</h2>
+
+<form method="get">
+    <div class="card">
+        <div class="form-grid-4">
+            <div>
+                <div class="form-group2">
+                    <select name="sabado_habil" class="form-control">
+                        <option value="">Buscar por sabado habil</option>
+                        <option value = "True" {% if sabado_habil == "True" %}selected{% endif %}>
+                            SI
+                        </option>
+
+                        <option value = "False" {% if sabado_habil == "False" %}selected{% endif %}>
+                            NO
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="anio" placeholder="Año" value="{{ request.GET.anio }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <input type="text" name="mes" placeholder="Mes" value="{{ request.GET.mes }}">
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Sabado habil</th>
+                <th>Año</th>
+                <th>Mes</th>
+                <th>Fecha</th>
+                <th>Habil</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reporte in calendario %}
+            <tr>
+                <td>{% if reporte.sabado_habil %}
+                    SI
+                    {% else %}
+                    NO
+                    {% endif %}
+                </td>
+                <td>{{ reporte.anio }}</td>
+                <td>{{ reporte.mes }}</td>
+                <td>{{ reporte.fecha|date:"d/m/Y" }}</td>
+                <td>{% if reporte.habil %}
+                    SI
+                    {% else %}
+                    NO
+                    {% endif %}
+                </td>
+                <td>
+                    <button type="button" class="editar-btn" data-pk="{{ reporte.pk }}"
+                        data-sabado="{{ reporte.sabado_habil }}" data-anio="{{ reporte.anio }}"
+                        data-mes="{{ reporte.mes }}" data-fecha="{{ reporte.fecha|date:'Y-m-d'  }}"  
+                        data-habil="{{ reporte.habil }}">
+                        ✏️ Editar
+                    </button>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'calendario_eliminar' reporte.pk %}"
+                        onsubmit="return confirm('¿Eliminar este dia?');">
+                        {% csrf_token %}
+                        <button type="submit">🗑 Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<h2>Nuevo periodo</h2>
+
+<form id="calendario-form" method="post" novalidate>
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <label for="Estado">Sabado habil</label>
+                <label class="switch">
+                    {{form.sabado_habil}}
+                    <span class="slider"></span>
+                </label>
+                <br>
+                <div class="form-group2">
+                    {{ form.anio.label_tag }}
+                    {{ form.anio }}
+                </div>
+                <div class="form-group2">
+                    {{ form.mes.label_tag }}
+                    {{ form.mes }}
+                </div>
+                <br>
+                <div class="form-group2">
+                    <button type="submit" name="accion" value="crear" class="btn-primary">
+                        Crear dia
+                    </button>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    {{ form.fecha.label_tag }}
+                    {{ form.fecha }}
+                </div>
+                <br>
+                <label for="Estado">Es habil</label>
+                <label class="switch">
+                    {{form.habil}}
+                    <span class="slider"></span>
+                </label>
+                <br>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock %}
+{% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pk = btn.dataset.pk;
+            const sabado = btn.dataset.sabado === "True";
+            const anio = btn.dataset.anio;
+            const mes = btn.dataset.mes;
+            const fecha = btn.dataset.fecha;
+            const habil = btn.dataset.habil === "True";
+          
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('calendario-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+            inputPk.value = pk;
+
+            // Llenar los campos
+            form.querySelector('[name="sabado_habil"]').checked = sabado;
+            form.querySelector('[name="anio"]').value = anio;
+            form.querySelector('[name="mes"]').value = mes;
+            form.querySelector('[name="fecha"]').value = fecha;
+            form.querySelector('[name="habil"]').checked = habil;
+        });
+    });
+</script>
+{% endblock %}

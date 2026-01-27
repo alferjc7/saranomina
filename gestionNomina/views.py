@@ -97,6 +97,44 @@ def ejecutar_nomina_cierre(proceso_id, periodo):
             date_finished=timezone.now()
         )
 
+def ejecutar_nomina_reversar(proceso_id, periodo):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SET client_min_messages TO NOTICE;")
+            cursor.execute(
+                """
+                CALL prc_reversar_nomina(
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s
+                )
+                """,
+                [
+                    periodo.empresa_id,
+                    periodo.tipo_nomina_id,
+                    periodo.anio,
+                    periodo.mes,
+                    periodo.periodo,
+                    periodo.fecha_inicio,
+                    periodo.fecha_fin,
+                    proceso_id,
+                    periodo.id
+                ]
+            )
+
+        t_proceso_nomina.objects.filter(id=proceso_id).update(
+            estado="R",
+            progreso=100,
+            mensaje_error="REVERSION FINALIZADA",
+            date_finished=timezone.now()
+        )
+
+    except Exception as e:
+        t_proceso_nomina.objects.filter(id=proceso_id).update(
+            estado="X",
+            mensaje_error=str(e),
+            date_finished=timezone.now()
+        )
+
+
 def procedimientos_por_concepto(request):
     concepto_id = request.GET.get('concepto_id')
     modulo_id = request.GET.get('modulo')
@@ -114,7 +152,8 @@ def procedimientos_por_concepto(request):
 
     if modulo == 'NOV':
         like_pattern = 'prc_nov_%'
-
+    elif modulo == 'NOVFIJ':
+        like_pattern = 'prc_fija_%'
 
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -388,6 +427,18 @@ class ProcesamientoNominaView(View):
     def get(self, request):
         empresa_id = self.request.session.get('empresa_id')
         
+
+        msg = request.GET.get("msg")
+        tipo = request.GET.get("tipo")
+
+        if msg and tipo:
+            if tipo == "success":
+                messages.success(request, msg)
+            elif tipo == "warning":
+                messages.warning(request, msg)
+            elif tipo == "error":
+                messages.error(request, msg)
+
         anio = request.GET.get('anio')
         mes = request.GET.get('mes')
         periodo = request.GET.get('periodo')
@@ -490,7 +541,25 @@ class ProcesamientoNominaView(View):
                     ).start()
                 else:
                     return JsonResponse({"error": "No se puede procesar un periodo cerrado"}, status=400)
+            elif accion == 'reversar':
+                if periodo.estado == False:
+                    proceso = t_proceso_nomina.objects.create(
+                        periodo_nomina=periodo,
+                        estado="P",
+                        progreso=0,
+                        user_creator=request.user.username
+                    )
 
+                    procesos.append(proceso.id)
+
+                    Thread(
+                        target=ejecutar_nomina_reversar,
+                        args=(proceso.id, periodo),
+                        daemon=True
+                    ).start()
+                else:
+                    return JsonResponse({"error": "No se reversar un periodo abierto"}, status=400)
+                
             
         return JsonResponse({
             "ok": True,

@@ -43,6 +43,7 @@
             <tr>
                 <th>Identificacion</th>
                 <th>Codigo contrato</th>
+                <th>Nombre completo</th>
                 <th>Fecha ingreso</th>
                 <th>Fecha fin</th>
                 <th>Tipo contrato</th>
@@ -50,9 +51,13 @@
                 <th>Tipo cotizante</th>
                 <th>Subtipo cotizante</th>
                 <th>Codigo interno</th>
+                <th>Regimen cesantias</th>
+                <th>Proc Retencion</th>
+                <th>Porc Retencion</th>
                 <th>Tipo nomina</th>
                 <th>Motivo retiro</th>
                 <th>Fecha retiro</th>
+                <th>Sabado Habil</th>
                 <th>Asignar Salario</th>
                 <th>Asignar Banco</th>
                 <th>Asignar Entidad</th>
@@ -65,6 +70,9 @@
             <tr>
                 <td>{{ b.identificacion }}</td>
                 <td>{{ b.cod_contrato }}</td>
+                <td>{{ b.identificacion.nombre|default_if_none:'' }} {{ b.identificacion.segundo_nombre|default_if_none:'' }}
+                    {{ b.identificacion.apellido|default_if_none:'' }} {{ b.identificacion.segundo_apellido|default_if_none:'' }}
+                </td>  
                 <td>{{ b.fecha_ingreso|date:"d/m/Y" }}</td>
                 <td>{{ b.fecha_fin|date:"d/m/Y"|default:"" }}</td>
                 <td>{{ b.tipo_contrato }}</td>
@@ -72,9 +80,18 @@
                 <td>{{ b.tipo_cotizante }}</td>
                 <td>{{ b.subtipo_cotizante }}</td>
                 <td>{{ b.codigo_interno|default_if_none:'' }}</td>
+                <td>{{ b.get_cesantias_display}}</td>
+                <td>{{ b.get_procedimiento_display}}</td>
+                <td>{{ b.porcentaje_retencion|default_if_none:''}}</td>
                 <td>{{ b.tipo_nomina }}</td>
                 <td>{{ b.motivo_retiro|default_if_none:'' }}</td>
                 <td>{{ b.fecha_ret|date:"d/m/Y"|default:"" }}</td>
+                <td> {% if b.sabado_habil %} 
+                    SI
+                    {% else %}
+                    NO
+                    {% endif %}
+                </td>
                 <td>
                     <form method="get" action="{% url 'contrato_salario' b.id %}" style="display:inline;">
                         <button type="submit" class="btn btn-sm btn-primary">
@@ -113,7 +130,7 @@
                         data-codigoi ="{{ b.codigo_interno }}"  data-tiponom ="{{ b.tipo_nomina.id }}"
                         data-movret ="{{ b.motivo_retiro.id }}" data-fecret ="{{ b.fecha_ret|date:'Y-m-d' }}"
                         data-proc ="{{ b.procedimiento }}" data-porc="{{ b.porcentaje_retencion }}"
-                        data-estado ="{{ b.estado }}" data-cesantias="{{ b.cesantias }}">
+                        data-estado ="{{ b.estado }}" data-sabado ="{{ b.sabado_habil }}" data-cesantias="{{ b.cesantias }}">
                         ✏️ Editar
                     </button>
                 </td>
@@ -242,6 +259,15 @@
                     <div class="error">{{ form.fecha_ret.errors }}</div>
                     {% endif %}
                 </div>
+                <br>
+                <div class="switch-row">
+                    <span class="switch-label">Sabado habil: </span>
+                    <label class="switch">
+                        {{form.sabado_habil}}
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
             </div>
         </div>
     </div>
@@ -270,6 +296,8 @@
             const porc = btn.dataset.porc;
             const estado = btn.dataset.estado;
             const cesantias = btn.dataset.cesantias;
+            const sabado = btn.dataset.sabado  === "True";
+
             
             // Agregar un input hidden para el pk
             let form = document.getElementById('contrato-form');
@@ -307,6 +335,7 @@
             form.querySelector('[name="procedimiento"]').value = proc;
             form.querySelector('[name="porcentaje_retencion"]').value = porc;
             form.querySelector('[name="estado"]').value = estado;
+            form.querySelector('[name="sabado_habil"]').checked = sabado;
             form.querySelector('[name="cesantias"]').value = cesantias;
 
             

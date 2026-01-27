@@ -4,19 +4,23 @@ from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
 from parametros.models import (t_tipo_contrato, t_tipo_salario, 
                                t_tipo_cotizante, t_subtipo_cotizante,
                                t_banco, t_entidadesss, t_conceptos_salario, t_tipo_nomina,
-                               ParametroGeneral, ParametroDetalle)
+                               ParametroGeneral, ParametroDetalle, t_calendario_laboral)
 from parametros.forms import (tipo_contratoform, tipo_salarioform, 
                               tipo_cotizanteform, subtipo_cotizanteform,
                               bancoform, t_entidadesssform, CargaExcelForm, 
                               t_conceptos_salarioform, t_tipo_nominaform, 
-                              t_parametrogeneralform, t_parametrodetllleform)
+                              t_parametrogeneralform, t_parametrodetllleform, GenerarCalendarioForm)
 from django.views.generic import CreateView, DeleteView
 from openpyxl import load_workbook
 from django.http import HttpResponse
 from openpyxl import Workbook
+import calendar
+from datetime import date
+from urllib.parse import urlencode
 
 
 # Create your views here.
@@ -63,6 +67,38 @@ class tipos_contratosCreateView(LoginRequiredMixin,CreateView):
         print(form.errors)
         messages.error(self.request, 'Validar campos del formulario')
         return super().form_invalid(form)
+
+def generar_dias_mes(anio, mes, sabado_habil):
+    t_calendario_laboral.objects.filter(anio=anio, mes=mes, sabado_habil = sabado_habil).delete()
+
+    _, total_dias = calendar.monthrange(anio, mes)
+
+    registros = []
+
+    for dia in range(1, total_dias + 1):
+        fecha = date(anio, mes, dia)
+        dia_semana = fecha.weekday()
+
+        if dia_semana == 6:  
+            es_habil = False
+        elif dia_semana == 5:  
+            es_habil = sabado_habil
+        else: 
+            es_habil = True
+
+        registros.append(
+            t_calendario_laboral(
+                anio=anio,
+                mes=mes,
+                fecha=fecha,
+                habil=es_habil,
+                sabado_habil=sabado_habil
+            )
+        )
+
+    print("aqui")
+
+    t_calendario_laboral.objects.bulk_create(registros)
 
 class tipo_contratosDeleteView(LoginRequiredMixin,DeleteView):
     model = t_tipo_contrato
@@ -755,3 +791,106 @@ class parametro_detalleDeleteView(LoginRequiredMixin,DeleteView):
     def post(self, request, *args, **kwargs):
         messages.success(request, 'Registro eliminado correctamente')
         return super().post(request, *args, **kwargs)
+
+class t_calendario_LaboralView(View):
+    template_name = "calendario.html"
+
+    def get(self, request):
+        anio = request.GET.get("anio")
+        mes = request.GET.get("mes")
+        sabado_habil_param = request.GET.get("sabado_habil")
+
+        registros = []
+
+        if anio and mes and sabado_habil_param is not None:
+            sabado_habil = sabado_habil_param.lower() == "true"
+
+            registros = t_calendario_laboral.objects.filter(
+                anio=anio,
+                mes = mes,
+                sabado_habil=sabado_habil
+            ).order_by("fecha")
+
+        form = GenerarCalendarioForm()
+
+        context = {
+            "calendario": registros,
+            "anio": anio,
+            "mes": mes,
+            "sabado_habil": sabado_habil_param,
+            "form": form
+        }
+
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        accion = request.POST.get("accion")
+        print(accion) 
+        anio = None
+        mes = None
+        sabado_habil = None    
+        form = GenerarCalendarioForm(request.POST)    
+      
+        if accion == 'generar':
+            anio = int(request.POST.get('anio'))
+            mes = int(request.POST.get('mes'))
+            sabado_habil = request.POST.get('sabadohabil') == 'True'
+            generar_dias_mes(anio, mes, sabado_habil)
+        
+        elif accion == 'crear' and  form.is_valid():
+            sabado_habil = form.cleaned_data['sabado_habil']
+            anio = form.cleaned_data['anio']
+            mes = form.cleaned_data['mes']
+            pk = self.request.POST.get('pk')
+            if  pk:
+                print("aqui3")
+                calendario = t_calendario_laboral.objects.get(pk=pk)
+                for field, value in form.cleaned_data.items():
+                    print(setattr(calendario, field, value))
+                    setattr(calendario, field, value)
+                calendario.save()
+                messages.success(self.request, 'Dia actualizado correctamente')
+            else:
+                print("aqui2")
+                sabado_habil = form.cleaned_data['sabado_habil']
+                anio = form.cleaned_data['anio']
+                mes = form.cleaned_data['mes']
+                fecha = form.cleaned_data['fecha']
+                habil = form.cleaned_data['habil']
+                
+                calendario = t_calendario_laboral(
+                    sabado_habil=sabado_habil,
+                    anio=anio,
+                    mes=mes,
+                    fecha=fecha,
+                    habil = habil)
+                    
+                calendario.save()
+        print(form.errors)
+        url = reverse('calendario')
+        params = {}
+
+        if anio:
+            params['anio'] = anio
+        if mes:
+            params['mes'] = mes
+        if sabado_habil is not None:
+            params['sabado_habil'] = str(sabado_habil)
+
+        if params:
+            url = f"{url}?{urlencode(params)}"
+
+        return redirect(url)
+
+
+class t_calendarioDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_calendario_laboral
+    success_url = reverse_lazy('calendario')
+    login_url = 'accounts/login'
+
+    def post(self, request, *args, **kwargs):
+           
+        messages.success(request, 'Dia eliminado correctamente')
+        return super().post(request, *args, **kwargs)
+
+    
