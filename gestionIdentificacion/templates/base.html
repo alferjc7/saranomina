@@ -95,7 +95,7 @@
 
                         {% with request.path as current %}
             <div class="menu-group
-        {% if '/gestionnovedades/' in current or '/novedad_temporal/' in current%}
+        {% if '/gestionnovedades/' in current or '/novedad_temporal/' in current or '/gestionvacaciones/' in current%}
             active
         {% endif %}
     ">
@@ -118,6 +118,15 @@
                     <a href="/gestionnovedades/novedad_fija"
                         class="{% if '/gestionnovedades/novedad_fija/' in current %}active-link{% endif %}">
                         Novedades Fijas
+                    </a>
+                </div>
+
+                
+                <div class="submenu">
+
+                    <a href="/gestionvacaciones/vacaciones"
+                        class="{% if '/gestionvacaciones/vacaciones/' in current %}active-link{% endif %}">
+                        Vacaciones
                     </a>
                 </div>
 

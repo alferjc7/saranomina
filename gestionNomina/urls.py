@@ -5,7 +5,7 @@ from gestionNomina.views import (periodo_nominaListView, periodo_nominaDeleteVie
                                  AcumuladosListView, ProcesamientoNominaView,
                                  procesamiento_detalleListView, LogicaFiltrosView,
                                  LogicaFiltrosDeleteView, progreso_nomina_ajax,
-                                 AcumuladosDefListView)
+                                 AcumuladosDefListView, parametroCreateView, parametroDeleteView)
 
 urlpatterns = [
     path("periodo_nomina/", periodo_nominaListView.as_view(), name="periodo_nomina"), 
@@ -21,6 +21,7 @@ urlpatterns = [
     path("procesamiento/<int:id>/detalle/",procesamiento_detalleListView.as_view(),name="procesamiento_detalle"),
     path("logica_calculo/<int:id>/filtros/",LogicaFiltrosView.as_view(),name="logica_filtros"),
     path("logica_calculo/<int:id>/filtros/<int:pk>/eliminar_filtro",LogicaFiltrosDeleteView.as_view(),name="logica_filtros_eliminar"),
-
-
+    path("logica_calculo/<int:id>/parametros/", parametroCreateView.as_view(), name="parametros"),
+    path("logica_calculo/<int:id>/parametros_eliminar/<int:pk>", parametroDeleteView.as_view(), name="parametros_eliminar"),
+   
 ]

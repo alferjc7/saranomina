@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Parametros{% endblock %}
+{% block content %}
+<h2>Parametro de concepto {{parametro.concepto.desc_concepto_emp}}</h2>
+<div class="table-container">
+<table>
+    <thead>
+        <tr>
+            <th>Promedio variable</th>
+            <th>Paga dia 31</th>
+            <th>Paga vacaciones mes siguiente</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in registros %}
+        <tr>
+            
+            <td>{{ b.get_promedio_display }}</td>
+            <td>{{ b.get_vac_mes_sig_display }}</td>
+            <td>{{ b.get_paga_31_display }}</td>            
+            <td>
+                <button type="button" class="editar-btn" data-pk="{{ b.pk }}" 
+                data-promedio="{{ b.promedio }}"   
+                data-vacmes="{{ b.vac_mes_sig }}"
+                data-pag="{{ b.paga_31 }}"  >
+                    ✏️ Editar
+                </button>
+            </td>
+            <td>
+                <form method="post" action="{% url 'parametros_eliminar' b.logica_calculo.id b.id %}"
+                    onsubmit="return confirm('¿Eliminar este parametro?');">
+                    {% csrf_token %}
+                    <button type="submit">🗑 Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<h2>Nuevo parametro</h2>
+<form id="tiponomina-form" method="POST">
+    {% csrf_token %}
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                 <div class="form-group2">
+                {{ form.promedio.label_tag }} <!-- label arriba -->
+                {{ form.promedio }}
+                {% if form.promedio.errors %}
+                <div class="error">{{ form.promedio.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.vac_mes_sig.label_tag }} <!-- label arriba -->
+                {{ form.vac_mes_sig }}
+                {% if form.vac_mes_sig.errors %}
+                <div class="error">{{ form.vac_mes_sig.errors }}</div>
+                {% endif %}
+                </div>
+                <div class="form-group2">
+                {{ form.paga_31.label_tag }} <!-- label arriba -->
+                {{ form.paga_31 }}
+                {% if form.paga_31.errors %}
+                <div class="error">{{ form.paga_31.errors }}</div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="accion" value="guardar">Guardar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pk = btn.dataset.pk;
+            const promedio = btn.dataset.promedio;
+            const vacmes = btn.dataset.vacmes;
+            const pag = btn.dataset.pag;
+            
+            // Agregar un input hidden para el pk
+            let form = document.getElementById('tiponomina-form');
+            let inputPk = form.querySelector('input[name="pk"]');
+            if (!inputPk) {
+                inputPk = document.createElement('input');
+                inputPk.type = 'hidden';
+                inputPk.name = 'pk';
+                form.appendChild(inputPk);
+            }
+            inputPk.value = pk;
+
+            // Llenar los campos
+            form.querySelector('[name="promedio"]').value = promedio;
+            form.querySelector('[name="vac_mes_sig"]').value = vacmes;
+            form.querySelector('[name="paga_31"]').value = pag;
+            
+        });
+    });
+</script>
+{% endblock %}

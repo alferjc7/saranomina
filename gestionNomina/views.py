@@ -1,16 +1,16 @@
 from datetime import datetime
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import ListView, CreateView, DeleteView
 from gestionNomina.models import (t_periodo_nomina, t_logica_calculo, 
                                   t_acumulado_empleado, t_proceso_nomina, 
-                                  t_logica_calculo_filtro, t_acumulado_empleado_def)
+                                  t_logica_calculo_filtro, t_acumulado_empleado_def, t_logica_calculo_parametros)
 from gestionConceptos.models import t_concepto_empresa
 from gestionNomina.utils import crear_periodos
 from gestionNomina.forms import (GenerarPeriodoNominaForm, t_logica_calculoform, t_acumulaldo_empleadoform, 
-                                 FiltroTipoContratoForm, FiltroTipoCotizanteForm)
+                                 FiltroTipoContratoForm, FiltroTipoCotizanteForm, t_parametroform)
 from gestionClientes.models import t_empresa
 from django.contrib import messages
 from parametros.models import t_tipo_nomina, t_tipo_contrato, t_tipo_cotizante,ParametroDetalle
@@ -154,6 +154,8 @@ def procedimientos_por_concepto(request):
         like_pattern = 'prc_nov_%'
     elif modulo == 'NOVFIJ':
         like_pattern = 'prc_fija_%'
+    elif modulo == 'VAC':
+        like_pattern = 'prc_vac_%'
 
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -243,7 +245,6 @@ class periodo_nominaListView(LoginRequiredMixin,ListView):
 
             existe = False
             validar_adicionales = False
-            # Evitar duplicados
             if tipo_nomina.asigna_contrato == False :
                 if all([tipo_nomina, anio, mes, periodo, fecha_inicio, fecha_fin]):
                     existe = t_periodo_nomina.objects.filter(
@@ -648,3 +649,69 @@ class LogicaFiltrosDeleteView(LoginRequiredMixin,DeleteView):
     def post(self, request, *args, **kwargs):
         messages.success(request, 'Registro eliminado correctamente')
         return super().post(request, *args, **kwargs)
+    
+
+class parametroCreateView(LoginRequiredMixin,CreateView):
+    model = t_logica_calculo_parametros
+    form_class = t_parametroform
+    template_name = 'parametros.html'
+  
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        pk = self.request.POST.get('pk')
+
+        if pk:
+            kwargs['instance'] = t_logica_calculo_parametros.objects.get(pk=pk)
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        logica = get_object_or_404(t_logica_calculo,pk=self.kwargs['id'])
+
+        context['parametro'] = logica
+        context['registros'] = t_logica_calculo_parametros.objects.filter(logica_calculo_id=logica)
+
+        return context
+     
+    def form_valid(self, form):
+        pk = self.request.POST.get('pk')
+        if pk:
+            parametro = t_logica_calculo_parametros.objects.get(pk=pk)
+            for field, value in form.cleaned_data.items():
+                setattr(parametro, field, value)
+            parametro.save()
+            messages.success(self.request, 'Parametro actualizado correctamente')
+        else:
+            form.instance.logica_calculo_id = self.kwargs['id']
+            form.instance.date_created = datetime.now()
+            form.instance.user_creator = self.request.user
+            messages.success(self.request, 'Registro creado correctamente')
+            return super().form_valid(form)
+        return redirect(self.get_success_url())
+    
+    def form_invalid(self, form):
+        print(form.errors)
+        messages.error(self.request, 'Validar campos del formulario')
+        return super().form_invalid(form)
+    
+    def get_success_url(self):
+        return reverse(
+            'parametros',
+            kwargs={'id': self.kwargs['id']}
+        )
+
+
+class parametroDeleteView(LoginRequiredMixin,DeleteView):
+    model = t_logica_calculo_parametros
+    login_url = 'accounts/login'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'parametros',
+            kwargs={'id': self.object.logica_calculo_id}
+        )
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Registro eliminado correctamente')
+        return super().post(request, *args, **kwargs)
+

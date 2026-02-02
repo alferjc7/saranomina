@@ -25,6 +25,7 @@
                 <th>Concepto</th>
                 <th>Logica</th>
                 <th>Orden</th>
+                <th>Parametros</th>
                 <th>Filtrar</th>
                 <th>Editar</th>
                 <th>Eliminar</th>
@@ -41,6 +42,14 @@
                 <td>{{ b.concepto }}</td>
                 <td>{{ b.logica }}</td>
                 <td>{{ b.orden }}</td>
+                <td>
+                    <form method="get" action="{% url 'parametros' b.id %}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            ⚙️ Parametrizar
+                        </button>
+                    </form>
+                </td>
+
                 <td>
                     <form method="get" action="{% url 'logica_filtros' b.id %}" style="display:inline;">
                         <button type="submit" class="btn btn-sm btn-primary">

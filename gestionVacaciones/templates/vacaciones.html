@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% load formatos %}
+
+{% block title %}Ciclos VAC{% endblock %}
+{% block content %}
+
+<h2>Programar vacaciones</h2>
+<form method="get">
+    <div class="card">
+        <div class="form-grid-4">
+            <div>
+                <div class="form-group2">
+                <select name="contrato" id="contrato" style="width:100%">
+                    <option value="">-- Seleccione contrato --</option>
+                    {% for c in contratos %}
+                    <option value="{{ c.id }}" {% if contrato_seleccionado == c.id|stringformat:"s" %} selected {% endif%}>
+                        {{ c.cod_contrato }} - {{ c.identificacion.nombre|default_if_none:'' }} {{ c.identificacion.segundo_nombre|default_if_none:'' }} {{ c.identificacion.apellido|default_if_none:'' }}  {{ c.identificacion.segundo_apellido|default_if_none:'' }}
+                    </option>
+                    {% endfor %}
+                </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    <button type="submit">🔍Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="table-container" style="min-height:200px !important;">
+    <table>
+    <caption  class="table-caption">
+        CICLOS DISPONIBLES DE CONTRATO
+    </caption>
+        <thead>
+            <tr>
+                <th>Contrato</th>
+                <th>Nombre completo</th>
+                <th>ID ciclo</th>
+                <th>Fecha inicio</th>
+                <th>Fecha fin</th>
+                <th>Dias</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reporte in ciclos %}
+            <tr>
+                <td>{{ reporte.contrato.cod_contrato }}</td>
+                <td>{{ reporte.contrato.identificacion.nombre|default_if_none:''  }} 
+                    {{ reporte.contrato.identificacion.segundo_nombre|default_if_none:''  }} 
+                    {{ reporte.contrato.identificacion.apellido|default_if_none:''  }} 
+                    {{ reporte.contrato.identificacion.segundo_apellido|default_if_none:''  }}
+                </td>
+                <td>{{ reporte.id }}</td>
+                <td>{{ reporte.fecha_inicio|date:"d/m/Y" }}</td>
+                <td>{{ reporte.fecha_fin|date:"d/m/Y" }}</td>
+                <td>{{ reporte.dias }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<form id="vacaciones-form" method="post" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="contrato" value="{{ contrato_seleccionado }}">
+    <div class="card">
+        <div class="form-grid-2">
+            <div>
+                <div class="form-group2">
+                    {{ form.tipo_vac.label_tag }}
+                    {{ form.tipo_vac }}
+                </div>
+                <div class="form-group2">
+                    {{ form.dias.label_tag }}
+                    {{ form.dias }}
+                </div>
+                <br>
+                <div class="form-group2">
+                    <button type="submit" name="accion" value="validar" class="btn-primary">
+                        Procesar
+                    </button>
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    {{ form.fecha_inicio.label_tag }}
+                    {{ form.fecha_inicio }}
+                </div>
+                <div class="form-group2">
+                    {{ form.fecha_fin.label_tag }}
+                    {{ form.fecha_fin }}
+                </div>
+            </div>
+            <div>
+                <div class="form-group2">
+                    {{ form.fecha_pago.label_tag }}
+                    {{ form.fecha_pago }}
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<div class="table-container" style="min-height: 200px !important;">
+    <table>
+    <caption  class="table-caption">
+        PROGRAMACION DE VACACIONES DE CONTRATO
+    </caption>
+        <thead>
+            <tr>
+                <th>Contrato</th>
+                <th>Nombre completo</th>
+                <th>ID ciclo</th>
+                <th>Tipo</th>
+                <th>Fecha inicio</th>
+                <th>Fecha fin</th>
+                <th>Fecha inicio real</th>
+                <th>Fecha fin real</th>
+                <th>Dias</th>
+                <th>Dias Habiles</th>
+                <th>Dias no Habiles</th>
+                <th>Base</th>
+                <th>Fecha Pago</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reporte in novedades %}
+            <tr>
+                <td>{{ reporte.contrato.cod_contrato }}</td>
+                <td>{{ reporte.contrato.identificacion.nombre|default_if_none:''  }} 
+                    {{ reporte.contrato.identificacion.segundo_nombre|default_if_none:''  }} 
+                    {{ reporte.contrato.identificacion.apellido|default_if_none:''  }} 
+                    {{ reporte.contrato.identificacion.segundo_apellido|default_if_none:''  }}
+                </td>
+                <td>{{ reporte.ciclo.id }}</td>
+                <td>{{ reporte.get_tipo_display }}</td>
+                <td>{{ reporte.fecha_inicio|date:"d/m/Y" }}</td>
+                <td>{{ reporte.fecha_fin|date:"d/m/Y" }}</td>
+                <td>{{ reporte.fecha_inicio_real|date:"d/m/Y" }}</td>
+                <td>{{ reporte.fecha_fin_real|date:"d/m/Y" }}</td>
+                <td>{{ reporte.dias }}</td>
+                <td>{{ reporte.dias_habiles }}</td>
+                <td>{{ reporte.dias_no_habiles }}</td>
+                <td>{{ reporte.base }}</td>
+                <td>{{ reporte.fecha_pago|date:"d/m/Y" }}</td>
+                <td>{% if reporte.estado %}
+                    ACTIVA
+                    {% else %}
+                    INACTIVA
+                    {% endif %}
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        $('#contrato').select2({
+            placeholder: 'Seleccione un contrato',
+            allowClear: true,
+            width: 'resolve'
+        });
+    });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const tipoVac = document.getElementById('id_tipo_vac');
+    const fechaInicio = document.getElementById('id_fecha_inicio');
+
+    function toggleFechaInicio() {
+        if (tipoVac.value === 'C') {
+            fechaInicio.disabled = true;
+            fechaInicio.value = '';
+        } else {
+            fechaInicio.disabled = false;
+        }
+    }
+
+    toggleFechaInicio();
+
+    tipoVac.addEventListener('change', toggleFechaInicio);
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const fechaInicio = document.getElementById('id_fecha_inicio');
+    const diasInput = document.getElementById('id_dias');
+    const fechaFin = document.getElementById('id_fecha_fin');
+    const contrato = document.querySelector('input[name="contrato"]');
+
+    function calcularFechaFin() {
+        if (!fechaInicio.value || !diasInput.value || !contrato.value) {
+            fechaFin.value = '';
+            return;
+        }
+
+        fetch(
+            `{% url 'calcular_fecha_fin_vacaciones' %}?` +
+            new URLSearchParams({
+                contrato: contrato.value,
+                fecha_inicio: fechaInicio.value,
+                dias: diasInput.value
+            })
+        )
+        .then(response => response.json())
+        .then(data => {
+            if (data.fecha_fin) {
+                fechaFin.value = data.fecha_fin;
+            } else {
+                fechaFin.value = '';
+            }
+        });
+    }
+    fechaInicio.addEventListener('change', calcularFechaFin);
+    diasInput.addEventListener('input', calcularFechaFin);
+});
+</script>
+{% endblock %}

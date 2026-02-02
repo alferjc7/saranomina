@@ -10,6 +10,15 @@ from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
+from django.db import connection, transaction
+
+def generar_ciclos_vacaciones_empresa(empresa_id):
+    with transaction.atomic():
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "CALL prc_ciclos_vacaciones(%s)",
+                [empresa_id]
+            )
 
 class clienteCreateView(LoginRequiredMixin,CreateView):
     model = t_cliente
@@ -262,6 +271,8 @@ def seleccionar_empresa(request):
             request.session['empresa_id'] = empresa_id
             request.session['codigo_empresa'] = empresa.codigo_empresa
             request.session['razon_social'] = empresa.razon_social
+
+            generar_ciclos_vacaciones_empresa(empresa_id)
 
             return redirect('inicio')  # tu home real
 

@@ -159,7 +159,25 @@ class ParametroDetalle(models.Model):
         max_length=255,
         blank=True,
         null=True)
+    valor_texto2 = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True)
+    valor_texto3 = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True)
     valor_numerico = models.DecimalField(
+        max_digits=15,
+        decimal_places=3,
+        blank=True,
+        null=True)
+    valor_numerico2 = models.DecimalField(
+        max_digits=15,
+        decimal_places=3,
+        blank=True,
+        null=True)
+    valor_numerico3 = models.DecimalField(
         max_digits=15,
         decimal_places=3,
         blank=True,
@@ -186,6 +204,10 @@ class ParametroDetalle(models.Model):
             self.codigo = self.codigo.upper()
         if self.valor_texto:
             self.valor_texto = self.valor_texto.upper()
+        if self.valor_texto2:
+            self.valor_texto2 = self.valor_texto2.upper()
+        if self.valor_texto3:
+            self.valor_texto3 = self.valor_texto3.upper()
         return super().save(*args, **kwargs)
     def __str__(self):
         codigo = self.codigo or ''

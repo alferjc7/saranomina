@@ -258,6 +258,16 @@ button:hover {
     white-space: nowrap;        /* evita que se amontone */
 }
 
+.table-container caption.table-caption {
+    caption-side: top;
+    background: #ecf0f1;              /* mismo fondo del th */
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    padding: 12px 14px;
+    border-bottom: 2px solid gray;    /* misma línea fuerte */
+    color: #333;
+}
 /* Encabezados */
 .table-container th {
     position: sticky;

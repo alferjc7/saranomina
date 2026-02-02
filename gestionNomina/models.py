@@ -404,8 +404,7 @@ class t_logica_calculo_filtro(models.Model):
     ('IN', 'EN LISTA'),
     ('NOT_IN', 'NO EN LA LISTA'),
     ]
-    
-    logica_calculo = models.ForeignKey(
+    logica_calculo = models.OneToOneField(
         t_logica_calculo,
         on_delete=models.CASCADE,
         related_name='filtros',
@@ -431,4 +430,52 @@ class t_logica_calculo_filtro(models.Model):
         blank=True,
         null=True
     )
+
+
+class t_logica_calculo_parametros(models.Model):
+    PROMEDIO = [
+    ('A', '11 MESES CERRADOS + 1 ABIERTO'),
+    ('B', '12 MESES CERRADOS'),
+    ('C', '12 MESES CERRADOS + 1 ABIERTO'),
+    ]
+    PAGA31 = [
+    ('SI', 'SI'),
+    ('NO', 'NO') 
+    ]
+    VACACIONES = [
+    ('SI', 'SI'),
+    ('NO', 'NO') 
+    ]
+    logica_calculo = models.OneToOneField(
+        t_logica_calculo,
+        on_delete=models.CASCADE,
+        unique=True,
+        related_name='parametros',
+        verbose_name="Lógica de cálculo"
+    )
+    promedio= models.CharField(
+        max_length=2,
+        choices= PROMEDIO,
+        verbose_name="Promedio variable"
+    )
+    vac_mes_sig= models.CharField(
+        max_length=2,
+        choices= VACACIONES,
+        verbose_name="Paga vacaciones mes siguente"
+    )
+    paga_31 = models.CharField(
+        max_length=2,
+        choices= PAGA31,
+        verbose_name="Paga 31"
+    )
+    user_creator = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    date_created = models.DateField(
+        blank=True,
+        null=True
+    )
+
 
